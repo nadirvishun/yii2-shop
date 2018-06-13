@@ -1,0 +1,237 @@
+html,
+body {
+    height: 100%;
+    font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+.wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto -60px;
+    padding: 0 0 60px;
+}
+
+.wrap > .container {
+    padding: 70px 15px 20px;
+}
+
+.footer {
+    height: 60px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.jumbotron {
+    text-align: center;
+    background-color: transparent;
+}
+
+.jumbotron .btn {
+    font-size: 21px;
+    padding: 14px 24px;
+}
+
+.not-set {
+    color: #c55;
+    font-style: italic;
+}
+
+/* add sorting icons to gridview sort links */
+a.asc:after, a.desc:after {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    padding-left: 5px;
+}
+
+a.asc:after {
+    content: /*"\e113"*/ "\e151";
+}
+
+a.desc:after {
+    content: /*"\e114"*/ "\e152";
+}
+
+.sort-numerical a.asc:after {
+    content: "\e153";
+}
+
+.sort-numerical a.desc:after {
+    content: "\e154";
+}
+
+.sort-ordinal a.asc:after {
+    content: "\e155";
+}
+
+.sort-ordinal a.desc:after {
+    content: "\e156";
+}
+
+.grid-view td {
+    white-space: nowrap;
+}
+
+.grid-view .filters input,
+.grid-view .filters select {
+    min-width: 50px;
+}
+
+.hint-block {
+    display: block;
+    margin-top: 5px;
+    color: #999;
+}
+
+.error-summary {
+    color: #a94442;
+    background: #fdf7f7;
+    border-left: 3px solid #eed3d7;
+    padding: 10px 20px;
+    margin: 0 0 15px 0;
+}
+
+/* align the logout "link" (button in form) of the navbar */
+.nav li > form > button.logout {
+    padding: 15px;
+    border: none;
+}
+
+@media(max-width:767px) {
+    .nav li > form > button.logout {
+        display:block;
+        text-align: left;
+        width: 100%;
+        padding: 10px 15px;
+    }
+}
+
+.nav > li > form > button.logout:focus,
+.nav > li > form > button.logout:hover {
+    text-decoration: none;
+}
+
+.nav > li > form > button.logout:focus {
+    outline: none;
+}
+
+/*修改表格的样式，也可以直接自定义bootstrap样式，然后将全部的bootstrap样式替换掉，这里直接在这里添加了*/
+.kv-merged-header{border-bottom:1px solid #e7ecf1 !important}
+.table-hover > tbody > tr:hover {background-color: #eef1f5;}
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+    border: 1px solid #e7ecf1;
+}
+/*恢复input圆角*/
+.form-control{border-radius:4px}
+.box-body{padding: 15px}
+/*面包屑格式*/
+.content-header .backend-breadcrum{
+    float:left;
+    position:static;
+}
+/*treegrid*/
+.p-10{padding:10px}
+/*kv-select2与adminlte之间的冲突，以kv为准*/
+.select2-container .select2-selection--single .select2-selection__rendered {
+    margin-top: 0;
+}
+/*用于input的长度管控*/
+.c-xs-1 {
+    width: 8.33333%; }
+
+.c-xs-2 {
+    width: 16.66667%; }
+
+.c-xs-3 {
+    width: 25%; }
+
+.c-xs-4 {
+    width: 33.33333%; }
+
+.c-xs-5 {
+    width: 41.66667%; }
+
+.c-xs-6 {
+    width: 50%; }
+
+.c-xs-7 {
+    width: 58.33333%; }
+
+.c-xs-8 {
+    width: 66.66667%; }
+
+.c-xs-9 {
+    width: 75%; }
+
+.c-xs-10 {
+    width: 83.33333%; }
+
+.c-xs-11 {
+    width: 91.66667%; }
+
+.c-xs-12 {
+    width: 100%; }
+
+@media (min-width: 768px) {
+    .c-sm-1 {
+        width: 8.33333%; }
+    .c-sm-2 {
+        width: 16.66667%; }
+    .c-sm-3 {
+        width: 25%; }
+    .c-sm-4 {
+        width: 33.33333%; }
+    .c-sm-5 {
+        width: 41.66667%; }
+    .c-sm-6 {
+        width: 50%; }
+    .c-sm-7 {
+        width: 58.33333%; }
+    .c-sm-8 {
+        width: 66.66667%; }
+    .c-sm-9 {
+        width: 75%; }
+    .c-sm-10 {
+        width: 83.33333%; }
+    .c-sm-11 {
+        width: 91.66667%; }
+    .c-sm-12 {
+        width: 100%; }
+}
+
+@media (min-width: 992px) {
+    .c-md-1 {
+        width: 8.33333%; }
+    .c-md-2 {
+        width: 16.66667%; }
+    .c-md-3 {
+        width: 25%; }
+    .c-md-4 {
+        width: 33.33333%; }
+    .c-md-5 {
+        width: 41.66667%; }
+    .c-md-6 {
+        width: 50%; }
+    .c-md-7 {
+        width: 58.33333%; }
+    .c-md-8 {
+        width: 66.66667%; }
+    .c-md-9 {
+        width: 75%; }
+    .c-md-10 {
+        width: 83.33333%; }
+    .c-md-11 {
+        width: 91.66667%; }
+    .c-md-12 {
+        width: 100%; }
+}
