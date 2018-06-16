@@ -16,7 +16,7 @@
         </div>
 
         <!-- search form -->
-        <form action="<?= \yii\helpers\Url::to(['site/search']) ?>" method="post" class="sidebar-form">
+        <form action="<?= \yii\helpers\Url::to(['/site/search']) ?>" method="post" class="sidebar-form">
             <div class="input-group">
                 <input type="text" name="backend-menu-search" class="form-control"
                        value="<?= $this->context->backMenuSearch ?>"
@@ -34,7 +34,7 @@
         <?= dmstr\widgets\Menu::widget(
             [
                 'options' => ['class' => 'sidebar-menu tree', 'data-widget' => 'tree'],
-                'items' => \backend\models\BackendMenu::getMenus($this->context->backMenuSearch)
+                'items' => \backend\modules\system\models\BackendMenu::getMenus($this->context->backMenuSearch)
 //                    [
 //                    ['label' => 'Menu Yii2', 'options' => ['class' => 'header']],
 //                    ['label' => 'Gii', 'icon' => 'fa fa-file-code-o', 'url' => ['/gii']],

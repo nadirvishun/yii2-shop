@@ -1,6 +1,7 @@
 <?php
 namespace backend\models;
 
+use backend\modules\system\models\Admin;
 use Yii;
 use yii\base\Model;
 use yii\base\InvalidParamException;
@@ -13,7 +14,7 @@ class ResetPasswordForm extends Model
     public $password;
 
     /**
-     * @var \backend\models\Admin
+     * @var \backend\modules\system\models\Admin
      */
     private $_admin;
 

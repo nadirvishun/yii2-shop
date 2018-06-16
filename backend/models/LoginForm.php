@@ -2,6 +2,7 @@
 
 namespace backend\models;
 
+use backend\modules\system\models\Admin;
 use Yii;
 use yii\base\Model;
 

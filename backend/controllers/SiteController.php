@@ -2,15 +2,14 @@
 
 namespace backend\controllers;
 
-use backend\models\Admin;
 use backend\models\PasswordResetRequestForm;
 use backend\models\ResetPasswordForm;
+use backend\modules\system\models\Admin;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
 use yii\filters\VerbFilter;
 use backend\models\LoginForm;
-use yii\web\UploadedFile;
 
 /**
  * Site controller

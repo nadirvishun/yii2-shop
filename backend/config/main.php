@@ -12,8 +12,8 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [
-        'shop'=>[
-            'class' => 'backend\modules\shop\Module',
+        'system' => [
+            'class' => 'backend\modules\system\Module',
         ]
     ],
     'components' => [
@@ -21,7 +21,7 @@ return [
             'csrfParam' => '_csrf-backend',
         ],
         'user' => [
-            'identityClass' => 'backend\models\Admin',//修改为对应的后台类
+            'identityClass' => 'backend\modules\system\models\Admin',//修改为对应的后台类
             'enableAutoLogin' => true,
             'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
@@ -81,9 +81,9 @@ return [
     ],
     //在请求前绑定类事件来自动写入管理员操作日志，一些没有用ActiveRecord的操作还是需要自己写入，例如权限授权、批量写入等
     'on beforeRequest' => function ($event) {
-        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_UPDATE, ['\backend\models\AdminLog', 'eventUpdate']);
-        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_DELETE, ['\backend\models\AdminLog', 'eventDelete']);
-        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_INSERT, ['\backend\models\AdminLog', 'eventInsert']);
+        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_UPDATE, ['backend\modules\system\models\AdminLog', 'eventUpdate']);
+        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_DELETE, ['backend\modules\system\models\AdminLog', 'eventDelete']);
+        \yii\base\Event::on(\yii\db\BaseActiveRecord::className(), \yii\db\BaseActiveRecord::EVENT_AFTER_INSERT, ['backend\modules\system\models\AdminLog', 'eventInsert']);
     },
     'params' => $params,
 ];
