@@ -16,22 +16,21 @@ class m170402_093152_create_backend_menu_table extends Migration
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
-            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE=InnoDB COMMENT="后台菜单表"';
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB COMMENT="后台菜单表"';
         }
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey()->unsigned()->comment('菜单ID'),
-//            'pid' => $this->integer()->unsigned()->notNull()->comment('父ID'),//与tree-grid冲突，暂未查明原因
-            'pid' => $this->integer()->notNull()->comment('父ID'),
-            'name' => $this->string(64)->notNull()->comment('菜单名称'),
-            'url' => $this->string(64)->notNull()->comment('菜单链接'),
-            'url_param' => $this->string()->notNull()->comment('菜单链接参数'),
-            'icon' => $this->string(64)->notNull()->comment('小图标'),
+            'pid' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('父ID'),
+            'name' => $this->string(64)->notNull()->defaultValue('')->comment('菜单名称'),
+            'url' => $this->string(64)->notNull()->defaultValue('')->comment('菜单链接'),
+            'url_param' => $this->string()->notNull()->defaultValue('')->comment('菜单链接参数'),
+            'icon' => $this->string(64)->notNull()->defaultValue('')->comment('小图标'),
             'status' => $this->boolean()->unsigned()->notNull()->defaultValue(1)->comment('状态:0隐藏，1显示'),
             'sort' => $this->integer()->notNull()->defaultValue(0)->comment('排序'),
-            'created_by' => $this->integer()->unsigned()->notNull()->comment('创建人'),
-            'created_at' => $this->bigInteger()->unsigned()->notNull()->comment('创建时间'),
-            'updated_by' => $this->integer()->unsigned()->notNull()->comment('更新人'),
-            'updated_at' => $this->bigInteger()->unsigned()->notNull()->comment('更新时间')
+            'created_by' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('创建人'),
+            'created_at' => $this->bigInteger()->unsigned()->notNull()->defaultValue(0)->comment('创建时间'),
+            'updated_by' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('更新人'),
+            'updated_at' => $this->bigInteger()->unsigned()->notNull()->defaultValue(0)->comment('更新时间')
         ], $tableOptions);
         //增加后台菜单的初始显示
         $time = time();

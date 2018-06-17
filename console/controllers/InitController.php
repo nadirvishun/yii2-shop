@@ -2,7 +2,7 @@
 
 namespace console\controllers;
 
-use backend\models\Admin;
+use backend\modules\system\models\Admin;
 
 /**
  * 添加初始的后台用户
@@ -39,7 +39,7 @@ class InitController extends \yii\console\Controller
             }
             return 1;                                   // 命令行返回1表示有异常
         }
-        echo 'Create successfully!';
+        echo "Create successfully!\n";
         return 0;                                       // 返回0表示一切OK
     }
 }
