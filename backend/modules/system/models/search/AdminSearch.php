@@ -48,7 +48,7 @@ class AdminSearch extends Admin
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
-                'pageSize' => 1,
+                'pageSize' => 20,
             ],
             'sort' => ['defaultOrder' => ['id' => SORT_ASC]]
         ]);

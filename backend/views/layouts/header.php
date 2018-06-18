@@ -265,7 +265,7 @@ use yii\helpers\Html;
                             <div class="pull-left">
                                 <?= Html::a(
                                     Yii::t('admin', 'Profile'),
-                                    ['admin/modify'],
+                                    ['/system/admin/modify'],
                                     ['class' => 'btn btn-default btn-flat']
                                 ) ?>
                             </div>

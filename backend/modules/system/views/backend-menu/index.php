@@ -86,7 +86,8 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'url',
                 'value' => function ($model, $key, $index, $column) {
-                    return Html::a($model->url,BackendMenu::mergeUrl($model->url,$model->url_param),['target'=>'_blank']);
+                    //由于有modules，需要绝对路径
+                    return Html::a($model->url,BackendMenu::mergeUrl('/' . $model->url,$model->url_param),['target'=>'_blank']);
                 },
                 'format'=>'raw'
             ],

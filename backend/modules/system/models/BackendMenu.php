@@ -64,9 +64,14 @@ class BackendMenu extends \yii\db\ActiveRecord
             [['name', 'url', 'icon'], 'string', 'max' => 64],
             [['url'], 'unique'],//url不能相同，因为和权限挂钩了
             //父ID有效性,当为0时不验证
-            ['pid', 'exist', 'targetAttribute' => 'id', 'isEmpty' => function ($value) {
-                return empty($value);
-            }],
+            [
+                'pid',
+                'exist',
+                'targetAttribute' => 'id',
+                'isEmpty' => function ($value) {
+                    return empty($value);
+                }
+            ],
             //当更新时，父ID不能为自身或其下级节点
             ['pid', 'validatePid', 'on' => 'update'],
             [['url_param'], 'string', 'max' => 255],
@@ -208,10 +213,11 @@ class BackendMenu extends \yii\db\ActiveRecord
                     $list[$k]['label'] = $info['name'];
                     unset($list[$k]['name']);
                     //组装url
-                    $list[$k]['url'] = static::mergeUrl($info['url'], $info['url_param']);
+                    $list[$k]['url'] = static::mergeUrl('/' . $info['url'], $info['url_param']);//由于有modules，需要绝对路径
                     unset($list[$k]['url_param']);//url参数注销掉
                     //如果数据库中字段为隐藏，则增加visible参数，且设置为false，再有就是无权限的隐藏掉
-                    if (!$info['status'] || ($userId != Yii::$app->params['superAdminId'] && !in_array($info['url'], $permissions))) {
+                    if (!$info['status'] || ($userId != Yii::$app->params['superAdminId'] && !in_array($info['url'],
+                                $permissions))) {
                         $list[$k]['visible'] = false;
                     }
                     unset($list[$k]['status']);//注销掉状态
