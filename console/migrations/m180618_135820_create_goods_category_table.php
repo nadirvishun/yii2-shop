@@ -43,6 +43,7 @@ class m180618_135820_create_goods_category_table extends Migration
             'adv_type' => $this->integer()->unsigned()->notNull()->defaultValue(1)->comment('广告跳转类型，1:url,2:goods等'),
             'adv_value' => $this->string()->notNull()->defaultValue('')->comment('广告跳转值'),
             'sort' => $this->integer()->notNull()->defaultValue(0)->comment('排序'),
+            'is_recommend' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('是否推荐，0否，1是'),
             'status' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(1)->comment('状态:0隐藏，1显示'),
             'created_by' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('创建人'),
             'created_at' => $this->bigInteger()->unsigned()->notNull()->defaultValue(0)->comment('创建时间'),

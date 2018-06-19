@@ -14,6 +14,9 @@ return [
     'modules' => [
         'system' => [
             'class' => 'backend\modules\system\Module',
+        ],
+        'shop' => [
+            'class' => 'backend\modules\shop\Module',
         ]
     ],
     'components' => [
@@ -23,7 +26,7 @@ return [
         'user' => [
             'identityClass' => 'backend\modules\system\models\Admin',//修改为对应的后台类
             'enableAutoLogin' => true,
-            'loginUrl'=> ['/site/login'],//由于有modules，所以需要绝对路径
+            'loginUrl' => ['/site/login'],//由于有modules，所以需要绝对路径
             'identityCookie' => ['name' => '_identity-backend', 'httpOnly' => true],
         ],
         'session' => [
