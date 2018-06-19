@@ -27,25 +27,31 @@ $this->params['breadcrumbs'][] = $this->title;
         'rowOptions'=>['class'=>'expanded'],
         'emptyTextOptions'=>['class'=>'empty p-10'],
         'dataProvider' => $dataProvider,
-//        'parentIdAttribute' => 'pid',
         'showRoots' => true,
         'lazyLoad' => false,
-//        'moveAction' => ['move'],
+        'moveAction' => ['move'],
+        'pluginOptions'=>[
+                //修改顶级分类也能移动
+                'onMoveOver' => new  \yii\web\JsExpression('function(item, helper, target, position) {
+                    if (item.treegrid("getDepth") == 1) return false;
+                    if ((position == 0 || position == 2) && target.treegrid("getDepth") == 1) return false;
+                    return true;
+                }')
+        ],
         'columns' => [
-
-            'id',
-            'tree',
             'name',
+            'id',
+//            'tree',
             'img',
-            'lft',
+//            'lft',
             // 'rgt',
             // 'depth',
             // 'adv_img',
             // 'adv_type',
             // 'adv_value',
-            // 'sort',
-            // 'is_recommend',
-            // 'status',
+             'is_recommend',
+             'sort',
+             'status',
             // 'created_by',
             // 'created_at',
             // 'updated_by',

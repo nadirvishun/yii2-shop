@@ -7,6 +7,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model backend\modules\shop\models\GoodsCategory */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $treeOptions backend\modules\shop\controllers\GoodsCategoryController*/
 ?>
 
 <div class="goods-category-form">
@@ -17,7 +18,7 @@ use yii\widgets\ActiveForm;
     ]); ?>
 
     <?= $form->field($model, 'pid', ['options' => ['class' => 'form-group c-md-5']])->widget(Select2::classname(), [
-        'data' => ['0'=>'顶级分类','1'=>'test'],
+        'data' => $treeOptions,
         'options' => [
             'prompt' => Yii::t('common', 'Please Select...'),
             'encode' => false,

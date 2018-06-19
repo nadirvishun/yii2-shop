@@ -6,6 +6,7 @@ use creocoder\nestedsets\NestedSetsBehavior;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\caching\DbDependency;
 
 /**
  * This is the model class for table "{{%goods_category}}".
@@ -83,7 +84,23 @@ class GoodsCategory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['tree', 'lft', 'rgt', 'depth', 'adv_type', 'sort', 'is_recommend', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
+            [
+                [
+                    'tree',
+                    'lft',
+                    'rgt',
+                    'depth',
+                    'adv_type',
+                    'is_recommend',
+                    'sort',
+                    'status',
+                    'created_by',
+                    'created_at',
+                    'updated_by',
+                    'updated_at'
+                ],
+                'integer'
+            ],
             [['name', 'img', 'adv_img', 'adv_value'], 'string', 'max' => 255],
             [['name', 'pid'], 'required'],
             //父ID有效性,当为0时不验证
@@ -146,7 +163,40 @@ class GoodsCategory extends \yii\db\ActiveRecord
      */
     public static function getGoodsCategoryTreeOptions()
     {
-
+        $cache = Yii::$app->cache;
+        //增加缓存获取
+        $data = $cache->get('goods_category_tree_options');
+        if ($data == false) {
+            $options = [];
+            //获取顶级不同的树
+            $roots = static::find()->roots()->all();
+            if (!empty($roots)) {
+                $icon = '';
+                $blank = '&nbsp;&nbsp;&nbsp;';
+                foreach ($roots as $root) {
+                    $options[$root->id] = $root->name;
+                    //每个树的子集直接遍历即可，顺序在获取时已经排序好了
+                    $children = $root->children()->all();
+                    if (!empty($children)) {
+                        foreach ($children as $child) {
+                            $depth = $child->depth;
+                            $blankStr = '';
+                            if ($depth > 0) {
+                                $blankStr = str_repeat($blank, $child->depth) . $icon;
+                            }
+                            $options[$child->id] = $blankStr . $child->name;
+                        }
+                    }
+                }
+            }
+            //顶级分类
+            $rootOption = ['0' => Yii::t('goods_category', 'Root Tree')];
+            $data = array_merge($rootOption, $options);
+            //写入缓存
+            $dependency = new DbDependency(['sql' => 'SELECT max(updated_at) FROM ' . static::tableName()]);
+            $cache->set('goods_category_tree_options', $data, 0, $dependency);
+        }
+        return $data;
     }
 
     /**
