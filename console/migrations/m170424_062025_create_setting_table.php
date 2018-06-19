@@ -16,12 +16,26 @@ class m170424_062025_create_setting_table extends Migration
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
+            //获取mysql版本
+            $version = $this->db->getServerVersion();
+            //utf8mb4在小于5.5.3的mysql版本中不支持
+            if (version_compare($version, '5.5.3', '<')) {
+                throw new \yii\base\Exception('Character utf8mb4 is not supported in mysql < 5.5.3');
+            }
+            //如果mysql数据库版本小于5.7.7，则需要将varchar默认值修改为191，否则报错：Specified key was too long error
+            if (version_compare($version, '5.7.7', '<')) {
+                $queryBuilder = $this->db->getQueryBuilder();
+                $queryBuilder->typeMap[\yii\db\mysql\Schema::TYPE_STRING] = 'varchar(191)';
+            }
+            //如果是用utf8字符集，则不需要上面的两个判定
             $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB COMMENT="配置表"';
         }
 
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey()->unsigned()->comment('配置ID'),
-            'pid' => $this->integer()->notNull()->unsigned()->defaultValue(0)->comment('父ID'),
+            'pid' => $this->integer()->notNull()->defaultValue(0)->comment('父ID'),
+            //与tree-grid冲突，https://github.com/dkhlystov/yii2-treegrid/issues/6
+//            'pid' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('父ID'),
             'name' => $this->string(64)->notNull()->defaultValue(0)->comment('配置名称'),
             'alias' => $this->string(64)->notNull()->unique()->defaultValue('')->comment('配置别名'),
             'type' => $this->tinyInteger()->notNull()->defaultValue(1)->comment('类别，例如1代表text，2代表radio等'),
