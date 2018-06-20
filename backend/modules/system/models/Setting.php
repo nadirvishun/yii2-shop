@@ -424,7 +424,7 @@ class Setting extends \yii\db\ActiveRecord
                     'pluginOptions' => [
                         'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
                         'uploadExtraData' => [
-                            'name' => $name,//表单名称,也可以在独立action中指定
+                            'name' => $name,//表字段名称,也可以在独立action中指定
                         ],
                         'showPreview' => true,
                         'showClose' => false,

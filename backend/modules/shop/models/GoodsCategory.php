@@ -7,6 +7,7 @@ use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\caching\DbDependency;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%goods_category}}".
@@ -21,7 +22,6 @@ use yii\caching\DbDependency;
  * @property string $adv_img
  * @property string $adv_type
  * @property string $adv_value
- * @property integer $sort
  * @property integer $is_recommend
  * @property integer $status
  * @property string $created_by
@@ -31,6 +31,15 @@ use yii\caching\DbDependency;
  */
 class GoodsCategory extends \yii\db\ActiveRecord
 {
+    const STATUS_HIDE = 0;//隐藏
+    const STATUS_VISIBLE = 1;//显示
+
+    const RECOMMEND_OFF = 0;//推荐
+    const RECOMMEND_ON = 1;//不推荐
+
+    CONST ADV_TYPE_URL = 1;//广告跳转类型：网址url
+    CONST ADV_TYPE_GOODS = 2;//广告跳转类型：商品ID
+    CONST ADV_TYPE_ARTICLE = 3;//广告跳转类型：文章ID
     /**
      * @var integer $pid 父ID
      */
@@ -54,7 +63,8 @@ class GoodsCategory extends \yii\db\ActiveRecord
             BlameableBehavior::className(),
             'tree' => [
                 'class' => NestedSetsBehavior::className(),
-                'treeAttribute' => 'tree',
+                //设置单一树，否则如果有多个树，树之间的排序无法处理
+//                'treeAttribute' => 'tree',
             ],
         ];
     }
@@ -92,7 +102,6 @@ class GoodsCategory extends \yii\db\ActiveRecord
                     'depth',
                     'adv_type',
                     'is_recommend',
-                    'sort',
                     'status',
                     'created_by',
                     'created_at',
@@ -103,15 +112,8 @@ class GoodsCategory extends \yii\db\ActiveRecord
             ],
             [['name', 'img', 'adv_img', 'adv_value'], 'string', 'max' => 255],
             [['name', 'pid'], 'required'],
-            //父ID有效性,当为0时不验证
-            [
-                'pid',
-                'exist',
-                'targetAttribute' => 'id',
-                'isEmpty' => function ($value) {
-                    return empty($value);
-                }
-            ],
+            //验证pid是否存在
+            ['pid', 'exist', 'targetAttribute' => 'id'],
             //当更新时，父ID不能为自身或其下级节点
             ['pid', 'validatePid', 'on' => 'update'],
         ];
@@ -148,7 +150,6 @@ class GoodsCategory extends \yii\db\ActiveRecord
             'adv_img' => Yii::t('goods_category', 'Adv Img'),
             'adv_type' => Yii::t('goods_category', 'Adv Type'),
             'adv_value' => Yii::t('goods_category', 'Adv Value'),
-            'sort' => Yii::t('goods_category', 'Sort'),
             'is_recommend' => Yii::t('goods_category', 'Is Recommend'),
             'status' => Yii::t('goods_category', 'Status'),
             'created_by' => Yii::t('goods_category', 'Created By'),
@@ -168,7 +169,7 @@ class GoodsCategory extends \yii\db\ActiveRecord
         $data = $cache->get('goods_category_tree_options');
         if ($data == false) {
             $options = [];
-            //获取顶级不同的树
+            //获取顶级不同的树，目前只有一个数了，但是不修改了，也同样适用
             $roots = static::find()->roots()->all();
             if (!empty($roots)) {
                 $icon = '';
@@ -189,9 +190,7 @@ class GoodsCategory extends \yii\db\ActiveRecord
                     }
                 }
             }
-            //顶级分类
-            $rootOption = ['0' => Yii::t('goods_category', 'Root Tree')];
-            $data = array_merge($rootOption, $options);
+            $data = $options;
             //写入缓存
             $dependency = new DbDependency(['sql' => 'SELECT max(updated_at) FROM ' . static::tableName()]);
             $cache->set('goods_category_tree_options', $data, 0, $dependency);
@@ -200,6 +199,51 @@ class GoodsCategory extends \yii\db\ActiveRecord
     }
 
     /**
+     *  获取广告分类下拉菜单列表或者某一名称
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getAdvTypeOptions($key = false)
+    {
+        $arr = [
+            self::ADV_TYPE_URL => Yii::t('goods_category', 'url'),
+            self::ADV_TYPE_GOODS => Yii::t('goods_category', 'goods'),
+            self::ADV_TYPE_ARTICLE => Yii::t('goods_category', 'article'),
+        ];
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
+     *  获取广告分类下拉菜单列表或者某一名称
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getRecommendOptions($key = false)
+    {
+        $arr = [
+            self::RECOMMEND_OFF => Yii::t('goods_category', 'UnRecommend'),
+            self::RECOMMEND_ON => Yii::t('goods_category', 'Recommend'),
+        ];
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
+     *  获取状态下拉菜单列表或者某一名称
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getStatusOptions($key = false)
+    {
+        $arr = [
+            self::STATUS_HIDE => Yii::t('common', 'Hide'),
+            self::STATUS_VISIBLE => Yii::t('common', 'Visible')
+        ];
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
+     * 暂未用到
+     *  https://gist.github.com/ptheofan/d6760ebbaf2371c75c62
      * Convert a tree into nested arrays. If you use the default function parameters you get
      * a set compatible with Yii2 Menu widget.
      *
@@ -248,8 +292,8 @@ class GoodsCategory extends \yii\db\ActiveRecord
         return $trees;
     }
 
-
     /**
+     * 同上
      * Export NestedSets tree into JsTree nested format data
      * @return array
      */

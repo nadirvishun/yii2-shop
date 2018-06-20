@@ -1,12 +1,16 @@
 <?php
 return [
     'adminEmail' => 'admin@example.com',
+
     //上传文件路径，如果不设置，则默认default
     'defaultPath' => '/uploads/default/',
     //后台会员头像上传的路径,在backend/web目录下
     'avatarPath' => '/uploads/avatars/',
     //系统设置上传的文件路径，在backend/web目录下
     'settingPath' => '/uploads/setting/',
+    //商品分类上传的文件路径，在backend/web目录下
+    'goodsCategoryPath' => '/uploads/goods_category/',
+
     //指定超级管理员所对应的id
     'superAdminId' => 1,
     //ueditor编辑器上传路径配置

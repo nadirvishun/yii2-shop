@@ -33,23 +33,33 @@ class m180618_135820_create_goods_category_table extends Migration
 
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey(),
-            'tree' => $this->tinyInteger()->unsigned()->notNull()->defaultValue(0)->comment('多个树标识'),
+            'tree' => $this->tinyInteger()->notNull()->defaultValue(0)->comment('多个树标识'),
             'name' => $this->string()->notNull()->defaultValue('')->comment('分类名称'),
             'img' => $this->string()->notNull()->defaultValue('')->comment('分类图片'),
-            'lft' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('左值'),
-            'rgt' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('右值'),
-            'depth' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('深度'),
+            'lft' => $this->integer()->notNull()->defaultValue(0)->comment('左值'),
+            'rgt' => $this->integer()->notNull()->defaultValue(0)->comment('右值'),
+            'depth' => $this->integer()->notNull()->defaultValue(0)->comment('深度'),//不能设置为unsigned，否则还是和treeGrid代码有冲突
             'adv_img' => $this->string()->notNull()->defaultValue('')->comment('广告图片'),
-            'adv_type' => $this->integer()->unsigned()->notNull()->defaultValue(1)->comment('广告跳转类型，1:url,2:goods等'),
+            'adv_type' => $this->integer()->notNull()->defaultValue(0)->comment('广告跳转类型，1:url,2:goods等'),
             'adv_value' => $this->string()->notNull()->defaultValue('')->comment('广告跳转值'),
-            'sort' => $this->integer()->notNull()->defaultValue(0)->comment('排序'),
-            'is_recommend' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('是否推荐，0否，1是'),
-            'status' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(1)->comment('状态:0隐藏，1显示'),
-            'created_by' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('创建人'),
-            'created_at' => $this->bigInteger()->unsigned()->notNull()->defaultValue(0)->comment('创建时间'),
-            'updated_by' => $this->integer()->unsigned()->notNull()->defaultValue(0)->comment('更新人'),
-            'updated_at' => $this->bigInteger()->unsigned()->notNull()->defaultValue(0)->comment('更新时间')
-        ],$tableOptions);
+            'is_recommend' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('是否推荐，0否，1是'),
+            'status' => $this->tinyInteger(1)->notNull()->defaultValue(1)->comment('状态:0隐藏，1显示'),
+            'created_by' => $this->integer()->notNull()->defaultValue(0)->comment('创建人'),
+            'created_at' => $this->bigInteger()->notNull()->defaultValue(0)->comment('创建时间'),
+            'updated_by' => $this->integer()->notNull()->defaultValue(0)->comment('更新人'),
+            'updated_at' => $this->bigInteger()->notNull()->defaultValue(0)->comment('更新时间')
+        ], $tableOptions);
+        //写入最顶级的分类
+        $this->insert(self::TBL_NAME, [
+            'name' => '顶级分类',
+            'lft' => 1,
+            'rgt' => 2,
+            'depth' => 0,
+            'created_by' => 1,
+            'created_at' => time(),
+            'updated_by' => 1,
+            'updated_at' => time(),
+        ]);
     }
 
     /**
