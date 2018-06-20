@@ -79,8 +79,8 @@ class Setting extends \yii\db\ActiveRecord
             [['pid', 'name', 'alias'], 'required'],
             [['pid', 'type', 'sort', 'status'], 'integer'],
             [['value'], 'string'],
-            ['sort', 'default', 'value' => 0],
-            ['type', 'default', 'value' => 1],
+            //严格模式下text不能设置默认值，否则migrate出错，但是不设置value为空，新增时还是会报错，所以这里家默认值
+            [['value'], 'default', 'value' => ''],
             //父ID有效性,当为0时不验证
             ['pid', 'exist', 'targetAttribute' => 'id', 'isEmpty' => function ($value) {
                 return empty($value);
@@ -281,15 +281,16 @@ class Setting extends \yii\db\ActiveRecord
      * 根据不同的类型创建不同的input表单
      * 只能封装成通用的样式
      * @param integer $type
-     * @param string $name 如果是多维的，需提前组装好
+     * @param string $alias
      * @param string $value
      * @param string $extra
      * @param array $options
      * @return string
      * @throws \Exception
      */
-    public static function createInputTag($type, $name, $value, $extra = '', $options = [])
+    public static function createInputTag($type, $alias, $value, $extra = '', $options = [])
     {
+        $name = "Setting[$alias]";
         if (empty($options)) {
             $options = ['class' => 'form-control', 'id' => $name];
         }
@@ -437,7 +438,7 @@ class Setting extends \yii\db\ActiveRecord
                         //批量上传按钮
                         'filebatchuploadcomplete' => "function (event, files, extra){
                         var arr=[];
-                        $('.kv-file-remove').each(function(){
+                        $('.field-setting-".$alias." .kv-file-remove').each(function(){
                             var key=$(this).data('key');
                             if(key && arr.indexOf(key)=='-1'){
                                 arr.push(key)
@@ -448,7 +449,7 @@ class Setting extends \yii\db\ActiveRecord
                         //单个点击上传完毕后给隐藏表单赋值
                         'fileuploaded' => "function (event,data){
                         var arr=[];
-                        $('.kv-file-remove').each(function(){
+                        $('.field-setting-".$alias." .kv-file-remove').each(function(){
                             var key=$(this).data('key');
                             if(key && arr.indexOf(key)=='-1'){
                                 arr.push(key)
@@ -460,7 +461,7 @@ class Setting extends \yii\db\ActiveRecord
                         'filedeleted' => "function (event,key,jqXHR,data){
                         var arr=[];
                         var self=key;
-                        $('.kv-file-remove').each(function(){
+                        $('.field-setting-".$alias." .kv-file-remove').each(function(){
                             var key=$(this).data('key');
                             if(key && key!=self && arr.indexOf(key)=='-1'){
                                 arr.push(key)

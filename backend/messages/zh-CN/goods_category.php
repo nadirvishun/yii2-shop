@@ -30,6 +30,7 @@ return [
     'Update Goods Category' => '修改商品分类',
     'View Goods Category' => '查看商品分类',
 
+    'none' => '不跳转',
     'url' => '网址',
     'goods' => '商品',
     'article' => '文章',

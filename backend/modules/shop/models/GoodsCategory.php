@@ -37,6 +37,7 @@ class GoodsCategory extends \yii\db\ActiveRecord
     const RECOMMEND_OFF = 0;//推荐
     const RECOMMEND_ON = 1;//不推荐
 
+    CONST ADV_TYPE_NONE = 0;//广告跳转类型：不跳转
     CONST ADV_TYPE_URL = 1;//广告跳转类型：网址url
     CONST ADV_TYPE_GOODS = 2;//广告跳转类型：商品ID
     CONST ADV_TYPE_ARTICLE = 3;//广告跳转类型：文章ID
@@ -206,6 +207,7 @@ class GoodsCategory extends \yii\db\ActiveRecord
     public static function getAdvTypeOptions($key = false)
     {
         $arr = [
+            self::ADV_TYPE_NONE => Yii::t('goods_category', 'none'),
             self::ADV_TYPE_URL => Yii::t('goods_category', 'url'),
             self::ADV_TYPE_GOODS => Yii::t('goods_category', 'goods'),
             self::ADV_TYPE_ARTICLE => Yii::t('goods_category', 'article'),

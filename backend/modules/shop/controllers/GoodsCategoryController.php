@@ -28,8 +28,8 @@ class GoodsCategoryController extends BaseController
                 'path' => Yii::$app->params['goodsCategoryPath'],//上传路径
                 'rule' => [
                     'skipOnEmpty' => false,
-                    'extensions' => 'jpg,png,gif',
-                    'maxSize' => 102400
+                    'extensions' => 'jpg,jpeg,png,gif',
+                    'maxSize' => 1024000
                 ]
             ]
         ];

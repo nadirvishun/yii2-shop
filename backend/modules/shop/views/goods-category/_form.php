@@ -7,6 +7,7 @@ use kartik\widgets\SwitchInput;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
+use yii\web\JsExpression;
 
 /* @var $this yii\web\View */
 /* @var $model backend\modules\shop\models\GoodsCategory */
@@ -33,10 +34,11 @@ use yii\widgets\ActiveForm;
     ]) ?>
     <?= $form->field($model, 'name', ['options' => ['class' => 'form-group c-md-5']])->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-5']])->hint(Yii::t('goods_category', 'img_hint'))
+    <?= $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->hint(Yii::t('goods_category', 'img_hint'))
         ->widget(FileInput::classname(), [
             'options' => [
                 'accept' => 'image/*',
+                'hiddenOptions'=>['value'=>$model->img]//隐藏字段value
             ],
             'pluginOptions' => [
                 'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
@@ -55,27 +57,28 @@ use yii\widgets\ActiveForm;
                 ],
                 'initialPreviewAsData' => true,
                 'overwriteInitial' => true,//多文件不覆盖原有的，单文件覆盖
-                'showUpload' => false,
+                'showUpload' => false,//单图上传，不显示批量上传按钮，否则还要写回调
+                'showRemove' => false,//单图上传，不显示移除按钮，否则还要写回调
             ],
             'pluginEvents' => [
                 //单个点击上传完毕后给隐藏表单赋值
-//            'fileuploaded' => new \yii\web\JsExpression("function (event,data){
-//                        var arr=[];
-//                        $('.field-goodscategory-img .kv-file-remove').each(function(){
-//                            var key=$(this).data('key');
-//                            if(key && arr.indexOf(key)=='-1'){
-//                                arr.push(key)
-//                            }
-//                        })
-//                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'img') . "\']').val(arr.join(','));
-//                       }"),
+                'fileuploaded' => new JsExpression("function (event,data){
+                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'img') . "\']').val(data.response.initialPreview[0]);
+                       }"),
+                //单个点击删除时清空隐藏表单
+                'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
+                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'img') . "\']').val('');
+                       }"),
             ]
 
         ]); ?>
 
-    <?= $form->field($model, 'adv_img', ['options' => ['class' => 'form-group c-md-5']])->hint(Yii::t('goods_category', 'adv_img_hint'))
+    <?= $form->field($model, 'adv_img', ['options' => ['class' => 'form-group c-md-6']])->hint(Yii::t('goods_category', 'adv_img_hint'))
         ->widget(FileInput::classname(), [
-            'options' => ['accept' => 'image/*'],
+            'options' => [
+                'accept' => 'image/*',
+                'hiddenOptions'=>['value'=>$model->adv_img]//隐藏字段value
+            ],
             'pluginOptions' => [
                 'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
                 'uploadExtraData' => [
@@ -93,19 +96,18 @@ use yii\widgets\ActiveForm;
                 ],
                 'initialPreviewAsData' => true,
                 'overwriteInitial' => true,//多文件不覆盖原有的，单文件覆盖
+                'showUpload' => false,
+                'showRemove' => false,
             ],
             'pluginEvents' => [
                 //单个点击上传完毕后给隐藏表单赋值
-                'fileuploaded' => "function (event,data){
-                        var arr=[];
-                        $('.field-goodscategory-adv_img .kv-file-remove').each(function(){
-                            var key=$(this).data('key');
-                            if(key && arr.indexOf(key)=='-1'){
-                                arr.push(key)
-                            }
-                        })
-                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'adv_img') . "\']').val(arr.join(','));
-                       }",
+                'fileuploaded' =>  new JsExpression("function (event,data){
+                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'adv_img') . "\']').val(data.response.initialPreview[0]);
+                       }"),
+                //单个点击删除时清空隐藏表单
+                'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
+                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'adv_img') . "\']').val('');
+                       }"),
             ]
 
         ]); ?>
@@ -113,12 +115,8 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'adv_type', ['options' => ['class' => 'form-group c-md-5']])->widget(Select2::classname(), [
         'data' => GoodsCategory::getAdvTypeOptions(),
         'options' => [
-            'prompt' => Yii::t('common', 'Please Select...'),
             'encode' => false,
-        ],
-        'pluginOptions' => [
-            'allowClear' => true
-        ],
+        ]
     ]) ?>
 
     <?= $form->field($model, 'adv_value', ['options' => ['class' => 'form-group c-md-5']])->textInput(['maxlength' => true])
