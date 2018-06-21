@@ -68,8 +68,8 @@ use yii\widgets\ActiveForm;
 
 </div>
 <?php
-    //选择不同按钮时不同的提示信息
-    $js=<<<EOF
+//选择不同按钮时不同的提示信息
+$js = <<<EOF
 var phpJson='$placeholderOptions';
 //将单斜线转为双斜线，否则js解析不了
 var jsJson=phpJson.replace(/\\n/g,"\\\\n");
@@ -85,5 +85,5 @@ $('#setting-type').on('change',function(){
 })
 EOF;
 
-    $this->registerJs($js)
+$this->registerJs($js)
 ?>

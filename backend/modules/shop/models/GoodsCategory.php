@@ -162,12 +162,18 @@ class GoodsCategory extends \yii\db\ActiveRecord
 
     /**
      * 获取下拉菜单选项
+     * @param bool $hasRoot
+     * @return array|mixed
      */
-    public static function getGoodsCategoryTreeOptions()
+    public static function getGoodsCategoryTreeOptions($hasRoot=true)
     {
         $cache = Yii::$app->cache;
         //增加缓存获取
-        $data = $cache->get('goods_category_tree_options');
+        if($hasRoot){
+            $data = $cache->get('goods_category_tree_options');
+        }else{
+            $data = $cache->get('goods_category_tree_options_children');
+        }
         if ($data == false) {
             $options = [];
             //获取顶级不同的树，目前只有一个数了，但是不修改了，也同样适用
@@ -176,7 +182,9 @@ class GoodsCategory extends \yii\db\ActiveRecord
                 $icon = '';
                 $blank = '&nbsp;&nbsp;&nbsp;';
                 foreach ($roots as $root) {
-                    $options[$root->id] = $root->name;
+                    if($hasRoot){
+                        $options[$root->id] = $root->name;
+                    }
                     //每个树的子集直接遍历即可，顺序在获取时已经排序好了
                     $children = $root->children()->all();
                     if (!empty($children)) {
@@ -194,7 +202,11 @@ class GoodsCategory extends \yii\db\ActiveRecord
             $data = $options;
             //写入缓存
             $dependency = new DbDependency(['sql' => 'SELECT max(updated_at) FROM ' . static::tableName()]);
-            $cache->set('goods_category_tree_options', $data, 0, $dependency);
+            if($hasRoot) {
+                $cache->set('goods_category_tree_options', $data, 0, $dependency);
+            }else{
+                $cache->set('goods_category_tree_options_children', $data, 0, $dependency);
+            }
         }
         return $data;
     }
