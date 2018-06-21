@@ -12,7 +12,6 @@ use yii\web\JsExpression;
 /* @var $this yii\web\View */
 /* @var $model backend\modules\shop\models\GoodsCategory */
 /* @var $form yii\widgets\ActiveForm */
-/* @var $treeOptions backend\modules\shop\controllers\GoodsCategoryController */
 ?>
 
 <div class="goods-category-form">
@@ -23,7 +22,7 @@ use yii\web\JsExpression;
     ]); ?>
 
     <?= $form->field($model, 'pid', ['options' => ['class' => 'form-group c-md-5']])->widget(Select2::classname(), [
-        'data' => $treeOptions,
+        'data' => GoodsCategory::getGoodsCategoryTreeOptions(),
         'options' => [
             'prompt' => Yii::t('common', 'Please Select...'),
             'encode' => false,

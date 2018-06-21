@@ -1,5 +1,6 @@
 <?php
 
+use backend\modules\system\models\Admin;
 use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
 use kartik\widgets\SwitchInput;
@@ -10,7 +11,6 @@ use yii\widgets\ActiveForm;
 /* @var $model backend\modules\system\models\Admin */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $act backend\modules\system\controllers\AdminController */
-/* @var $avatarUrl backend\modules\system\controllers\AdminController */
 ?>
 
 <div class="admin-form">
@@ -43,11 +43,12 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'mobile', ['options' => ['class' => 'form-group c-md-5']])->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'sex', ['options' => ['class' => 'form-group c-md-5']])->widget(Select2::classname(), [
-        'data' => \backend\modules\system\models\Admin::getSexOptions(),
+        'data' => Admin::getSexOptions(),
         'pluginOptions' => [
             'allowClear' => true
         ],
     ]) ?>
+
     <!--  上传头像，只能在修改自身时上传  -->
     <?php if ($act == 'modify'): ?>
         <?= $form->field($model, 'avatar', ['options' => ['class' => 'form-group c-md-5']])->widget(FileInput::classname(), [
@@ -56,7 +57,7 @@ use yii\widgets\ActiveForm;
                 'showPreview' => true,
                 'showClose' => false,
                 'showUpload' => false,
-                'initialPreview' => empty($avatarUrl) ? [] : [$avatarUrl],
+                'initialPreview' => empty($model->avatar) ? [] : [$model->avatar],
                 'initialPreviewAsData' => true,
             ]
         ]); ?>

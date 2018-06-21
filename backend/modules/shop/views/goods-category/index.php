@@ -20,7 +20,6 @@ $this->params['breadcrumbs'][] = $this->title;
     'options' => [
         'draggable' => true,
         'overrideYiiConfirm' => false,
-//        'type'=>Dialog::TYPE_SUCCESS,
         'size' => Dialog::SIZE_SMALL,
     ]
 ]); ?>
@@ -47,6 +46,8 @@ $this->params['breadcrumbs'][] = $this->title;
         'pluginOptions' => [
             //修改为post提交，且增加提示
             'onMove' => new \yii\web\JsExpression('function(item, target, position) {
+                    //显示loading
+                    $(".loader-overlay").show();
                     var $el = this;
                     $el.treegrid("option", "enableMove", false);
                     $.post("' . Url::to(["move"]) . '", {
@@ -54,19 +55,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         target: target.treegrid("getId"),
                         position: position
                     },function(data) {
+                        //关闭loading
                         $(".loader-overlay").hide();
                         if(data.code==0){
                             $el.treegrid("option", "enableMove", true);
                         }
                         krajeeDialogCus.alert(data.msg);
                     },"json").fail(function(xhr) {
+                        //关闭loading
                         $(".loader-overlay").hide();
                         krajeeDialogCus.alert(xhr.responseText);
                     });
-                }'),
-            //增加加载提示，todo,这里需要一个额外的参数：https://github.com/dkhlystov/yii2-treegrid/issues/12
-            'onMoveStop' => new \yii\web\JsExpression('function(item) {
-                    $(".loader-overlay").show();
                 }'),
         ],
         'columns' => [

@@ -105,9 +105,6 @@ class BackendMenuController extends BaseController
                 $model->pid = $pid;
             }
             $data['model'] = $model;
-            //获取树形下拉选项
-            $data['treeOptions'] = BackendMenu::getMenuTreeOptions();
-
             return $this->render('create', $data);
         }
     }
@@ -151,11 +148,8 @@ class BackendMenuController extends BaseController
                 return $this->redirectSuccess(['index'], Yii::t('common', 'Update Success'));
             }
         }
-        //显示树下拉菜单
-        $treeOptions = BackendMenu::getMenuTreeOptions();
         return $this->render('update', [
             'model' => $model,
-            'treeOptions' => $treeOptions
         ]);
     }
 

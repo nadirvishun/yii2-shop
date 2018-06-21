@@ -102,11 +102,8 @@ class GoodsCategoryController extends BaseController
             $this->findModel($pid);
             $model->pid = $pid;
         }
-        //获取分类下拉菜单
-        $treeOptions = GoodsCategory::getGoodsCategoryTreeOptions();
         return $this->render('create', [
             'model' => $model,
-            'treeOptions' => $treeOptions
         ]);
 
     }
@@ -141,10 +138,8 @@ class GoodsCategoryController extends BaseController
         //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
         $this->rememberReferrerUrl('goods-category-update');
         $model->pid = $pid;//上级目录显示
-        $treeOptions = GoodsCategory::getGoodsCategoryTreeOptions();
         return $this->render('update', [
             'model' => $model,
-            'treeOptions' => $treeOptions
         ]);
 
     }
@@ -165,6 +160,7 @@ class GoodsCategoryController extends BaseController
             return $this->redirectError(['index'],
                 Yii::t('good_category', 'This node has children ,please delete children first'));
         }
+        //todo,判定是否有商品
         $model->delete();
         return $this->redirectSuccess(['index'], Yii::t('common', 'Delete Success'));
     }

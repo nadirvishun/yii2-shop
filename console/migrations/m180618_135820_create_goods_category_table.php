@@ -12,7 +12,7 @@ class m180618_135820_create_goods_category_table extends Migration
     /**
      * @inheritdoc
      */
-    public function up()
+    public function safeUp()
     {
         $tableOptions = null;
         if ($this->db->driverName === 'mysql') {
@@ -60,13 +60,53 @@ class m180618_135820_create_goods_category_table extends Migration
             'updated_by' => 1,
             'updated_at' => time(),
         ]);
+        //增加后台菜单的显示
+        $time = time();
+        $this->insert("{{%backend_menu}}", [
+            'pid' => 0,
+            'name' => '商品管理',
+            'url' => 'goods',
+            'icon' => 'shopping-bag',
+            'created_by' => 1,
+            'created_at' => time(),
+            'updated_by' => 1,
+            'updated_at' => time(),
+        ]);
+        //商品分类
+        $rootInsertId = $this->db->lastInsertID;
+        $this->insert("{{%backend_menu}}", [
+            'pid' => $rootInsertId,
+            'name' => '商品分类',
+            'url' => 'shop/goods-category/index',
+            'icon' => 'circle-o',
+            'created_by' => 1,
+            'created_at' => time(),
+            'updated_by' => 1,
+            'updated_at' => time(),
+        ]);
+        $insertId = $this->db->lastInsertID;
+        //商品分类操作
+        $this->batchInsert("{{%backend_menu}}", ['pid', 'name', 'url', 'icon', 'sort', 'created_by', 'created_at', 'updated_by', 'updated_at', 'status'], [
+            [$insertId, '新增商品分类', 'shop/goods-category/create', '', 3, 1, $time, 1, $time, 0],
+            [$insertId, '修改配置设置', 'shop/goods-category/update', '', 2, 1, $time, 1, $time, 0],
+            [$insertId, '删除配置管理', 'shop/goods-category/delete', '', 1, 1, $time, 1, $time, 0],
+        ]);
     }
 
     /**
      * @inheritdoc
      */
-    public function down()
+    public function safeDown()
     {
+        //删除menu增加项目
+        $this->delete("{{%backend_menu}}", ['in', 'url', [
+            'goods',
+            'shop/goods-category/index',
+            'shop/goods-category/create',
+            'shop/goods-category/update',
+            'shop/goods-category/delete'
+        ]]);
+        //删除表
         $this->dropTable(self::TBL_NAME);
     }
 }
