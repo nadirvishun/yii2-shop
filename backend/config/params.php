@@ -10,6 +10,8 @@ return [
     'settingPath' => '/uploads/setting/',
     //商品分类上传的文件路径，在backend/web目录下
     'goodsCategoryPath' => '/uploads/goods_category/',
+    //商品上传的文件路径，在backend/web目录下
+    'goodsPath' => '/uploads/goods/',
 
     //指定超级管理员所对应的id
     'superAdminId' => 1,

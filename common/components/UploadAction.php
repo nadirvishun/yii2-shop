@@ -1,6 +1,7 @@
 <?php
 /**
  * fileInput上传独立控制器
+ * 异步上传
  */
 
 namespace common\components;
@@ -78,7 +79,6 @@ class UploadAction extends Action
     /**
      * 上传文件
      * 由于用的是kartik的yii2-widget-fileinput组件，所以需要返回组件需要的格式
-     * 目前用的是同步单个文件上传，后期可以考虑改为异步多文件同时上传，否则多文件时前端回调要遍历各种元素
      * @throws \yii\base\Exception
      */
     public function upload()

@@ -48,8 +48,8 @@ class m180621_020819_create_goods_table extends Migration
             'content' => $this->text()->notNull()->comment('商品详情'),
             'sales' => $this->integer()->notNull()->defaultValue(0)->comment('显示销量'),
             'real_sales' => $this->integer()->notNull()->defaultValue(0)->comment('实际销量'),
-            'click'=> $this->integer()->notNull()->defaultValue(0)->comment('点击查看量'),
-            'collect'=> $this->integer()->notNull()->defaultValue(0)->comment('收藏量'),
+            'click' => $this->integer()->notNull()->defaultValue(0)->comment('点击查看量'),
+            'collect' => $this->integer()->notNull()->defaultValue(0)->comment('收藏量'),
             'stock' => $this->integer()->notNull()->defaultValue(0)->comment('库存数量'),
             'stock_alarm' => $this->integer()->notNull()->defaultValue(0)->comment('库存预警数量'),
             'stock_type' => $this->tinyInteger(1)->notNull()->defaultValue(1)->comment('减库存方式：0不减库存，1拍下减库存，2付款减库存'),
@@ -73,7 +73,12 @@ class m180621_020819_create_goods_table extends Migration
             'updated_by' => $this->integer()->notNull()->defaultValue(0)->comment('更新人'),
             'updated_at' => $this->bigInteger()->notNull()->defaultValue(0)->comment('更新时间')
         ], $tableOptions);
-
+        //创建索引
+        $this->createIndex('is_new', self::TBL_NAME, 'is_new');
+        $this->createIndex('is_hot', self::TBL_NAME, 'is_hot');
+        $this->createIndex('is_recommend', self::TBL_NAME, 'is_recommend');
+        $this->createIndex('category_id', self::TBL_NAME, 'category_id');
+        $this->createIndex('brand_id', self::TBL_NAME, 'brand_id');
     }
 
 

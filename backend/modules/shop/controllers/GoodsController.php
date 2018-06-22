@@ -4,7 +4,7 @@ namespace backend\modules\shop\controllers;
 
 use Yii;
 use backend\modules\shop\models\Goods;
-use backend\modules\shop\models\search\Goods as GoodsSearch;
+use backend\modules\shop\models\search\GoodsSearch;
 use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 
@@ -13,6 +13,31 @@ use yii\web\NotFoundHttpException;
  */
 class GoodsController extends BaseController
 {
+    /**
+     * 上传相关
+     * @return array
+     */
+    public function actions()
+    {
+        return [
+            //ueditor上传
+            'ueditorUpload' => [
+                'class' => 'kucha\ueditor\UEditorAction',
+                'config' => Yii::$app->params['ueditorConfig']
+            ],
+            //fileInput上传
+            'upload' => [
+                'class' => 'common\components\UploadSyncAction',
+                'path' => Yii::$app->params['goodsPath'],//上传路径
+                'rule' => [
+                    'skipOnEmpty' => false,
+                    'extensions' => 'jpg,jpeg',
+                    'maxSize' => 1024000,
+                ]
+            ]
+        ];
+    }
+
     /**
      * Lists all Goods models.
      * @return mixed
@@ -59,6 +84,11 @@ class GoodsController extends BaseController
             $this->rememberReferrerUrl('goods-create');
 
             $model->loadDefaultValues();
+            //将整数的金额转为小数显示
+            $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
+            foreach ($priceArr as $value) {
+                $model->$value = Yii::$app->formatter->asDecimal($model->$value);
+            }
             return $this->render('create', [
                 'model' => $model,
             ]);
@@ -83,7 +113,11 @@ class GoodsController extends BaseController
         } else {
             //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
             $this->rememberReferrerUrl('goods-update');
-
+            //将整数的金额转为小数显示
+            $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
+            foreach ($priceArr as $value) {
+                $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100);
+            }
             return $this->render('update', [
                 'model' => $model,
             ]);
@@ -122,5 +156,19 @@ class GoodsController extends BaseController
         } else {
             throw new NotFoundHttpException(Yii::t('common', 'The requested page does not exist.'));
         }
+    }
+
+    /**
+     * 上传权限与列表权限共用
+     * @param $permission
+     * @return mixed
+     */
+    public function getSamePermission($permission)
+    {
+        $arr = [
+            'shop/goods/ueditorUpload' => 'shop/goods/index',
+            'shop/goods/upload' => 'shop/goods/index'
+        ];
+        return isset($arr[$permission]) ? $arr[$permission] : $permission;
     }
 }

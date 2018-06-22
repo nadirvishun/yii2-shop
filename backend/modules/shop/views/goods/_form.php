@@ -1,9 +1,14 @@
 <?php
 
+use backend\modules\shop\models\Goods;
 use backend\modules\shop\models\GoodsCategory;
+use kartik\widgets\FileInput;
 use kartik\widgets\Select2;
+use kartik\widgets\SwitchInput;
 use yii\bootstrap\Tabs;
 use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\JsExpression;
 use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
@@ -18,7 +23,9 @@ use yii\widgets\ActiveForm;
             'options' => ['class' => 'box-body']
         ]); ?>
 
-        <?php $goodsSn = $form->field($model, 'goods_sn', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
+        <?php $goodsSn = $form->field($model, 'goods_sn', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'goods_sn_hint'))
+            ->textInput(['maxlength' => true]) ?>
 
         <?php $goodsBarcode = $form->field($model, 'goods_barcode', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
@@ -26,16 +33,18 @@ use yii\widgets\ActiveForm;
 
         <?php $subTitle = $form->field($model, 'sub_title', ['options' => ['class' => 'form-group c-md-6']])->textarea(['rows' => 5]) ?>
 
-        <?php $categoryId = $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-6']])->widget(Select2::classname(), [
-            'data' => GoodsCategory::getGoodsCategoryTreeOptions(false),
-            'options' => [
-                'prompt' => Yii::t('common', 'Please Select...'),
-                'encode' => false,
-            ],
-            'pluginOptions' => [
-                'allowClear' => true
-            ],
-        ]) ?>
+        <?php $categoryId = $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Please create goods category first!'))
+            ->widget(Select2::classname(), [
+                'data' => GoodsCategory::getGoodsCategoryTreeOptions(false),
+                'options' => [
+                    'prompt' => Yii::t('common', 'Please Select...'),
+                    'encode' => false,
+                ],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]) ?>
 
         <?php $brandId = $form->field($model, 'brand_id', ['options' => ['class' => 'form-group c-md-6']])->widget(Select2::classname(), [
             'data' => [],//todo,品牌选择
@@ -48,57 +57,200 @@ use yii\widgets\ActiveForm;
             ],
         ]) ?>
 
-        <?php $price = $form->field($model, 'price', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $price = $form->field($model, 'price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
-        <?php $unit = $form->field($model, 'unit', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
+        <?php $unit = $form->field($model, 'unit', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'unit_hint'))->textInput(['maxlength' => true]) ?>
 
-        <?php $marketPrice = $form->field($model, 'market_price', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $marketPrice = $form->field($model, 'market_price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
-        <?php $costPrice = $form->field($model, 'cost_price', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $costPrice = $form->field($model, 'cost_price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
         <?php $img = $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-        <?php $imgOther = $form->field($model, 'img_others', ['options' => ['class' => 'form-group c-md-6']])->textarea(['rows' => 6]) ?>
+        <?php
+        //字段名
+        $imgOthersName = Html::getInputName($model, 'img_others');
+        //设置初始参数
+        $imgOthersValueArr = explode(',', $model->img_others);
+        $initialPreviewConfig = [];
+        foreach ($imgOthersValueArr as $item) {
+            $initialPreviewConfig[] = [
+                'caption' => basename($item),
+                'url' => Url::to(['upload', 'action' => 'delete']),//ajax删除路径
+                'key' => $item
+            ];
+        }
+        //上传、批量上传、移动后重新赋值hidden表单
+        $hiddenJsExpression = new JsExpression("function (event, files, extra){
+                        var arr=[];
+                        $('.field-goods-img_others .kv-file-remove').each(function(){
+                            var key=$(this).data('key');
+                            if(key && arr.indexOf(key)=='-1'){
+                                arr.push(key)
+                            }
+                        })
+                        $('input[type=\'hidden\'][name=\'" . $imgOthersName . "\']').val(arr.join(','));
+                       }");
+        $imgOthers = $form->field($model, 'img_others[]', ['options' => ['class' => 'form-group c-md-8']])
+            ->hint(Yii::t('goods', 'img_others_hint'))
+            ->widget(FileInput::classname(), [
+                'options' => [
+                    'accept' => 'image/*',
+                    'multiple' => true,
+                    'hiddenOptions' => ['value' => $model->img_others]//隐藏字段value
+                ],
+                'pluginOptions' => [
+                    'uploadAsync' => false,
+                    'maxFileCount' => 6,
+                    'validateInitialCount'=>true,
+                    'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
+                    'deleteUrl'=> Url::to(['upload', 'action' => 'delete']),
+                    'uploadExtraData' => [
+                        'name' => $imgOthersName,//表字段名称,也可以在独立action中指定
+                    ],
+                    'showPreview' => true,
+                    'showClose' => false,
+                    'initialPreview' => empty($model->img_others) ? [] : $imgOthersValueArr,
+                    'initialPreviewConfig' => $initialPreviewConfig,
+                    'initialPreviewAsData' => true,
+                    'overwriteInitial' => false,//多文件不覆盖原有的，单文件覆盖
+                ],
+                'pluginEvents' => [
+                    //批量上传按钮
+                    'filebatchuploadcomplete' => $hiddenJsExpression,
+                    //单个点击上传完毕后给隐藏表单赋值
+                    'fileuploaded' => $hiddenJsExpression,
+                    //移动
+                    'filesorted' => $hiddenJsExpression,
+                    //单个点击删除时清空隐藏表单(由于触发时，kv-file-remove还存在，所以需要去除本身)
+                    'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
+                        var arr=[];
+                        var self=key;
+                        $('.field-goods-img_others .kv-file-remove').each(function(){
+                            var key=$(this).data('key');
+                            if(key && key!=self && arr.indexOf(key)=='-1'){
+                                arr.push(key)
+                            }
+                        })
+                        $('input[type=\'hidden\'][name=\'" . $imgOthersName . "\']').val(arr.join(','));
+                       }"),
+                ]
+            ])
+        ?>
 
-        <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])->textarea(['rows' => 6]) ?>
+        <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])
+            ->widget('kucha\ueditor\UEditor', [
+                'clientOptions' => [
+                    //上传地址，需修改为上方action一致，默认是upload，但和文件上传同一名字，所以修改为此
+                    'serverUrl' => Url::to(['ueditorUpload']),
+                    //编辑区域大小
+                    'initialFrameHeight' => '300',
+                    //定制菜单
+                    'toolbars' => [
+                        [
+                            'fullscreen', 'source', 'undo', 'redo', '|',
+                            'fontsize',
+                            'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'removeformat',
+                            'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|',
+                            'forecolor', 'backcolor', '|',
+                            'lineheight', '|',
+                            'indent', '|'
+                        ],
+                        ['preview', 'simpleupload', 'insertimage', 'link', 'emotion', 'map', 'insertvideo', 'insertcode',]
+                    ]
+                ]
+            ]);
+        ?>
 
         <?php $sales = $form->field($model, 'sales', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
         <?php $stock = $form->field($model, 'stock', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
-        <?php $stockAlarm = $form->field($model, 'stock_alarm', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $stockAlarm = $form->field($model, 'stock_alarm', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'stock_alarm_hint'))
+            ->textInput() ?>
 
-        <?php $stockType = $form->field($model, 'stock_type', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $stockType = $form->field($model, 'stock_type', ['options' => ['class' => 'form-group c-md-5']])
+            ->widget(SwitchInput::classname(), [
+                'type' => SwitchInput::RADIO,
+                'items' => Goods::getStockTypeOptions(false, true),
+                'labelOptions' => ['style' => 'font-weight:normal'],
+                'pluginOptions' => ['size' => 'mini']
+            ]) ?>
 
         <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-        <?php $isFreightFree = $form->field($model, 'is_freight_free', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $goodsProperty = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
+            Html::label(Yii::t('goods', 'Goods Property'), ['class' => 'control-label',]) . '<br>' .
+            Html::activeCheckbox($model, 'is_new', ['labelOptions' => ['style' => 'font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_hot', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_recommend', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_freight_free', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::tag('div', Yii::t('goods', 'is_freight_free_hint'), ['class' => 'hint-block']) .
+            Html::endTag('div');
+        ?>
 
-        <?php $freightType = $form->field($model, 'freight_type', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-        <?php $freightId = $form->field($model, 'freight_id', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-        <?php $freightPrice = $form->field($model, 'freight_price', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-        <?php $isNew = $form->field($model, 'is_new', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-        <?php $isHot = $form->field($model, 'is_hot', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-        <?php $isRecommend = $form->field($model, 'is_recommend', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
+            Html::label(Yii::t('goods', 'Freight Setting'), ['class' => 'control-label',]) . '<br>' .
+            Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
+                'item' => function ($index, $label, $name, $checked, $value) use ($model) {
+                    if ($index == 0) {
+                        $other = Html::beginTag('div', ['style' => 'float:left;width:50%']) .
+                            Select2::widget([
+                                'name' => Html::getInputName($model, 'freight_id'),
+                                'value' => $model->freight_id,
+                                'data' => [],//todo,获取运费模板列表
+                                'options' => [
+                                    'prompt' => Yii::t('common', 'Please Select...'),
+                                    'encode' => false
+                                ],
+                            ]) .
+                            Html::endTag('div') .
+                            Html::tag('div', '', ['style' => 'clear:both']);
+                    } else {
+                        $other = Html::activeTextInput($model, 'freight_price', ['class' => 'form-control', 'style' => 'width:50%;float:left']) .
+                            Html::tag('div', '', ['style' => 'clear:both']);
+                    }
+                    return Html::radio($name, $checked, [
+                            'value' => $value,
+                            'label' => Html::encode($label),
+                            'labelOptions' => ['style' => 'font-weight:normal;float:left;width:10%;line-height:34px']
+                        ]) . $other;
+                }
+            ]) .
+            Html::tag('div', Yii::t('goods', 'freight_hint'), ['class' => 'hint-block']) .
+            Html::endTag('div');
+        ?>
 
         <?php $isLimit = $form->field($model, 'is_limit', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
-        <?php $maxBuy = $form->field($model, 'max_buy', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $maxBuy = $form->field($model, 'max_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'max_buy_hint'))
+            ->textInput() ?>
 
-        <?php $minBuy = $form->field($model, 'min_buy', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $minBuy = $form->field($model, 'min_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'min_buy_hint'))
+            ->textInput() ?>
 
-        <?php $userMaxBuy = $form->field($model, 'user_max_buy', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $userMaxBuy = $form->field($model, 'user_max_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'user_max_buy_hint'))
+            ->textInput() ?>
 
         <?php $giveIntegral = $form->field($model, 'give_integral', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
         <?php $sort = $form->field($model, 'sort', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
-        <?php $status = $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+        <?php $status = $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-5']])
+            ->widget(SwitchInput::classname(), [
+                'type' => SwitchInput::RADIO,
+                'items' => Goods::getStatusOptions(false, true),
+                'labelOptions' => ['style' => 'font-weight:normal'],
+                'pluginOptions' => ['size' => 'mini']
+            ]) ?>
 
         <?= Tabs::widget([
             'items' => [
@@ -112,9 +264,9 @@ use yii\widgets\ActiveForm;
                         $marketPrice .
                         $costPrice .
                         $unit .
-                        $isFreightFree .
-                        $freightType .
-                        $isHot .
+                        $goodsProperty .
+                        $freightSetting .
+                        $giveIntegral .
                         $sort .
                         $status
                 ],
@@ -129,11 +281,12 @@ use yii\widgets\ActiveForm;
                 ],
                 [
                     'label' => Yii::t('goods', 'image'),
-                    'content' => $img
+                    'content' => $imgOthers
                 ],
                 [
                     'label' => Yii::t('goods', 'content'),
-                    'content' => $content
+                    'content' => $brandId .
+                        $content
                 ],
                 [
                     'label' => Yii::t('goods', 'limit'),
@@ -155,15 +308,21 @@ use yii\widgets\ActiveForm;
 
     </div>
 <?php
-//增加必填字段红星提示
+//增加必填字段红星提示和验证出错时切换标签页
 $js = <<<eof
     $('.required').each(function(){
         var label=$(this).children(':first');
         label.html(label.html()+'<i style="color:red">*</i>');
     });
-    $("#goods-form").on('afterValidate',function(event, messages, deferreds){
+    $("#goods-form").on('afterValidate',function(event, messages, errorAttributes){
+        $.each(errorAttributes,function(i,v){
+            var errorId=v.id;
+            var tab=$('#'+errorId).parent().parent();
+            var tabId=tab.attr('id');
+            $('a[href="#'+tabId+'"]').tab('show');
+            return false;
+        })
     })
-    
 eof;
 $this->registerJs($js);
 ?>

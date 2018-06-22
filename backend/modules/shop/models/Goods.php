@@ -5,6 +5,7 @@ namespace backend\modules\shop\models;
 use Yii;
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%goods}}".
@@ -52,6 +53,16 @@ use yii\behaviors\TimestampBehavior;
  */
 class Goods extends \yii\db\ActiveRecord
 {
+    const FREIGHT_TYPE_TEMPLATE = 0;//运费模板
+    const FREIGHT_TYPE_COMMON = 1;//统一运费
+
+    const GOODS_OFFLINE = 0;//下架
+    const GOODS_ONLINE = 1;//上架
+    const GOODS_DELETE = 2;//删除
+
+    const STOCK_TYPE_ORDER = 1;//拍下减库存
+    const STOCK_TYPE_PAY = 2;//付款减库存
+
     /**
      * {@inheritdoc}
      */
@@ -83,7 +94,7 @@ class Goods extends \yii\db\ActiveRecord
                 'is_hot', 'is_recommend', 'is_limit', 'max_buy', 'min_buy', 'user_max_buy',
                 'give_integral', 'sort', 'status', 'created_by', 'created_at', 'updated_by',
                 'updated_at'], 'integer'],
-            [['category_id', 'title', 'price', 'market_price', 'stock', 'img'], 'required'],
+            [['category_id', 'title', 'price', 'market_price', 'stock', 'img_others'], 'required'],
             [['img_others', 'content'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
             [['img_others,content'], 'default', 'value' => ''],
@@ -147,5 +158,80 @@ class Goods extends \yii\db\ActiveRecord
             'updated_by' => Yii::t('goods', 'Updated By'),
             'updated_at' => Yii::t('goods', 'Updated At'),
         ];
+    }
+
+    /**
+     *  获取运费方式下拉菜单列表或者某一名称
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getFreightTypeOptions($key = false)
+    {
+        $arr = [
+            self::FREIGHT_TYPE_TEMPLATE => Yii::t('goods', 'freight template'),
+            self::FREIGHT_TYPE_COMMON => Yii::t('goods', 'freight common')
+        ];
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
+     *  获取状态下拉菜单列表或者某一名称
+     * @param bool $key
+     * @param bool $format 是否组装成前台switchInput需要的格式
+     * @return array|mixed
+     */
+    public static function getStockTypeOptions($key = false, $format = false)
+    {
+        $arr = [
+            self::STOCK_TYPE_ORDER => Yii::t('goods', 'pay reduce'),
+            self::STOCK_TYPE_PAY => Yii::t('goods', 'order reduce'),
+        ];
+        if ($key !== false) {
+            return ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+        } else {
+            if ($format === false) {
+                return $arr;
+            } else {
+                $formatArr = [];
+                foreach ($arr as $key => $value) {
+                    $formatArr[] = [
+                        'label' => $value,
+                        'value' => $key
+                    ];
+                }
+                return $formatArr;
+            }
+        }
+    }
+
+    /**
+     *  获取状态下拉菜单列表或者某一名称
+     * @param bool $key
+     * @param bool $format 是否组装成前台switchInput需要的格式
+     * @return array|mixed
+     */
+    public static function getStatusOptions($key = false, $format = false)
+    {
+        $arr = [
+            self::GOODS_OFFLINE => Yii::t('goods', 'offline'),
+            self::GOODS_ONLINE => Yii::t('goods', 'online'),
+            self::GOODS_DELETE => Yii::t('goods', 'delete')
+        ];
+        if ($key !== false) {
+            return ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+        } else {
+            if ($format === false) {
+                return $arr;
+            } else {
+                $formatArr = [];
+                foreach ($arr as $key => $value) {
+                    $formatArr[] = [
+                        'label' => $value,
+                        'value' => $key
+                    ];
+                }
+                return $formatArr;
+            }
+        }
     }
 }

@@ -5,12 +5,12 @@ namespace backend\modules\shop\models\search;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use backend\modules\shop\models\Goods as GoodsModel;
+use backend\modules\shop\models\Goods;
 
 /**
- * Goods represents the model behind the search form about `backend\modules\shop\models\Goods`.
+ * GoodsSearch represents the model behind the search form about `backend\modules\shop\models\Goods`.
  */
-class Goods extends GoodsModel
+class GoodsSearch extends Goods
 {
     /**
      * {@inheritdoc}
@@ -42,7 +42,7 @@ class Goods extends GoodsModel
      */
     public function search($params)
     {
-        $query = GoodsModel::find();
+        $query = Goods::find();
 
         // add conditions that should always apply here
 
