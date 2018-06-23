@@ -97,15 +97,16 @@ class Goods extends \yii\db\ActiveRecord
             [['category_id', 'title', 'price', 'market_price', 'stock', 'img_others'], 'required'],
             [['img_others', 'content'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
-            [['img_others,content'], 'default', 'value' => ''],
+            [['img_others', 'content'], 'default', 'value' => ''],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
             [['title', 'sub_title', 'img'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
             [['goods_sn'], 'unique'],//todo,自动生成
             [['price', 'market_price', 'cost_price'], 'number', 'min' => 0],
+            ['market_price', 'compare', 'compareAttribute' => 'price', 'operator' => '>='],//市场价大于等于标价
             [['price', 'market_price', 'cost_price'], 'filter', 'filter' => function ($value) {
-                return $value * 100;
+                return intval($value * 100);
             }],
             [['goods_barcode'], 'unique'],
         ];

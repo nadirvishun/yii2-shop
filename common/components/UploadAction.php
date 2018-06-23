@@ -2,6 +2,7 @@
 /**
  * fileInput上传独立控制器
  * 异步上传
+ * 多文件上传时，需要设置'showUpload' => false，然后一个个上传，因为测试一键上传时很大概率第一张图会被第二张覆盖，原因暂未查明
  */
 
 namespace common\components;
@@ -116,7 +117,8 @@ class UploadAction extends Action
                     //todo,后续如果用数据库存储，则需要返回对应的id，方便删除
                     'key' => $saveFile
                 ]
-            ]
+            ],
+            'key' => $saveFile//单独自定义，不用上面的值了
         ];
     }
 

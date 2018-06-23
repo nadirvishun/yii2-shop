@@ -27,11 +27,11 @@ class GoodsController extends BaseController
             ],
             //fileInput上传
             'upload' => [
-                'class' => 'common\components\UploadSyncAction',
+                'class' => 'common\components\UploadAction',
                 'path' => Yii::$app->params['goodsPath'],//上传路径
                 'rule' => [
                     'skipOnEmpty' => false,
-                    'extensions' => 'jpg,jpeg',
+                    'extensions' => 'jpg,jpeg,png',
                     'maxSize' => 1024000,
                 ]
             ]
@@ -74,25 +74,28 @@ class GoodsController extends BaseController
     public function actionCreate()
     {
         $model = new Goods();
+//        print_r(Yii::$app->request->post());exit;
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            //todo,处理数据
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            $model->save(false);
             //获取列表页url，方便跳转
             $url = $this->getReferrerUrl('goods-create');
             return $this->redirectSuccess($url, Yii::t('common', 'Create Success'));
-        } else {
-            //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
-            $this->rememberReferrerUrl('goods-create');
-
-            $model->loadDefaultValues();
-            //将整数的金额转为小数显示
-            $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
-            foreach ($priceArr as $value) {
-                $model->$value = Yii::$app->formatter->asDecimal($model->$value);
-            }
-            return $this->render('create', [
-                'model' => $model,
-            ]);
         }
+        //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
+        $this->rememberReferrerUrl('goods-create');
+
+        $model->loadDefaultValues();
+        //将整数的金额转为小数显示
+        $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
+        foreach ($priceArr as $value) {
+            $model->$value = Yii::$app->formatter->asDecimal($model->$value);
+        }
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+
     }
 
     /**
