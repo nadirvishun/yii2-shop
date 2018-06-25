@@ -68,11 +68,13 @@ return [
     'max_buy_hint' => '用户单次购买此商品数量限制,0为不限制',
     'min_buy_hint' => '用户单次必须最少购买此商品数量限制,0为不限制',
     'user_max_buy_hint' => '用户购买过的此商品数量限制,0为不限制',
-    'img_others_hint'=>'请点击图片中的上传按钮完成上传，第一张图同时作为商品封面图片，最多上传6张，上传完成后可拖动排序',
+    'img_others_hint' => '请点击图片中的上传按钮完成上传，第一张图同时作为商品封面图片，最多上传6张，上传完成后可拖动排序,建议宽度640px',
     'Please create goods category first!' => '如果不存在分类，请先去【商品分类】栏目中创建',
     'Accurate to the second decimal place' => '单位：元，最高保留两位小数',
     'unit_hint' => '件/包/个等',
     'is_freight_free_hint' => '如果选择包邮，则下方运费方式的设置则无效',
-    'freight_hint' => '如果不存在运费模板，请先去【运费模板】栏目中创建'
+    'freight_hint' => '如果不存在运费模板，请先去【运费模板】栏目中创建',
+
+    'Image can not empty!' => '商品组图必须上传',
 
 ];

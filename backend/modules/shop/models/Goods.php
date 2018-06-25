@@ -94,22 +94,39 @@ class Goods extends \yii\db\ActiveRecord
                 'is_hot', 'is_recommend', 'is_limit', 'max_buy', 'min_buy', 'user_max_buy',
                 'give_integral', 'sort', 'status', 'created_by', 'created_at', 'updated_by',
                 'updated_at'], 'integer'],
-            [['category_id', 'title', 'price', 'market_price', 'stock', 'img_others'], 'required'],
+            [['category_id', 'title', 'price', 'market_price', 'stock'], 'required'],
             [['img_others', 'content'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
             [['img_others', 'content'], 'default', 'value' => ''],
+            //由于img_others在前端相当于文件，所以普通的require会当成文件来处理，这里客户端设置，当img_other隐藏表单没有值时进行required验证
+//            ['img_others', 'required', 'when' => function ($model) {
+//                return true;
+//            }, 'whenClient' => "function (attribute, value) {
+//                console.log($('#img_others').val()?false:true);
+//                return $('#img_others').val()?false:true;
+//            }"],
+            ['max_buy','validateImgOthers'],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
             [['title', 'sub_title', 'img'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
-            [['goods_sn'], 'unique'],//todo,自动生成
+            [['goods_sn'], 'unique'],
             [['price', 'market_price', 'cost_price'], 'number', 'min' => 0],
-            ['market_price', 'compare', 'compareAttribute' => 'price', 'operator' => '>='],//市场价大于等于标价
+            ['market_price', 'compare', 'compareAttribute' => 'price', 'type' => 'number', 'operator' => '>='],//市场价大于等于标价
             [['price', 'market_price', 'cost_price'], 'filter', 'filter' => function ($value) {
                 return intval($value * 100);
             }],
             [['goods_barcode'], 'unique'],
         ];
+    }
+    /**
+     * 更新时验证选择的pid不能为本身及其下级节点
+     */
+    public function validateImgOthers()
+    {
+        if (empty($this->img_others)) {
+            $this->addError('img_others', Yii::t('goods', 'Image can not empty!'));
+        }
     }
 
     /**
@@ -234,5 +251,32 @@ class Goods extends \yii\db\ActiveRecord
                 return $formatArr;
             }
         }
+    }
+
+    /**
+     * 自动生成goods_sn
+     * 暂时用yii2自带的生成随机数的方法，后期需要优化
+     * @param int $length
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    public function generateGoodsSn($length = 32)
+    {
+        return Yii::$app->security->generateRandomString($length);
+    }
+
+    /**
+     * 存储前的动作
+     * @inheritdoc
+     */
+    public function beforeSave($insert)
+    {
+        //如果是新增，则自动产生
+        if ($this->isNewRecord) {
+            if (empty($this->goods_sn)) {
+                $this->goods_sn = $this->generateGoodsSn();
+            }
+        }
+        return parent::beforeSave($insert);
     }
 }

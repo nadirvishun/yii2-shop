@@ -74,7 +74,6 @@ use yii\widgets\ActiveForm;
     <?php
     //字段名
     $imgOthersName = Html::getInputName($model, 'img_others');
-    $imgOtherId = Html::getInputId($model, 'img_other');
     //设置初始参数
     $imgOthersValueArr = explode(',', $model->img_others);
     $initialPreviewConfig = [];
@@ -89,10 +88,9 @@ use yii\widgets\ActiveForm;
         ->hint(Yii::t('goods', 'img_others_hint'))
         ->widget(FileInput::classname(), [
             'options' => [
-                'id' => 'file-' . $imgOtherId,//本字段id重新命名，方便后台rule验证隐藏字段的值，而不是这个值
                 'accept' => 'image/*',
                 'multiple' => true,
-                'hiddenOptions' => ['value' => $model->img_others, 'id' => $imgOtherId]//隐藏字段value，增加隐藏字段ID为字段名，方便rule验证
+                'hiddenOptions' => ['value' => $model->img_others, 'id' => 'img_others']//隐藏字段value，增加隐藏字段ID为字段名，方便rule验证
             ],
             'pluginOptions' => [
                 'maxFileCount' => 6,
@@ -333,6 +331,3 @@ $js = <<<eof
 eof;
 $this->registerJs($js);
 ?>
-<script>
-
-</script>

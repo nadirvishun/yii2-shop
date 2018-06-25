@@ -6,6 +6,8 @@ use Yii;
 use backend\modules\shop\models\Goods;
 use backend\modules\shop\models\search\GoodsSearch;
 use backend\controllers\BaseController;
+use yii\helpers\FileHelper;
+use yii\imagine\Image;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -70,6 +72,7 @@ class GoodsController extends BaseController
      * Creates a new Goods model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
+     * @throws \yii\base\Exception
      */
     public function actionCreate()
     {
@@ -77,7 +80,14 @@ class GoodsController extends BaseController
 //        print_r(Yii::$app->request->post());exit;
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             //todo,处理数据
-
+            $imgOthersArr = explode(',', $model->img_others);
+            $imgOrg = $imgOthersArr[0];//主图
+            $imgBaseName = basename($imgOrg);//名称
+            $imgPath = Yii::$app->params['goodsMasterPath'];
+            FileHelper::createDirectory(Yii::getAlias('@webroot') . $imgPath);
+            $img = $imgPath . $imgBaseName;
+            Image::thumbnail($imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
+            $model->img = $img;
             $model->save(false);
             //获取列表页url，方便跳转
             $url = $this->getReferrerUrl('goods-create');
