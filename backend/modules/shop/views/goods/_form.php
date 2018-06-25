@@ -202,28 +202,28 @@ use yii\widgets\ActiveForm;
     <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
         Html::label(Yii::t('goods', 'Freight Setting'), ['class' => 'control-label',]) . '<br>' .
         Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
-            'item' => function ($index, $label, $name, $checked, $value) use ($model) {
+            'item' => function ($index, $label, $name, $checked, $value) use ($model,$form) {
                 if ($index == 0) {
-                    $other = Html::beginTag('div', ['style' => 'float:left;width:50%']) .
-                        Select2::widget([
-                            'name' => Html::getInputName($model, 'freight_id'),
-                            'value' => $model->freight_id,
-                            'data' => [],//todo,获取运费模板列表
-                            'options' => [
-                                'prompt' => Yii::t('common', 'Please Select...'),
-                                'encode' => false
-                            ],
-                        ]) .
+                    $other = Html::beginTag('div', ['style' => 'float:left;width:50%;']) .
+                        $form->field($model, 'freight_id', ['template'=>"{input}\n{hint}\n{error}"])
+                            ->widget(Select2::classname(), [
+                                'data' => [],//todo,获取运费模板列表
+                                'options' => [
+                                    'prompt' => Yii::t('common', 'Please Select...'),
+                                    'encode' => false
+                                ],
+                            ]) .
                         Html::endTag('div') .
                         Html::tag('div', '', ['style' => 'clear:both']);
                 } else {
-                    $other = Html::activeTextInput($model, 'freight_price', ['class' => 'form-control', 'style' => 'width:50%;float:left']) .
-                        Html::tag('div', '', ['style' => 'clear:both']);
+                        $other = $form->field($model, 'freight_price', ['options' => ['style'=>'width:50%;float:left;'],'template'=>"{input}\n{hint}\n{error}"])
+                                ->textInput(['maxlength' => true]).
+                            Html::tag('div', '', ['style' => 'clear:both']);
                 }
                 return Html::radio($name, $checked, [
                         'value' => $value,
                         'label' => Html::encode($label),
-                        'labelOptions' => ['style' => 'font-weight:normal;float:left;width:10%;line-height:34px']
+                        'labelOptions' => ['style' => 'font-weight:normal;float:left;width:10%;line-height:34px;min-width:100px']
                     ]) . $other;
             }
         ]) .
@@ -313,21 +313,38 @@ use yii\widgets\ActiveForm;
 
 </div>
 <?php
-//增加必填字段红星提示和验证出错时切换标签页
 $js = <<<eof
+    //红星提示
     $('.required').each(function(){
         var label=$(this).children(':first');
         label.html(label.html()+'<i style="color:red">*</i>');
     });
+    //前端js验证出错后切换标签页
     $("#goods-form").on('afterValidate',function(event, messages, errorAttributes){
         $.each(errorAttributes,function(i,v){
-            var errorContainer=v.container;
-            var tab=$(errorContainer).parent();
+            var errorContainer=v.container,
+                tab;
+            //特殊处理
+            if(errorContainer=='.field-goods-freight_id' || errorContainer=='.field-goods-freight_price'){
+                tab=$(errorContainer).parent().parent().parent().parent();
+            }else{
+                tab=$(errorContainer).parent();
+            }
             var tabId=tab.attr('id');
             $('a[href="#'+tabId+'"]').tab('show');
             return false;
         })
     })
+    //后端服务器验证出错后切换标签页
+    var errorContainer=$(".has-error:first"),
+        tab;
+    if(errorContainer.hasClass('field-goods-freight_id') || errorContainer.hasClass('field-goods-freight_price')){
+        tab=$(errorContainer).parent().parent().parent().parent();
+    }else{
+        tab= errorContainer.parent();
+    }
+    var tabId=tab.attr('id');
+    $('a[href="#'+tabId+'"]').tab('show');
 eof;
 $this->registerJs($js);
 ?>

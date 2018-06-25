@@ -88,39 +88,40 @@ class Goods extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['category_id', 'brand_id', 'sales',
-                'real_sales', 'click', 'collect', 'stock', 'stock_alarm', 'stock_type',
-                'is_freight_free', 'freight_type', 'freight_id', 'freight_price', 'is_new',
-                'is_hot', 'is_recommend', 'is_limit', 'max_buy', 'min_buy', 'user_max_buy',
-                'give_integral', 'sort', 'status', 'created_by', 'created_at', 'updated_by',
-                'updated_at'], 'integer'],
+            [['category_id', 'brand_id', 'sales', 'real_sales', 'click', 'collect',
+                'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type',
+                'freight_id','is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy',
+                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status', 'created_by',
+                'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['category_id', 'title', 'price', 'market_price', 'stock'], 'required'],
             [['img_others', 'content'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
             [['img_others', 'content'], 'default', 'value' => ''],
-            //由于img_others在前端相当于文件，所以普通的require会当成文件来处理，这里客户端设置，当img_other隐藏表单没有值时进行required验证
-//            ['img_others', 'required', 'when' => function ($model) {
-//                return true;
-//            }, 'whenClient' => "function (attribute, value) {
-//                console.log($('#img_others').val()?false:true);
-//                return $('#img_others').val()?false:true;
-//            }"],
-            ['max_buy','validateImgOthers'],
+            //todo,待确定
+            [['freight_id','brand_id'], 'default', 'value' => '0'],
+            //当选择运费模板，需要运费模板ID不为空
+            ['freight_id','required', 'when' => function ($model) {
+                return $model->freight_type == 0;
+            }, 'whenClient' => "function (attribute, value) {
+                return $('input[name=\"Goods[freight_type]\"]:checked').val()==0?true:false;
+            }"],
+            ['img_others','validateImgOthers','skipOnEmpty'=>false],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
             [['title', 'sub_title', 'img'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
+            [['unit'], 'default', 'value' => '件'],
             [['goods_sn'], 'unique'],
-            [['price', 'market_price', 'cost_price'], 'number', 'min' => 0],
+            [['price', 'market_price', 'cost_price','freight_price'], 'number', 'min' => 0],
             ['market_price', 'compare', 'compareAttribute' => 'price', 'type' => 'number', 'operator' => '>='],//市场价大于等于标价
-            [['price', 'market_price', 'cost_price'], 'filter', 'filter' => function ($value) {
+            [['price', 'market_price', 'cost_price','freight_price'], 'filter', 'filter' => function ($value) {
                 return intval($value * 100);
             }],
             [['goods_barcode'], 'unique'],
         ];
     }
     /**
-     * 更新时验证选择的pid不能为本身及其下级节点
+     * 由于img_others是file类型，而这里用ajax上传，走的隐藏字段，所以如果设置required会出错，只能在服务端来判定
      */
     public function validateImgOthers()
     {
