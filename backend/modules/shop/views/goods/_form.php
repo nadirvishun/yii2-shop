@@ -190,7 +190,7 @@ use yii\widgets\ActiveForm;
     <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
     <?php $goodsProperty = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
-        Html::label(Yii::t('goods', 'Goods Property'), ['class' => 'control-label',]) . '<br>' .
+        Html::label(Yii::t('goods', 'Goods Property'), null, ['class' => 'control-label',]) . '<br>' .
         Html::activeCheckbox($model, 'is_new', ['labelOptions' => ['style' => 'font-weight:normal']]) .
         Html::activeCheckbox($model, 'is_hot', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
         Html::activeCheckbox($model, 'is_recommend', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
@@ -200,12 +200,12 @@ use yii\widgets\ActiveForm;
     ?>
 
     <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
-        Html::label(Yii::t('goods', 'Freight Setting'), ['class' => 'control-label',]) . '<br>' .
+        Html::label(Yii::t('goods', 'Freight Setting'), null, ['class' => 'control-label',]) . '<br>' .
         Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
-            'item' => function ($index, $label, $name, $checked, $value) use ($model,$form) {
+            'item' => function ($index, $label, $name, $checked, $value) use ($model, $form) {
                 if ($index == 0) {
                     $other = Html::beginTag('div', ['style' => 'float:left;width:50%;']) .
-                        $form->field($model, 'freight_id', ['template'=>"{input}\n{hint}\n{error}"])
+                        $form->field($model, 'freight_id', ['template' => "{input}\n{hint}\n{error}"])
                             ->widget(Select2::classname(), [
                                 'data' => [],//todo,获取运费模板列表
                                 'options' => [
@@ -216,9 +216,9 @@ use yii\widgets\ActiveForm;
                         Html::endTag('div') .
                         Html::tag('div', '', ['style' => 'clear:both']);
                 } else {
-                        $other = $form->field($model, 'freight_price', ['options' => ['style'=>'width:50%;float:left;'],'template'=>"{input}\n{hint}\n{error}"])
-                                ->textInput(['maxlength' => true]).
-                            Html::tag('div', '', ['style' => 'clear:both']);
+                    $other = $form->field($model, 'freight_price', ['options' => ['style' => 'width:50%;float:left;'], 'template' => "{input}\n{hint}\n{error}"])
+                            ->textInput(['maxlength' => true]) .
+                        Html::tag('div', '', ['style' => 'clear:both']);
                 }
                 return Html::radio($name, $checked, [
                         'value' => $value,
@@ -257,6 +257,41 @@ use yii\widgets\ActiveForm;
             'pluginOptions' => ['size' => 'mini']
         ]) ?>
 
+    <?php $paramHeader = Html::beginTag('thead') .
+        Html::beginTag('tr') .
+        Html::tag('td', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
+        Html::tag('td', Yii::t('goods_param', 'Value'), ['style' => 'width:50%;color:#999;padding:0 8px']) .
+        Html::tag('td', Yii::t('goods_param', 'Sort'), ['style' => 'width:10%;color:#999;padding:0 8px']) .
+        Html::tag('td', '', ['style' => 'width:10%;padding:0 8px']) .
+        Html::endTag('tr') .
+        Html::endTag('thead');
+    $paramItem = Html::beginTag('tr') .
+        Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-fw fa-trash"></i> ' . Yii::t('goods', 'delete'), ['id' => 'delete_goods_param', 'class' => 'btn btn-xs btn-danger']) . Html::endTag('td') .
+        Html::endTag('tr');
+    $param = Html::beginTag('div', ['class' => 'form-group c-md-8', 'id' => 'goods_param_div']) .
+        Html::label(Yii::t('goods', 'Goods Param'), null, ['class' => 'control-label',]) . '<br>' .
+        Html::beginTag('table', ['style' => 'width:100%']) .
+        $paramHeader .
+        Html::beginTag('tbody', ['id' => 'goods_params']);
+    if (!empty($model->goods_params)) {
+        foreach ($model->goods_params as $value) {
+            $param .= Html::beginTag('tr') .
+                Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', $value->name, ['class' => 'form-control']) . Html::endTag('td') .
+                Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', $value->value, ['class' => 'form-control']) . Html::endTag('td') .
+                Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', $value->sort, ['class' => 'form-control']) . Html::endTag('td') .
+                Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-fw fa-trash"></i> ' . Yii::t('goods', 'delete'), ['id' => 'delete_goods_param', 'class' => 'btn btn-xs btn-danger']) . Html::endTag('td') .
+                Html::endTag('tr');
+        }
+    }
+    $param .= Html::endTag('tbody');
+    $param .= Html::endTag('table');
+    $param .= Html::endTag('div');
+    $param .= Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add param'), ['id' => 'add_goods_param', 'class' => 'btn']);
+    ?>
+
     <?= Tabs::widget([
         'items' => [
             [
@@ -283,6 +318,10 @@ use yii\widgets\ActiveForm;
                     $stock .
                     $stockAlarm .
                     $stockType
+            ],
+            [
+                'label' => Yii::t('goods', 'param'),
+                'content' => $param
             ],
             [
                 'label' => Yii::t('goods', 'image'),
@@ -314,7 +353,7 @@ use yii\widgets\ActiveForm;
 </div>
 <?php
 $js = <<<eof
-    //红星提示
+//红星提示
     $('.required').each(function(){
         var label=$(this).children(':first');
         label.html(label.html()+'<i style="color:red">*</i>');
@@ -345,6 +384,14 @@ $js = <<<eof
     }
     var tabId=tab.attr('id');
     $('a[href="#'+tabId+'"]').tab('show');
+    //商品参数增删
+    $('#add_goods_param').on('click',function(){
+        var html='$paramItem';
+        $('#goods_params').append(html);
+    })
+    $('#goods_param_div').on('click','#delete_goods_param',function(){
+        var tr=$(this).parent().parent().remove();
+    })
 eof;
 $this->registerJs($js);
 ?>

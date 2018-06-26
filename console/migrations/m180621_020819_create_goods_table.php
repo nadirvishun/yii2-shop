@@ -79,6 +79,7 @@ class m180621_020819_create_goods_table extends Migration
         $this->createIndex('is_recommend', self::TBL_NAME, 'is_recommend');
         $this->createIndex('category_id', self::TBL_NAME, 'category_id');
         $this->createIndex('brand_id', self::TBL_NAME, 'brand_id');
+        $this->createIndex('status', self::TBL_NAME, 'status');
     }
 
 

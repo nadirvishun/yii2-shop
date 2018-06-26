@@ -43,6 +43,7 @@ return [
     'Created At' => '创建时间',
     'Updated By' => '更新人',
     'Updated At' => '更新时间',
+    'Goods Param' => '商品参数',
 
     'Goods' => '商品',
     'Create Goods' => '创建商品',
@@ -51,6 +52,7 @@ return [
 
     'basic' => '基础信息',
     'stock' => '库存信息',
+    'param' => '商品参数',
     'image' => '商品图片',
     'content' => '商品详情',
     'limit' => '购买权限',
@@ -76,5 +78,6 @@ return [
     'freight_hint' => '如果不存在运费模板，请先去【运费模板】栏目中创建',
 
     'Image can not empty!' => '商品组图必须上传',
+    'add param'=>'添加参数',
 
 ];

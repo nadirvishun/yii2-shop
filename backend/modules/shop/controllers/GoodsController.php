@@ -2,12 +2,12 @@
 
 namespace backend\modules\shop\controllers;
 
+use backend\modules\shop\models\GoodsParam;
 use Yii;
 use backend\modules\shop\models\Goods;
 use backend\modules\shop\models\search\GoodsSearch;
 use backend\controllers\BaseController;
 use yii\helpers\FileHelper;
-use yii\helpers\VarDumper;
 use yii\imagine\Image;
 use yii\web\NotFoundHttpException;
 
@@ -78,22 +78,44 @@ class GoodsController extends BaseController
     public function actionCreate()
     {
         $model = new Goods();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            //todo,处理数据
-            $imgOthersArr = explode(',', $model->img_others);
-            $imgOrg = $imgOthersArr[0];//主图
-            $imgBaseName = basename($imgOrg);//名称
-            $imgPath = Yii::$app->params['goodsMasterPath'];
-            FileHelper::createDirectory(Yii::getAlias('@webroot') . $imgPath);
-            $img = $imgPath . $imgBaseName;
-            Image::thumbnail(Yii::getAlias('@webroot').$imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
-            $model->img = $img;
-            $model->save(false);
-            //获取列表页url，方便跳转
-            $url = $this->getReferrerUrl('goods-create');
-            return $this->redirectSuccess($url, Yii::t('common', 'Create Success'));
+        if (Yii::$app->request->isPost) {
+            $model->load(Yii::$app->request->post());
+            if ($model->validate()) {
+                //处理主图
+                $imgOthersArr = explode(',', $model->img_others);
+                $imgOrg = $imgOthersArr[0];//主图
+                $imgBaseName = basename($imgOrg);//名称
+                $imgPath = Yii::$app->params['goodsMasterPath'];
+                FileHelper::createDirectory(Yii::getAlias('@webroot') . $imgPath);
+                $img = $imgPath . $imgBaseName;
+                Image::thumbnail(Yii::getAlias('@webroot') . $imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
+                $model->img = $img;
+                $res = $model->save(false);
+                if ($res) {
+                    //获取列表页url，方便跳转
+                    $url = $this->getReferrerUrl('goods-create');
+                    return $this->redirectSuccess($url, Yii::t('common', 'Create Success'));
+                }
+            }
+            //由于图片是服务端验证，所以如果失败就会重新加载前端，这里确保已输入的参数还会显示
+            $postData = Yii::$app->request->post();
+            $paramNameArr = $postData['paramName'];
+            $paramValueArr = $postData['paramValue'];
+            $paramSortArr = $postData['paramSort'];
+            $paramData = [];
+            if (!empty($paramNameArr)) {
+                foreach ($paramNameArr as $key => $name) {
+                    if (!empty($paramValueArr[$key])) {
+                        $paramData[] = [
+                            'name' => $name,
+                            'value' => $paramValueArr[$key],
+                            'sort' => intval($paramSortArr[$key]),
+                        ];
+                    }
+                }
+            }
+            $model->goods_param = $paramData;
         }
-        Yii::error(print_r($model->getErrors(),true));
         //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
         $this->rememberReferrerUrl('goods-create');
 
@@ -101,7 +123,7 @@ class GoodsController extends BaseController
         //将整数的金额转为小数显示
         $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
         foreach ($priceArr as $value) {
-            $model->$value = Yii::$app->formatter->asDecimal($model->$value/100,2);
+            $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
         }
         return $this->render('create', [
             'model' => $model,
@@ -130,7 +152,7 @@ class GoodsController extends BaseController
             //将整数的金额转为小数显示
             $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
             foreach ($priceArr as $value) {
-                $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100,2);
+                $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
             }
             return $this->render('update', [
                 'model' => $model,

@@ -83,6 +83,26 @@ class Goods extends \yii\db\ActiveRecord
     }
 
     /**
+     * 事务
+     * @return array
+     */
+    public function transactions()
+    {
+        return [
+            self::SCENARIO_DEFAULT => self::OP_ALL,
+        ];
+    }
+
+    /**
+     * 关联
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGoodsParams()
+    {
+        return $this->hasMany(GoodsParam::className(), ['goods_id' => 'id']);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function rules()
@@ -90,36 +110,37 @@ class Goods extends \yii\db\ActiveRecord
         return [
             [['category_id', 'brand_id', 'sales', 'real_sales', 'click', 'collect',
                 'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type',
-                'freight_id','is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy',
-                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status', 'created_by',
-                'created_at', 'updated_by', 'updated_at'], 'integer'],
+                'freight_id', 'is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy',
+                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status',
+                'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['category_id', 'title', 'price', 'market_price', 'stock'], 'required'],
             [['img_others', 'content'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
             [['img_others', 'content'], 'default', 'value' => ''],
             //todo,待确定
-            [['freight_id','brand_id'], 'default', 'value' => '0'],
+            [['freight_id', 'brand_id'], 'default', 'value' => '0'],
             //当选择运费模板，需要运费模板ID不为空
-            ['freight_id','required', 'when' => function ($model) {
+            ['freight_id', 'required', 'when' => function ($model) {
                 return $model->freight_type == 0;
             }, 'whenClient' => "function (attribute, value) {
                 return $('input[name=\"Goods[freight_type]\"]:checked').val()==0?true:false;
             }"],
-            ['img_others','validateImgOthers','skipOnEmpty'=>false],
+            ['img_others', 'validateImgOthers', 'skipOnEmpty' => false],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
             [['title', 'sub_title', 'img'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
             [['unit'], 'default', 'value' => '件'],
             [['goods_sn'], 'unique'],
-            [['price', 'market_price', 'cost_price','freight_price'], 'number', 'min' => 0],
+            [['price', 'market_price', 'cost_price', 'freight_price'], 'number', 'min' => 0],
             ['market_price', 'compare', 'compareAttribute' => 'price', 'type' => 'number', 'operator' => '>='],//市场价大于等于标价
-            [['price', 'market_price', 'cost_price','freight_price'], 'filter', 'filter' => function ($value) {
+            [['price', 'market_price', 'cost_price', 'freight_price'], 'filter', 'filter' => function ($value) {
                 return intval($value * 100);
             }],
             [['goods_barcode'], 'unique'],
         ];
     }
+
     /**
      * 由于img_others是file类型，而这里用ajax上传，走的隐藏字段，所以如果设置required会出错，只能在服务端来判定
      */
@@ -279,5 +300,23 @@ class Goods extends \yii\db\ActiveRecord
             }
         }
         return parent::beforeSave($insert);
+    }
+
+    /**
+     * 存储后的动作
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        //增加商品参数数据
+        $postData = Yii::$app->request->post();
+        $paramNameArr = $postData['paramName'];
+        $paramValueArr = $postData['paramValue'];
+        $paramSortArr = $postData['paramSort'];
+        $goodsParam = new GoodsParam();
+        $goodsParam->saveBatchGoodsParam($this->id, $paramNameArr, $paramValueArr, $paramSortArr, $insert);
+
     }
 }
