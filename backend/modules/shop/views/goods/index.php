@@ -25,13 +25,19 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
 
             'id',
-            'goods_sn',
-            'goods_barcode',
             'title',
-            'sub_title',
+            'goods_sn',
+//            'goods_barcode',
+//            'sub_title',
             // 'category_id',
             // 'brand_id',
-            // 'price',
+            [
+                'attribute' => 'price',
+                'format' => 'raw',
+                'value' => function ($model, $key, $index, $column) {
+                    return Yii::$app->formatter->asDecimal($model->price/100,2);
+                }
+            ],
             // 'unit',
             // 'market_price',
             // 'cost_price',
@@ -42,7 +48,17 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'real_sales',
             // 'click',
             // 'collect',
-            // 'stock',
+            [
+                'attribute' => 'stock',
+                'format' => 'raw',
+                'value' => function ($model, $key, $index, $column) {
+                    if($model->stock_alarm!==0 && $model->stock_alarm >=$model->stock){
+                        return '<i style="color:red">'.$model->stock.'</i>';
+                    }else{
+                        return $model->stock;
+                    }
+                }
+            ],
             // 'stock_alarm',
             // 'stock_type',
             // 'weight',
@@ -58,8 +74,8 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'min_buy',
             // 'user_max_buy',
             // 'give_integral',
-            // 'sort',
-            // 'status',
+             'sort',
+             'status',
             // 'created_by',
             // 'created_at',
             // 'updated_by',
@@ -69,17 +85,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => '\kartik\grid\ActionColumn',
                 'header' => Yii::t('common', 'Actions'),
                 'vAlign' => GridView::ALIGN_MIDDLE,
-                'template' => '{view} {update} {delete}',
+                'template' => '{update}',
                 'buttons' => [
-                    'view' => function ($url, $model, $key) {
-                        $options = [
-                            'title' => Yii::t('common', 'view'),
-                            'aria-label' => Yii::t('common', 'view'),
-                            'data-pjax' => '0',
-                            'class' => 'btn btn-xs btn-info'
-                        ];
-                        return Html::a('<i class="fa fa-fw fa-eye"></i> ' . Yii::t('common', 'view'), ['view', 'id' => $model->id], $options);
-                    },
                     'update' => function ($url, $model, $key) {
                         $options = [
                             'title' => Yii::t('common', 'update'),
@@ -89,17 +96,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         ];
                         return Html::a('<i class="fa fa-fw fa-pencil"></i> ' . Yii::t('common', 'update'), ['update', 'id' => $model->id], $options);
                     },
-                    'delete' => function ($url, $model, $key) {
-                        $options = [
-                            'title' => Yii::t('common', 'delete'),
-                            'aria-label' => Yii::t('common', 'delete'),
-                            'data-pjax' => '0',
-                            'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
-                            'data-method' => 'post',
-                            'class' => 'btn btn-xs btn-danger'
-                        ];
-                        return Html::a('<i class="fa fa-fw fa-trash"></i> ' . Yii::t('common', 'delete'), ['delete', 'id' => $model->id], $options);
-                    }
                 ],
             ]
         ],

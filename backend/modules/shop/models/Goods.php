@@ -99,7 +99,8 @@ class Goods extends \yii\db\ActiveRecord
      */
     public function getGoodsParams()
     {
-        return $this->hasMany(GoodsParam::className(), ['goods_id' => 'id']);
+        return $this->hasMany(GoodsParam::className(), ['goods_id' => 'id'])
+            ->orderBy(['sort' => SORT_DESC, 'id' => SORT_DESC]);
     }
 
     /**
@@ -138,6 +139,8 @@ class Goods extends \yii\db\ActiveRecord
                 return intval($value * 100);
             }],
             [['goods_barcode'], 'unique'],
+            //设置默认值为null，数据库中才能唯一索引但是多个null值
+            [['goods_barcode'], 'default', 'value' => null],
         ];
     }
 
@@ -312,9 +315,9 @@ class Goods extends \yii\db\ActiveRecord
         parent::afterSave($insert, $changedAttributes);
         //增加商品参数数据
         $postData = Yii::$app->request->post();
-        $paramNameArr = $postData['paramName'];
-        $paramValueArr = $postData['paramValue'];
-        $paramSortArr = $postData['paramSort'];
+        $paramNameArr = isset($postData['paramName']) ? $postData['paramName'] : [];
+        $paramValueArr = isset($postData['paramValue']) ? $postData['paramValue'] : [];
+        $paramSortArr = isset($postData['paramSort']) ? $postData['paramSort'] : [];
         $goodsParam = new GoodsParam();
         $goodsParam->saveBatchGoodsParam($this->id, $paramNameArr, $paramValueArr, $paramSortArr, $insert);
 

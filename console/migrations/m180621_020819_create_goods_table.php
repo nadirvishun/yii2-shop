@@ -34,7 +34,7 @@ class m180621_020819_create_goods_table extends Migration
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey(),
             'goods_sn' => $this->string(100)->unique()->notNull()->defaultValue('')->comment('商品SN'),
-            'goods_barcode' => $this->string(100)->unique()->notNull()->defaultValue('')->comment('商品条形码'),
+            'goods_barcode' => $this->string(100)->unique()->comment('商品条形码'),
             'title' => $this->string()->notNull()->defaultValue('')->comment('商品标题'),
             'sub_title' => $this->string()->notNull()->defaultValue('')->comment('商品副标题'),
             'category_id' => $this->integer()->notNull()->defaultValue(0)->comment('分类ID'),

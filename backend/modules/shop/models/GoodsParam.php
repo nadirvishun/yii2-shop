@@ -76,14 +76,16 @@ class GoodsParam extends \yii\db\ActiveRecord
      * @param $paramValueArr
      * @param $paramSortArr
      * @param $insert
+     * @throws \yii\db\Exception
      */
     public function saveBatchGoodsParam($goodsId, $paramNameArr, $paramValueArr, $paramSortArr, $insert)
     {
+        //如果是更新，先将原有的删除
         if (!$insert) {
-            //todo,删除原有的
+            static::deleteAll(['goods_id' => $goodsId]);
         }
         $insertData = [];
-        if (!empty($paramNameArr)) {
+        if (!empty($paramNameArr) && !empty($goodsId)) {
             foreach ($paramNameArr as $key => $name) {
                 if (!empty($paramValueArr[$key])) {
                     $insertData[] = [
@@ -109,7 +111,7 @@ class GoodsParam extends \yii\db\ActiveRecord
                 'created_at',
                 'updated_by',
                 'updated_at'
-            ], $insertData);
+            ], $insertData)->execute();
         }
     }
 }

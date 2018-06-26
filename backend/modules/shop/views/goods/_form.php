@@ -119,6 +119,8 @@ use yii\widgets\ActiveForm;
                             hiddenValue=key;
                         }
                         hiddenEle.val(hiddenValue);
+                        //上传后触发验证
+                         $('#goods-form').yiiActiveForm('validateAttribute', 'goods-img_others')
                        }"),
                 //移动排序交换隐藏表单值的位置
                 'filesorted' => new JsExpression("function (event,params){
@@ -276,8 +278,8 @@ use yii\widgets\ActiveForm;
         Html::beginTag('table', ['style' => 'width:100%']) .
         $paramHeader .
         Html::beginTag('tbody', ['id' => 'goods_params']);
-    if (!empty($model->goods_params)) {
-        foreach ($model->goods_params as $value) {
+    if (!empty($model->goodsParams)) {
+        foreach ($model->goodsParams as $value) {
             $param .= Html::beginTag('tr') .
                 Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', $value->name, ['class' => 'form-control']) . Html::endTag('td') .
                 Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', $value->value, ['class' => 'form-control']) . Html::endTag('td') .
@@ -352,11 +354,25 @@ use yii\widgets\ActiveForm;
 
 </div>
 <?php
+$imgOthersErrorMsg=Yii::t('goods','Image can not empty!');
 $js = <<<eof
 //红星提示
     $('.required').each(function(){
         var label=$(this).children(':first');
         label.html(label.html()+'<i style="color:red">*</i>');
+    });
+    //增加商品组图前端js验证
+    $('#goods-form').yiiActiveForm('add', {
+        id: 'goods-img_others',
+        name: 'img_others',
+        container: '.field-goods-img_others',
+        input: '#goods-img_others',
+        error: '.help-block',
+        validate:  function (attribute, value, messages, deferred, \$form) {
+            if(!$('#img_others').val()){
+                yii.validation.addMessage(messages,'$imgOthersErrorMsg');
+            }
+        }
     });
     //前端js验证出错后切换标签页
     $("#goods-form").on('afterValidate',function(event, messages, errorAttributes){
@@ -374,7 +390,7 @@ $js = <<<eof
             return false;
         })
     })
-    //后端服务器验证出错后切换标签页
+    //后端服务器验证出错后切换标签页，一般用不到
     var errorContainer=$(".has-error:first"),
         tab;
     if(errorContainer.hasClass('field-goods-freight_id') || errorContainer.hasClass('field-goods-freight_price')){

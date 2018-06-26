@@ -62,12 +62,12 @@ class GoodsController extends BaseController
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public function actionView($id)
+    /*public function actionView($id)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
-    }
+    }*/
 
     /**
      * Creates a new Goods model.
@@ -79,8 +79,7 @@ class GoodsController extends BaseController
     {
         $model = new Goods();
         if (Yii::$app->request->isPost) {
-            $model->load(Yii::$app->request->post());
-            if ($model->validate()) {
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
                 //处理主图
                 $imgOthersArr = explode(',', $model->img_others);
                 $imgOrg = $imgOthersArr[0];//主图
@@ -97,24 +96,6 @@ class GoodsController extends BaseController
                     return $this->redirectSuccess($url, Yii::t('common', 'Create Success'));
                 }
             }
-            //由于图片是服务端验证，所以如果失败就会重新加载前端，这里确保已输入的参数还会显示
-            $postData = Yii::$app->request->post();
-            $paramNameArr = $postData['paramName'];
-            $paramValueArr = $postData['paramValue'];
-            $paramSortArr = $postData['paramSort'];
-            $paramData = [];
-            if (!empty($paramNameArr)) {
-                foreach ($paramNameArr as $key => $name) {
-                    if (!empty($paramValueArr[$key])) {
-                        $paramData[] = [
-                            'name' => $name,
-                            'value' => $paramValueArr[$key],
-                            'sort' => intval($paramSortArr[$key]),
-                        ];
-                    }
-                }
-            }
-            $model->goods_param = $paramData;
         }
         //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
         $this->rememberReferrerUrl('goods-create');
@@ -137,27 +118,44 @@ class GoodsController extends BaseController
      * @param integer $id
      * @return mixed
      * @throws NotFoundHttpException
+     * @throws \yii\base\Exception
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            //获取列表页url，方便跳转
-            $url = $this->getReferrerUrl('goods-update');
-            return $this->redirectSuccess($url, Yii::t('common', 'Update Success'));
-        } else {
-            //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
-            $this->rememberReferrerUrl('goods-update');
-            //将整数的金额转为小数显示
-            $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
-            foreach ($priceArr as $value) {
-                $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
+        if (Yii::$app->request->isPost) {
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                //判定主图是否有变动
+                $imgOthersArr = explode(',', $model->img_others);
+                $imgOrg = $imgOthersArr[0];//主图
+                $imgBaseName = basename($imgOrg);//名称
+                //只有变动才重新存储主图
+                if ($imgBaseName != basename($model->img)) {
+                    $imgPath = Yii::$app->params['goodsMasterPath'];
+                    FileHelper::createDirectory(Yii::getAlias('@webroot') . $imgPath);
+                    $img = $imgPath . $imgBaseName;
+                    Image::thumbnail(Yii::getAlias('@webroot') . $imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
+                    $model->img = $img;
+                }
+                $res = $model->save(false);
+                if ($res) {
+                    //获取列表页url，方便跳转
+                    $url = $this->getReferrerUrl('goods-update');
+                    return $this->redirectSuccess($url, Yii::t('common', 'Update Success'));
+                }
             }
-            return $this->render('update', [
-                'model' => $model,
-            ]);
         }
+        //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
+        $this->rememberReferrerUrl('goods-update');
+        //将整数的金额转为小数显示
+        $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
+        foreach ($priceArr as $value) {
+            $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
+        }
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+
     }
 
     /**
