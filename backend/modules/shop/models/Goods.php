@@ -294,7 +294,7 @@ class Goods extends \yii\db\ActiveRecord
         $arr = [
             self::GOODS_OFFLINE => Yii::t('goods', 'offline'),
             self::GOODS_ONLINE => Yii::t('goods', 'online'),
-            self::GOODS_RECYCLE => Yii::t('goods', 'delete')
+            self::GOODS_RECYCLE => Yii::t('goods', 'recycle')
         ];
         if ($key !== false) {
             return ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
@@ -323,6 +323,23 @@ class Goods extends \yii\db\ActiveRecord
         return ['price', 'market_price', 'cost_price', 'freight_price'];
     }
 
+    /**
+     * 获取批量操作的类别
+     */
+    public static function getBatchOperations()
+    {
+        return [
+            'new' => Yii::t('goods', 'Is New'),
+            'not_new' => Yii::t('goods', 'Not New'),
+            'hot' => Yii::t('goods', 'Is Hot'),
+            'not_hot' => Yii::t('goods', 'Not Hot'),
+            'recommend' => Yii::t('goods', 'Is Recommend'),
+            'not_recommend' => Yii::t('goods', 'Not Recommend'),
+            'status_offline' => Yii::t('goods', 'offline'),
+            'status_online' => Yii::t('goods', 'online'),
+            'status_recycle' => Yii::t('goods', 'recycle'),
+        ];
+    }
     /**
      * 自动生成goods_sn
      * 暂时用yii2自带的生成随机数的方法，后期需要优化

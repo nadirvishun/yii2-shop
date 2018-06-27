@@ -6,6 +6,7 @@ use kartik\popover\PopoverX;
 use kartik\switchinput\SwitchInput;
 use yii\helpers\Html;
 use kartik\grid\GridView;
+use kartik\widgets\Select2;
 
 /* @var $this yii\web\View */
 /* @var $searchModel backend\modules\shop\models\search\Goods */
@@ -19,9 +20,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <?= GridView::widget([
+        'id'=>'goods_grid',
         'dataProvider' => $dataProvider,
         'hover' => true,
         'pjax' => true,
+        'condensed' => true,
         'filterModel' => $searchModel,
         'columns' => [
             [
@@ -31,42 +34,9 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'id',
                 'vAlign' => 'middle',
-                'width' => '36px',
+//                'width' => '36px',
                 'headerOptions' => ['class' => 'kartik-sheet-style']
             ],
-            /*[
-                'attribute' => 'title',
-                'vAlign' => 'middle',
-                'hAlign'=>'left',
-                'format' => 'raw',
-//                'editableOptions' => function ($model, $key, $index) {
-//                    return [
-////                        'value' => Yii::$app->formatter->asDecimal($model->title / 100, 2),
-//                        'header' => $model->getAttributeLabel('title'),
-//                        'size' => 'md',
-//                        'options'=>[
-//                            'value'=>$model->title,
-//                        ],
-//                        'containerOptions'=>['id'=>'title_abc']
-//                    ];
-//                },
-                'value' => function ($model, $key, $index, $column) {
-                    $editable=Editable::widget([
-                        'name'=>"Goods[$key][title]",
-                        'id'=>'title-'.$model->id,
-                        'value' => $model->title,
-                        'header' => $model->getAttributeLabel('title'),
-                        'size'=>'md',
-                        'beforeInput' => Html::hiddenInput('editableKey',$model->id).Html::hiddenInput('editableAttribute','title')//传递ID和字段
-                    ]);
-                    return Html::img($model->img, ['width' => '50px', 'style' => 'float:left']) .
-                        Html::beginTag('div', ['style' => 'float:left;height:50px;margin-left:5px;text-align:left']) .
-//                        Html::tag('div', $model->title, ['style' => 'line-height:25px','id'=>'title_abc']) .
-                        $editable.
-                        Html::tag('div', '货号：'.$model->goods_sn, ['style' => 'line-height:25px;color:#999']) .
-                        Html::endTag('div');
-                }
-            ],*/
             [
                 'attribute' => 'title',
                 'format' => 'raw',
@@ -84,19 +54,11 @@ $this->params['breadcrumbs'][] = $this->title;
 //            'sub_title',
             // 'category_id',
             // 'brand_id',
-//            [
-//                'attribute' => 'price',
-//                'vAlign' => 'middle',
-//                'width' => '90px',
-//                'value' => function ($model, $key, $index, $column) {
-//                    return Yii::$app->formatter->asDecimal($model->price / 100, 2);
-//                }
-//            ],
             [
                 'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'price',
                 'vAlign' => 'middle',
-                'width' => '90px',
+//                'width' => '90px',
                 'hAlign' => 'center',
                 'editableOptions' => function ($model, $key, $index) {
                     return [
@@ -126,7 +88,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'stock',
                 'vAlign' => 'middle',
-                'width' => '90px',
+//                'width' => '90px',
                 'format' => 'raw',
                 'hAlign' => 'center',
                 'filterType' => GridView::FILTER_SELECT2,
@@ -272,7 +234,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'sort',
                 'vAlign' => 'middle',
-                'width' => '36px',
+//                'width' => '36px',
                 'hAlign' => 'center',
                 'editableOptions' => function ($model, $key, $index) {
                     return [
@@ -286,19 +248,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'status',
                 'vAlign' => 'middle',
-                'width' => '90px',
+//                'width' => '90px',
                 'hAlign' => 'center',
-//                'filterType' => GridView::FILTER_SELECT2,
-//                'filterWidgetOptions' => [
-//                    'data' => Goods::getGoodsPropertyOptions('is_new'),
-//                    'options' => [
-//                        'prompt' => Yii::t('common', 'Please Select...'),
-//                    ],
-//                    'hideSearch' => true,
-//                    'pluginOptions' => [
-//                        'allowClear' => true
-//                    ],
-//                ],
+                'mergeHeader' => true,
                 'editableOptions' => function ($model, $key, $index) {
                     return [
                         'value' => $model->status,//原始值
@@ -348,11 +300,18 @@ $this->params['breadcrumbs'][] = $this->title;
                     <i class="fa fa-fw fa-sun-o"></i><h3 class="box-title">' . Yii::t('common', 'message_manage') . '</h3>
                 </div>',
             'after' => '<div class="pull-left" style="margin-top: 8px">{summary}</div><div class="kv-panel-pager pull-right">{pager}</div><div class="clearfix"></div>',
-            'footer' => false,
-            //'footer' => '<div class="pull-left">'
-            //    . Html::button('<i class="glyphicon glyphicon-remove-circle"></i>' . Yii::t('common', 'batch'), ['class' => 'btn btn-primary', 'id' => 'bulk_forbid'])
-            //    . '</div>',
-            //'footerOptions' => ['style' => 'padding:5px 15px']
+//            'footer' => false,
+            'footer' =>'<div class="pull-left" style="width:100px">'.
+                Select2::widget([
+                    'id' => 'batch_type',
+                    'name' => 'batch_type',
+                    'data' => Goods::getBatchOperations(),
+                ])
+                . '</div>'
+                .'<div class="pull-left">'
+                . Html::button('<i class="fa fa-flash"></i> ' . Yii::t('goods', 'batch operation'), ['class' => 'btn btn-primary', 'id' => 'batch_operation'])
+                . '</div>',
+            'footerOptions' => ['style' => 'padding:5px 15px']
         ],
         'panelFooterTemplate' => '{footer}<div class="clearfix"></div>',
         'toolbar' => [
@@ -367,3 +326,30 @@ $this->params['breadcrumbs'][] = $this->title;
 
     ]); ?>
 </div>
+<?php
+
+$js = <<<eof
+$('#batch_operation').on('click',function(){
+    //判定是否选中
+    var ids=$('#goods_grid').yiiGridView('getSelectedRows');
+    var keys=ids.length;
+    if(keys<=0){
+        krajeeDialog.alert('清选择要操作的列');
+    }else{
+        //弹出确认是否执行
+        krajeeDialog.confirm('是否确认此操作',function(result){
+            if(result){
+                //要改变的动作
+                var batchType=$('#batch_type').val();
+                $.ajax({
+                   
+                    
+                })
+            }
+        });
+    }
+})
+eof;
+$this->registerJs($js);
+
+?>
