@@ -71,6 +71,7 @@ use yii\widgets\ActiveForm;
 
     <?php $img = $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
+    <!-- 商品图片相关   -->
     <?php
     //字段名
     $imgOthersName = Html::getInputName($model, 'img_others');
@@ -149,6 +150,8 @@ use yii\widgets\ActiveForm;
         ])
     ?>
 
+
+    <!-- 商品详情相关   -->
     <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])
         ->widget('kucha\ueditor\UEditor', [
             'clientOptions' => [
@@ -191,6 +194,8 @@ use yii\widgets\ActiveForm;
 
     <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
+
+    <!-- 商品属性新品热销等相关   -->
     <?php $goodsProperty = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
         Html::label(Yii::t('goods', 'Goods Property'), null, ['class' => 'control-label',]) . '<br>' .
         Html::activeCheckbox($model, 'is_new', ['labelOptions' => ['style' => 'font-weight:normal']]) .
@@ -201,6 +206,7 @@ use yii\widgets\ActiveForm;
         Html::endTag('div');
     ?>
 
+    <!-- 商品运费相关相关   -->
     <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
         Html::label(Yii::t('goods', 'Freight Setting'), null, ['class' => 'control-label',]) . '<br>' .
         Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
@@ -259,6 +265,7 @@ use yii\widgets\ActiveForm;
             'pluginOptions' => ['size' => 'mini']
         ]) ?>
 
+    <!-- 商品参数相关   -->
     <?php $paramHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
         Html::tag('td', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .

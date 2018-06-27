@@ -10,6 +10,7 @@ use backend\controllers\BaseController;
 use yii\helpers\FileHelper;
 use yii\imagine\Image;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * GoodsController implements the CRUD actions for Goods model.
@@ -42,13 +43,14 @@ class GoodsController extends BaseController
     }
 
     /**
-     * Lists all Goods models.
+     * 上架中的商品
      * @return mixed
      */
     public function actionIndex()
     {
         $searchModel = new GoodsSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $status = Goods::GOODS_ONLINE;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -56,6 +58,80 @@ class GoodsController extends BaseController
         ]);
     }
 
+    /**
+     * 下架商品
+     */
+    public function actionOffline()
+    {
+        if (Yii::$app->request->post('hasEditable')) {
+            $id = Yii::$app->request->post('editableKey');//获取ID
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            $model = Goods::findOne($id);
+            $output = '';
+            $message = '';
+            //由于传递的数据是二维数组，将其转为一维
+            $attribute = Yii::$app->request->post('editableAttribute');//获取名称
+            $posted = current(Yii::$app->request->post('Goods'));
+            $post = ['Goods' => $posted];
+            if ($model->load($post) && $model->validate()) {
+                $priceArr = Goods::getPriceFields();//获取以分为单位存储的价格字段数组
+                $priceError = false;//价格验证错误，默认没有
+                if (in_array($attribute, $priceArr)) {
+                    $model->$attribute = intval($model->$attribute * 100);
+                    //判定商品价格必须小于市场价格，由于市场价格不传递，导致变为分后rule不正确，所以在这里判定
+                    if ($attribute == 'price') {
+                        if ($model->$attribute > $model->market_price) {
+                            $model->addError($attribute, Yii::t('goods', 'price must be less than or equal to market price'));
+                            $priceError = true;
+                        }
+                    }
+                }
+                if (!$priceError && $model->save(false)) {
+                    if (in_array($attribute, $priceArr)) {
+                        //价格格式化
+                        $output = Yii::$app->formatter->asDecimal($model->$attribute / 100, 2);
+                    } elseif ($attribute == 'stock') {
+                        //库存显示预警
+                        if ($model->stock==0 ||($model->stock_alarm !== 0 && $model->stock_alarm >= $model->$attribute)) {
+                            $output = '<span style="color:red">' . $model->$attribute . '</span>';
+                        } else {
+                            $output = $model->$attribute;
+                        }
+                    } else {
+                        $output = $model->$attribute;
+                    }
+                    return ['output' => $output, 'message' => $message];
+                }
+            }
+            //由于本插件不会自动捕捉model的error，所以需要放在$message中展示出来
+            $message = $model->getFirstError($attribute);
+            return ['output' => $output, 'message' => $message];
+        } else {
+            $searchModel = new GoodsSearch();
+            $status = Goods::GOODS_OFFLINE;
+            $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
+
+            return $this->render('index', [
+                'searchModel' => $searchModel,
+                'dataProvider' => $dataProvider,
+            ]);
+        }
+    }
+
+    /**
+     * 回收站商品
+     */
+    public function actionRecycle()
+    {
+        $searchModel = new GoodsSearch();
+        $status = Goods::GOODS_RECYCLE;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
     /**
      * Displays a single Goods model.
      * @param integer $id
@@ -78,6 +154,7 @@ class GoodsController extends BaseController
     public function actionCreate()
     {
         $model = new Goods();
+        $priceArr = Goods::getPriceFields();//获取以分为单位存储的价格字段数组
         if (Yii::$app->request->isPost) {
             if ($model->load(Yii::$app->request->post()) && $model->validate()) {
                 //处理主图
@@ -89,6 +166,10 @@ class GoodsController extends BaseController
                 $img = $imgPath . $imgBaseName;
                 Image::thumbnail(Yii::getAlias('@webroot') . $imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
                 $model->img = $img;
+                //处理价格为分
+                foreach ($priceArr as $value) {
+                    $model->$value = intval($model->$value * 100);
+                }
                 $res = $model->save(false);
                 if ($res) {
                     //获取列表页url，方便跳转
@@ -102,7 +183,6 @@ class GoodsController extends BaseController
 
         $model->loadDefaultValues();
         //将整数的金额转为小数显示
-        $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
         foreach ($priceArr as $value) {
             $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
         }
@@ -123,6 +203,7 @@ class GoodsController extends BaseController
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $priceArr = Goods::getPriceFields();//获取以分为单位存储的价格字段数组
         if (Yii::$app->request->isPost) {
             if ($model->load(Yii::$app->request->post()) && $model->validate()) {
                 //判定主图是否有变动
@@ -137,6 +218,10 @@ class GoodsController extends BaseController
                     Image::thumbnail(Yii::getAlias('@webroot') . $imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
                     $model->img = $img;
                 }
+                //处理价格为分
+                foreach ($priceArr as $value) {
+                    $model->$value = intval($model->$value * 100);
+                }
                 $res = $model->save(false);
                 if ($res) {
                     //获取列表页url，方便跳转
@@ -148,7 +233,6 @@ class GoodsController extends BaseController
         //为了更新完成后返回列表检索页数原有状态，所以这里先纪录下来
         $this->rememberReferrerUrl('goods-update');
         //将整数的金额转为小数显示
-        $priceArr = ['price', 'market_price', 'cost_price', 'freight_price'];
         foreach ($priceArr as $value) {
             $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
         }

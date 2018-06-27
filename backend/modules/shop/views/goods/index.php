@@ -1,5 +1,9 @@
 <?php
 
+use backend\modules\shop\models\Goods;
+use kartik\editable\Editable;
+use kartik\popover\PopoverX;
+use kartik\switchinput\SwitchInput;
 use yii\helpers\Html;
 use kartik\grid\GridView;
 
@@ -17,25 +21,95 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'hover' => true,
+        'pjax' => true,
         'filterModel' => $searchModel,
         'columns' => [
             [
                 'class' => '\kartik\grid\CheckboxColumn',
                 'rowSelectedClass' => GridView::TYPE_INFO
             ],
-
-            'id',
-            'title',
-            'goods_sn',
+            [
+                'attribute' => 'id',
+                'vAlign' => 'middle',
+                'width' => '36px',
+                'headerOptions' => ['class' => 'kartik-sheet-style']
+            ],
+            /*[
+                'attribute' => 'title',
+                'vAlign' => 'middle',
+                'hAlign'=>'left',
+                'format' => 'raw',
+//                'editableOptions' => function ($model, $key, $index) {
+//                    return [
+////                        'value' => Yii::$app->formatter->asDecimal($model->title / 100, 2),
+//                        'header' => $model->getAttributeLabel('title'),
+//                        'size' => 'md',
+//                        'options'=>[
+//                            'value'=>$model->title,
+//                        ],
+//                        'containerOptions'=>['id'=>'title_abc']
+//                    ];
+//                },
+                'value' => function ($model, $key, $index, $column) {
+                    $editable=Editable::widget([
+                        'name'=>"Goods[$key][title]",
+                        'id'=>'title-'.$model->id,
+                        'value' => $model->title,
+                        'header' => $model->getAttributeLabel('title'),
+                        'size'=>'md',
+                        'beforeInput' => Html::hiddenInput('editableKey',$model->id).Html::hiddenInput('editableAttribute','title')//传递ID和字段
+                    ]);
+                    return Html::img($model->img, ['width' => '50px', 'style' => 'float:left']) .
+                        Html::beginTag('div', ['style' => 'float:left;height:50px;margin-left:5px;text-align:left']) .
+//                        Html::tag('div', $model->title, ['style' => 'line-height:25px','id'=>'title_abc']) .
+                        $editable.
+                        Html::tag('div', '货号：'.$model->goods_sn, ['style' => 'line-height:25px;color:#999']) .
+                        Html::endTag('div');
+                }
+            ],*/
+            [
+                'attribute' => 'title',
+                'format' => 'raw',
+                'vAlign' => 'middle',
+                'value' => function ($model, $key, $index, $column) {
+                    return Html::img($model->img, ['width' => '50px', 'style' => 'float:left']) .
+                        Html::beginTag('div', ['style' => 'float:left;height:50px;margin-left:5px']) .
+                        Html::tag('div', $model->title, ['style' => 'line-height:25px']) .
+                        Html::tag('div', '<span style="color:#999">货号：</span>' . $model->goods_sn, ['style' => 'line-height:25px']) .
+                        Html::endTag('div');
+                }
+            ],
+//            'goods_sn',
 //            'goods_barcode',
 //            'sub_title',
             // 'category_id',
             // 'brand_id',
+//            [
+//                'attribute' => 'price',
+//                'vAlign' => 'middle',
+//                'width' => '90px',
+//                'value' => function ($model, $key, $index, $column) {
+//                    return Yii::$app->formatter->asDecimal($model->price / 100, 2);
+//                }
+//            ],
             [
+                'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'price',
-                'format' => 'raw',
+                'vAlign' => 'middle',
+                'width' => '90px',
+                'hAlign' => 'center',
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'value' => Yii::$app->formatter->asDecimal($model->price / 100, 2),
+                        'header' => $model->getAttributeLabel('price'),
+                        'size' => 'md',
+                        'options'=>[
+                                'value'=>Yii::$app->formatter->asDecimal($model->price / 100, 2),
+                        ]
+                    ];
+                },
                 'value' => function ($model, $key, $index, $column) {
-                    return Yii::$app->formatter->asDecimal($model->price/100,2);
+                    return Yii::$app->formatter->asDecimal($model->price / 100, 2);
                 }
             ],
             // 'unit',
@@ -49,12 +123,33 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'click',
             // 'collect',
             [
+                'class' => '\kartik\grid\EditableColumn',
                 'attribute' => 'stock',
+                'vAlign' => 'middle',
+                'width' => '90px',
                 'format' => 'raw',
+                'hAlign' => 'center',
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'data' => Goods::getStockAlarmOptions(),
+                    'options' => [
+                        'prompt' => Yii::t('common', 'Please Select...'),
+                    ],
+                    'hideSearch' => true,
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ],
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'header' => $model->getAttributeLabel('stock'),
+                        'size' => 'md',
+                    ];
+                },
                 'value' => function ($model, $key, $index, $column) {
-                    if($model->stock_alarm!==0 && $model->stock_alarm >=$model->stock){
-                        return '<i style="color:red">'.$model->stock.'</i>';
-                    }else{
+                    if ($model->stock==0 ||($model->stock_alarm !== 0 && $model->stock_alarm >= $model->stock)) {
+                        return '<span style="color:red">' . $model->stock . '</span>';
+                    } else {
                         return $model->stock;
                     }
                 }
@@ -62,20 +157,168 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'stock_alarm',
             // 'stock_type',
             // 'weight',
-            // 'is_freight_free',
+//             'is_freight_free',
             // 'freight_type',
             // 'freight_id',
             // 'freight_price',
-            // 'is_new',
-            // 'is_hot',
-            // 'is_recommend',
+            [
+                'class' => '\kartik\grid\EditableColumn',
+                'attribute' => 'is_new',
+                'vAlign' => 'middle',
+                'hAlign' => 'center',
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'data' => Goods::getGoodsPropertyOptions('is_new'),
+                    'options' => [
+                        'prompt' => Yii::t('common', 'Please Select...'),
+                    ],
+                    'hideSearch' => true,
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ],
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'value' => $model->is_new,//原始值
+                        'displayValueConfig' => Goods::getGoodsPropertyOptions('is_new'),//要显示的文字
+                        'header' => $model->getAttributeLabel('is_new'),
+                        'size' => 'md',
+                        'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                        'inputType' => Editable::INPUT_SWITCH,
+                        'options' => [
+                            'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
+                            'pluginOptions' => ['size' => 'small'],
+                        ],
+                    ];
+                },
+                'value' => function ($model, $key, $index, $column) {
+                    return Goods::getGoodsPropertyOptions('is_new', $model->is_new);
+                }
+            ],
+            [
+                'class' => '\kartik\grid\EditableColumn',
+                'attribute' => 'is_hot',
+                'vAlign' => 'middle',
+                'hAlign' => 'center',
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'data' => Goods::getGoodsPropertyOptions('is_hot'),
+                    'options' => [
+                        'prompt' => Yii::t('common', 'Please Select...'),
+                    ],
+                    'hideSearch' => true,
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ],
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'value' => $model->is_hot,//原始值
+                        'displayValueConfig' => Goods::getGoodsPropertyOptions('is_hot'),//要显示的文字
+                        'header' => $model->getAttributeLabel('is_hot'),
+                        'size' => 'md',
+                        'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                        'inputType' => Editable::INPUT_SWITCH,
+                        'options' => [
+                            'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
+                            'pluginOptions' => ['size' => 'small'],
+                        ],
+                    ];
+                },
+                'value' => function ($model, $key, $index, $column) {
+                    return Goods::getGoodsPropertyOptions('is_hot', $model->is_new);
+                }
+            ],
+            [
+                'class' => '\kartik\grid\EditableColumn',
+                'attribute' => 'is_recommend',
+                'vAlign' => 'middle',
+                'hAlign' => 'center',
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'data' => Goods::getGoodsPropertyOptions('is_recommend'),
+                    'options' => [
+                        'prompt' => Yii::t('common', 'Please Select...'),
+                    ],
+                    'hideSearch' => true,
+                    'pluginOptions' => [
+                        'allowClear' => true
+                    ],
+                ],
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'value' => $model->is_recommend,//原始值
+                        'displayValueConfig' => Goods::getGoodsPropertyOptions('is_recommend'),//要显示的文字
+                        'header' => $model->getAttributeLabel('is_recommend'),
+                        'size' => 'md',
+                        'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                        'inputType' => Editable::INPUT_SWITCH,
+                        'options' => [
+                            'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
+                            'pluginOptions' => ['size' => 'small'],
+                        ],
+                    ];
+                },
+                'value' => function ($model, $key, $index, $column) {
+                    return Goods::getGoodsPropertyOptions('is_recommend', $model->is_new);
+                }
+            ],
             // 'is_limit',
             // 'max_buy',
             // 'min_buy',
             // 'user_max_buy',
             // 'give_integral',
-             'sort',
-             'status',
+            [
+                'class' => '\kartik\grid\EditableColumn',
+                'attribute' => 'sort',
+                'vAlign' => 'middle',
+                'width' => '36px',
+                'hAlign' => 'center',
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'header' => $model->getAttributeLabel('sort'),
+                        'size' => 'md',
+                        'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                    ];
+                },
+            ],
+            [
+                'class' => '\kartik\grid\EditableColumn',
+                'attribute' => 'status',
+                'vAlign' => 'middle',
+                'width' => '90px',
+                'hAlign' => 'center',
+//                'filterType' => GridView::FILTER_SELECT2,
+//                'filterWidgetOptions' => [
+//                    'data' => Goods::getGoodsPropertyOptions('is_new'),
+//                    'options' => [
+//                        'prompt' => Yii::t('common', 'Please Select...'),
+//                    ],
+//                    'hideSearch' => true,
+//                    'pluginOptions' => [
+//                        'allowClear' => true
+//                    ],
+//                ],
+                'editableOptions' => function ($model, $key, $index) {
+                    return [
+                        'value' => $model->status,//原始值
+                        'displayValueConfig' => Goods::getStatusOptions(),//要显示的文字
+                        'header' => $model->getAttributeLabel('status'),
+                        'size' => 'lg',
+                        'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                        'inputType' => Editable::INPUT_SWITCH,
+                        'options' => [
+                            'type' => SwitchInput::RADIO,
+                            'items' => Goods::getStatusOptions(false, true),
+                            'labelOptions' => ['style' => 'font-weight:normal'],
+                            'pluginOptions' => ['size' => 'mini']
+                        ],
+                    ];
+                },
+                'value' => function ($model, $key, $index, $column) {
+                    return Goods::getStatusOptions($model->status);
+                }
+            ],
             // 'created_by',
             // 'created_at',
             // 'updated_by',

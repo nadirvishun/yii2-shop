@@ -38,11 +38,12 @@ class GoodsSearch extends Goods
      *
      * @param array $params
      *
+     * @param $status
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $status = 1)
     {
-        $query = Goods::find();
+        $query = Goods::find()->where(['status' => $status]);
 
         // add conditions that should always apply here
 
@@ -61,6 +62,18 @@ class GoodsSearch extends Goods
             // $query->where('0=1');
             return $dataProvider;
         }
+        //库存预警的选取
+        if ($this->stock == Goods::STOCK_ALARM_YES) {
+            $query->andFilterWhere(['and','stock_alarm <> 0','stock <= stock_alarm'])
+                ->orFilterWhere(['=', 'stock', 0]);
+
+//            $query->andFilterWhere(['<>', 'stock_alarm', 0])
+//                ->andFilterWhere(['<=', 'stock', 'stock_alarm']);
+        } elseif ($this->stock == Goods::STOCK_ALARM_NO) {
+            $query->andFilterWhere(['or','stock_alarm = 0','stock > stock_alarm','sotck <> 0']);
+//            $query->andFilterWhere(['=', 'stock_alarm', 0])
+//                ->orFilterWhere(['>', 'stock', 'stock_alarm']);
+        }
 
         // grid filtering conditions
         $query->andFilterWhere([
@@ -74,8 +87,8 @@ class GoodsSearch extends Goods
             'real_sales' => $this->real_sales,
             'click' => $this->click,
             'collect' => $this->collect,
-            'stock' => $this->stock,
-            'stock_alarm' => $this->stock_alarm,
+//            'stock' => $this->stock,
+//            'stock_alarm' => $this->stock_alarm,
             'stock_type' => $this->stock_type,
             'weight' => $this->weight,
             'is_freight_free' => $this->is_freight_free,
@@ -91,7 +104,7 @@ class GoodsSearch extends Goods
             'user_max_buy' => $this->user_max_buy,
             'give_integral' => $this->give_integral,
             'sort' => $this->sort,
-            'status' => $this->status,
+//            'status' => $this->status,
             'created_by' => $this->created_by,
             'created_at' => $this->created_at,
             'updated_by' => $this->updated_by,
@@ -99,13 +112,7 @@ class GoodsSearch extends Goods
         ]);
 
         $query->andFilterWhere(['like', 'goods_sn', $this->goods_sn])
-            ->andFilterWhere(['like', 'goods_barcode', $this->goods_barcode])
-            ->andFilterWhere(['like', 'title', $this->title])
-            ->andFilterWhere(['like', 'sub_title', $this->sub_title])
-            ->andFilterWhere(['like', 'unit', $this->unit])
-            ->andFilterWhere(['like', 'img', $this->img])
-            ->andFilterWhere(['like', 'img_others', $this->img_others])
-            ->andFilterWhere(['like', 'content', $this->content]);
+            ->andFilterWhere(['like', 'title', $this->title]);
 
         return $dataProvider;
     }

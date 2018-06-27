@@ -49,6 +49,10 @@ return [
     'Create Goods' => '创建商品',
     'Update Goods' => '修改商品',
     'View Goods' => '查看商品',
+    'yes' => '是',
+    'no' => '否',
+    'stock normal' => '库存正常',
+    'stock alarm' => '库存预警',
 
     'basic' => '基础信息',
     'stock' => '库存信息',
@@ -62,7 +66,7 @@ return [
     'freight common' => '统一运费',
     'offline' => '下架',
     'online' => '上架',
-    'delete' => '删除',
+    'delete' => '回收',
     'pay reduce' => '付款减库存',
     'order reduce' => '拍下减库存',
     'goods_sn_hint' => '唯一标识，不填写时自动生成',
@@ -78,6 +82,7 @@ return [
     'freight_hint' => '如果不存在运费模板，请先去【运费模板】栏目中创建',
 
     'Image can not empty!' => '商品组图必须上传',
-    'add param'=>'添加参数',
+    'price must be less than or equal to market price' => '价格必须小于等于市场价格',
+    'add param' => '添加参数',
 
 ];

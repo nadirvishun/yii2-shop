@@ -53,15 +53,21 @@ use yii\helpers\ArrayHelper;
  */
 class Goods extends \yii\db\ActiveRecord
 {
+    const GOODS_PROPERTY_YES = 1;//商品属性：是否热销等状态：是
+    const GOODS_PROPERTY_NO = 0;//商品属性：是否热销等状态：否
+
     const FREIGHT_TYPE_TEMPLATE = 0;//运费模板
     const FREIGHT_TYPE_COMMON = 1;//统一运费
 
     const GOODS_OFFLINE = 0;//下架
     const GOODS_ONLINE = 1;//上架
-    const GOODS_DELETE = 2;//删除
+    const GOODS_RECYCLE = 2;//删除
 
     const STOCK_TYPE_ORDER = 1;//拍下减库存
     const STOCK_TYPE_PAY = 2;//付款减库存
+
+    const STOCK_ALARM_YES = 1;//库存预警
+    const STOCK_ALARM_NO = 2;//库存正常
 
     /**
      * {@inheritdoc}
@@ -135,9 +141,6 @@ class Goods extends \yii\db\ActiveRecord
             [['goods_sn'], 'unique'],
             [['price', 'market_price', 'cost_price', 'freight_price'], 'number', 'min' => 0],
             ['market_price', 'compare', 'compareAttribute' => 'price', 'type' => 'number', 'operator' => '>='],//市场价大于等于标价
-            [['price', 'market_price', 'cost_price', 'freight_price'], 'filter', 'filter' => function ($value) {
-                return intval($value * 100);
-            }],
             [['goods_barcode'], 'unique'],
             //设置默认值为null，数据库中才能唯一索引但是多个null值
             [['goods_barcode'], 'default', 'value' => null],
@@ -218,6 +221,39 @@ class Goods extends \yii\db\ActiveRecord
     }
 
     /**
+     * 获取各商品属性下拉菜单
+     * @param string $type
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getGoodsPropertyOptions($type = 'is_new', $key = false)
+    {
+        if (!in_array($type, ['is_new', 'is_hot', 'is_recommend'])) {
+            $arr = [];
+        } else {
+            $arr = [
+                self::GOODS_PROPERTY_NO => Yii::t('goods', 'no'),
+                self::GOODS_PROPERTY_YES => Yii::t('goods', 'yes')
+            ];
+        }
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
+     * 库存预警和库存正常分类
+     * @param bool $key
+     * @return array|mixed
+     */
+    public static function getStockAlarmOptions($key = false)
+    {
+        $arr = [
+            self::STOCK_ALARM_NO => Yii::t('goods', 'stock normal'),
+            self::STOCK_ALARM_YES => Yii::t('goods', 'stock alarm')
+        ];
+        return $key === false ? $arr : ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
+    }
+
+    /**
      *  获取状态下拉菜单列表或者某一名称
      * @param bool $key
      * @param bool $format 是否组装成前台switchInput需要的格式
@@ -258,7 +294,7 @@ class Goods extends \yii\db\ActiveRecord
         $arr = [
             self::GOODS_OFFLINE => Yii::t('goods', 'offline'),
             self::GOODS_ONLINE => Yii::t('goods', 'online'),
-            self::GOODS_DELETE => Yii::t('goods', 'delete')
+            self::GOODS_RECYCLE => Yii::t('goods', 'delete')
         ];
         if ($key !== false) {
             return ArrayHelper::getValue($arr, $key, Yii::t('common', 'Unknown'));
@@ -276,6 +312,15 @@ class Goods extends \yii\db\ActiveRecord
                 return $formatArr;
             }
         }
+    }
+
+    /**
+     * 获取需要转换为分的字段
+     * @return array
+     */
+    public static function getPriceFields()
+    {
+        return ['price', 'market_price', 'cost_price', 'freight_price'];
     }
 
     /**
@@ -309,6 +354,7 @@ class Goods extends \yii\db\ActiveRecord
      * 存储后的动作
      * @param bool $insert
      * @param array $changedAttributes
+     * @throws \yii\db\Exception
      */
     public function afterSave($insert, $changedAttributes)
     {
@@ -320,6 +366,5 @@ class Goods extends \yii\db\ActiveRecord
         $paramSortArr = isset($postData['paramSort']) ? $postData['paramSort'] : [];
         $goodsParam = new GoodsParam();
         $goodsParam->saveBatchGoodsParam($this->id, $paramNameArr, $paramValueArr, $paramSortArr, $insert);
-
     }
 }
