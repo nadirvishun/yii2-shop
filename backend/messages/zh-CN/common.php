@@ -26,9 +26,12 @@ return [
     'Invalid Parameter' => '参数错误',
     'Create Success' => '创建成功',
     'Update Success' => '修改成功',
+    'Batch Update Success' => '批量修改成功',
     'Delete Success' => '删除成功',
     'Delete Failed' => '删除失败',
     'Upload failed!' => '上传失败',
+    'Please select the column!'=>'请选择要操作的列',
+    'Are you sure you want to operate this item?' => '您确定要操作此项吗？',
     //错误页面
     'homePage' => '首页',
     'previousPage' => '上一页',

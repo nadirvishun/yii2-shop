@@ -325,21 +325,70 @@ class Goods extends \yii\db\ActiveRecord
 
     /**
      * 获取批量操作的类别
+     * @param string $type 是取name还是取value
+     * @param bool $key
+     * @return array|mixed
      */
-    public static function getBatchOperations()
+    public static function getBatchOperations($type = 'name', $key = false)
     {
-        return [
-            'new' => Yii::t('goods', 'Is New'),
-            'not_new' => Yii::t('goods', 'Not New'),
-            'hot' => Yii::t('goods', 'Is Hot'),
-            'not_hot' => Yii::t('goods', 'Not Hot'),
-            'recommend' => Yii::t('goods', 'Is Recommend'),
-            'not_recommend' => Yii::t('goods', 'Not Recommend'),
-            'status_offline' => Yii::t('goods', 'offline'),
-            'status_online' => Yii::t('goods', 'online'),
-            'status_recycle' => Yii::t('goods', 'recycle'),
-        ];
+        if (!in_array($type, ['id', 'name', 'value'])) {
+            $arr = [];
+        } else {
+            $arr = [
+                'new' => [
+                    'id' => 'is_new',
+                    'name' => Yii::t('goods', 'Is New'),
+                    'value' => self::GOODS_PROPERTY_YES,
+                ],
+                'not_new' => [
+                    'id' => 'is_new',
+                    'name' => Yii::t('goods', 'Not New'),
+                    'value' => self::GOODS_PROPERTY_NO,
+                ],
+                'hot' => [
+                    'id' => 'is_hot',
+                    'name' => Yii::t('goods', 'Is Hot'),
+                    'value' => self::GOODS_PROPERTY_YES,
+                ],
+                'not_hot' => [
+                    'id' => 'is_hot',
+                    'name' => Yii::t('goods', 'Not Hot'),
+                    'value' => self::GOODS_PROPERTY_NO,
+                ],
+                'recommend' => [
+                    'id' => 'is_recommend',
+                    'name' => Yii::t('goods', 'Is Recommend'),
+                    'value' => self::GOODS_PROPERTY_YES,
+                ],
+                'not_recommend' => [
+                    'id' => 'is_recommend',
+                    'name' => Yii::t('goods', 'Not Recommend'),
+                    'value' => self::GOODS_PROPERTY_NO,
+                ],
+                'status_offline' => [
+                    'id' => 'status',
+                    'name' => Yii::t('goods', 'offline'),
+                    'value' => self::GOODS_OFFLINE
+                ],
+                'status_online' => [
+                    'id' => 'status',
+                    'name' => Yii::t('goods', 'online'),
+                    'value' => self::GOODS_ONLINE
+                ],
+                'status_recycle' => [
+                    'id' => 'status',
+                    'name' => Yii::t('goods', 'recycle'),
+                    'value' => self::GOODS_RECYCLE
+                ]
+            ];
+        }
+        $subArr = [];
+        foreach ($arr as $k => $value) {
+            $subArr[$k] = $value[$type];
+        }
+        return $key === false ? $subArr : ArrayHelper::getValue($subArr, $key, Yii::t('common', 'Unknown'));
     }
+
     /**
      * 自动生成goods_sn
      * 暂时用yii2自带的生成随机数的方法，后期需要优化

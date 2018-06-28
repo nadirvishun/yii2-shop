@@ -3,6 +3,7 @@
 namespace backend\modules\shop\controllers;
 
 use backend\modules\shop\models\GoodsParam;
+use backend\modules\system\models\AdminLog;
 use Yii;
 use backend\modules\shop\models\Goods;
 use backend\modules\shop\models\search\GoodsSearch;
@@ -92,7 +93,7 @@ class GoodsController extends BaseController
                         $output = Yii::$app->formatter->asDecimal($model->$attribute / 100, 2);
                     } elseif ($attribute == 'stock') {
                         //库存显示预警
-                        if ($model->stock==0 ||($model->stock_alarm !== 0 && $model->stock_alarm >= $model->$attribute)) {
+                        if ($model->stock == 0 || ($model->stock_alarm !== 0 && $model->stock_alarm >= $model->$attribute)) {
                             $output = '<span style="color:red">' . $model->$attribute . '</span>';
                         } else {
                             $output = $model->$attribute;
@@ -261,6 +262,40 @@ class GoodsController extends BaseController
     }
 
     /**
+     * 批量操作
+     */
+    public function actionBatchOperation()
+    {
+        if (Yii::$app->request->isPost) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            //操作的类别
+            $batchType = Yii::$app->request->post('batch_type');
+            $fieldsArr = Goods::getBatchOperations('id');
+            //验证参数
+            if (!in_array($batchType, array_keys($fieldsArr))) {
+                return ['code' => 1, 'msg' => Yii::t('common', 'Invalid Parameter')];
+            }
+            //操作类别对应的字段
+            $field = $fieldsArr[$batchType];
+            //操作类别要修改的值
+            $changeValue = Goods::getBatchOperations('value', $batchType);
+            //要操作的商品ids
+            $ids = Yii::$app->request->post('ids');
+            if (empty($ids)) {
+                return ['code' => 1, 'msg' => Yii::t('common', 'Invalid Parameter')];
+            }
+            $idsArr = json_decode($ids, true);
+            //批量修改
+            Goods::updateAll([$field => $changeValue], ['in', 'id', $idsArr]);
+            //记录日志
+            $title = Yii::t('goods', 'Goods') . Yii::t('goods', 'batch operation');
+            $description = Yii::t('goods', 'batch operation') . ',ids:' . $ids . ',field:' . $field . ',value:' . $changeValue;
+            AdminLog::saveAdminLog(Goods::className(), AdminLog::TYPE_UPDATE, $description, $title);
+            return ['code' => 0, 'msg' => Yii::t('common', 'Batch Update Success')];
+        }
+    }
+
+    /**
      * Finds the Goods model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
@@ -285,7 +320,8 @@ class GoodsController extends BaseController
     {
         $arr = [
             'shop/goods/ueditorUpload' => 'shop/goods/index',
-            'shop/goods/upload' => 'shop/goods/index'
+            'shop/goods/upload' => 'shop/goods/index',
+            'shop/goods/batch-operation' => 'shop/goods/update'//批量操作与更新同权限
         ];
         return isset($arr[$permission]) ? $arr[$permission] : $permission;
     }

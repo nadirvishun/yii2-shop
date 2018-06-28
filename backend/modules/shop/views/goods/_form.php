@@ -265,7 +265,7 @@ use yii\widgets\ActiveForm;
             'pluginOptions' => ['size' => 'mini']
         ]) ?>
 
-    <!-- 商品参数相关   -->
+    <!-- 商品参数相关，由于是B2C商城，无需按照分类来规范，直接用到哪个参数自己填写即可，如果是B2B2C那就需要不同分类提前规定好属性，以方便商家规范填写   -->
     <?php $paramHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
         Html::tag('td', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .

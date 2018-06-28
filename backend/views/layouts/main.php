@@ -14,6 +14,7 @@ $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed201
     'libName' => 'krajeeDialog',
     'options' => [
         'draggable' => true,
+        'size' => Dialog::SIZE_SMALL,
     ]
 ]);
 ?>
