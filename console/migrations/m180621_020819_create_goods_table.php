@@ -28,13 +28,13 @@ class m180621_020819_create_goods_table extends Migration
                 $queryBuilder->typeMap[\yii\db\mysql\Schema::TYPE_STRING] = 'varchar(191)';
             }
             //如果是用utf8字符集，则不需要上面的两个判定
-            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB COMMENT="商品表"';
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci ENGINE=InnoDB AUTO_INCREMENT=101010 COMMENT="商品表"';
         }
 
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey(),
-            'goods_sn' => $this->string(100)->unique()->notNull()->defaultValue('')->comment('商品SN'),
-            'goods_barcode' => $this->string(100)->unique()->comment('商品条形码'),
+            'goods_sn' => $this->string(100)->notNull()->defaultValue('')->comment('商品编码'),
+            'goods_barcode' => $this->string(100)->notNull()->defaultValue('')->comment('商品条形码'),
             'title' => $this->string()->notNull()->defaultValue('')->comment('商品标题'),
             'sub_title' => $this->string()->notNull()->defaultValue('')->comment('商品副标题'),
             'category_id' => $this->integer()->notNull()->defaultValue(0)->comment('分类ID'),
@@ -65,6 +65,7 @@ class m180621_020819_create_goods_table extends Migration
             'max_buy' => $this->integer()->notNull()->defaultValue(0)->comment('单次最多购买，0为不限制'),
             'min_buy' => $this->integer()->notNull()->defaultValue(0)->comment('单次最少购买，0为不限制'),
             'user_max_buy' => $this->integer()->notNull()->defaultValue(0)->comment('每个用户最多购买，0为不限制'),
+            'has_spec' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('是否启用规格，0否，1是'),
             'give_integral' => $this->integer()->notNull()->defaultValue(0)->comment('赠送积分'),
             'sort' => $this->integer()->notNull()->defaultValue(0)->comment('排序'),
             'status' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('状态:0下架，1上架，2删除'),

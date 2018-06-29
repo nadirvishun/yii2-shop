@@ -43,6 +43,7 @@ use yii\helpers\ArrayHelper;
  * @property integer $max_buy
  * @property integer $min_buy
  * @property integer $user_max_buy
+ * @property integer $has_spec
  * @property integer $give_integral
  * @property integer $sort
  * @property integer $status
@@ -118,7 +119,7 @@ class Goods extends \yii\db\ActiveRecord
             [['category_id', 'brand_id', 'sales', 'real_sales', 'click', 'collect',
                 'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type',
                 'freight_id', 'is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy',
-                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status',
+                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status','has_spec',
                 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['category_id', 'title', 'price', 'market_price', 'stock'], 'required'],
             [['img_others', 'content'], 'string'],
@@ -138,12 +139,8 @@ class Goods extends \yii\db\ActiveRecord
             [['title', 'sub_title', 'img'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
             [['unit'], 'default', 'value' => '件'],
-            [['goods_sn'], 'unique'],
             [['price', 'market_price', 'cost_price', 'freight_price'], 'number', 'min' => 0],
             ['market_price', 'compare', 'compareAttribute' => 'price', 'type' => 'number', 'operator' => '>='],//市场价大于等于标价
-            [['goods_barcode'], 'unique'],
-            //设置默认值为null，数据库中才能唯一索引但是多个null值
-            [['goods_barcode'], 'default', 'value' => null],
         ];
     }
 
@@ -196,6 +193,7 @@ class Goods extends \yii\db\ActiveRecord
             'max_buy' => Yii::t('goods', 'Max Buy'),
             'min_buy' => Yii::t('goods', 'Min Buy'),
             'user_max_buy' => Yii::t('goods', 'User Max Buy'),
+            'has_spec' => Yii::t('goods', 'Has Spec'),
             'give_integral' => Yii::t('goods', 'Give Integral'),
             'sort' => Yii::t('goods', 'Sort'),
             'status' => Yii::t('goods', 'Status'),
@@ -387,33 +385,6 @@ class Goods extends \yii\db\ActiveRecord
             $subArr[$k] = $value[$type];
         }
         return $key === false ? $subArr : ArrayHelper::getValue($subArr, $key, Yii::t('common', 'Unknown'));
-    }
-
-    /**
-     * 自动生成goods_sn
-     * 暂时用yii2自带的生成随机数的方法，后期需要优化
-     * @param int $length
-     * @return string
-     * @throws \yii\base\Exception
-     */
-    public function generateGoodsSn($length = 32)
-    {
-        return Yii::$app->security->generateRandomString($length);
-    }
-
-    /**
-     * 存储前的动作
-     * @inheritdoc
-     */
-    public function beforeSave($insert)
-    {
-        //如果是新增，则自动产生
-        if ($this->isNewRecord) {
-            if (empty($this->goods_sn)) {
-                $this->goods_sn = $this->generateGoodsSn();
-            }
-        }
-        return parent::beforeSave($insert);
     }
 
     /**

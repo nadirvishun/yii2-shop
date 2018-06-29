@@ -18,7 +18,7 @@ class GoodsSearch extends Goods
     public function rules()
     {
         return [
-            [['id', 'category_id', 'brand_id', 'price', 'market_price', 'cost_price', 'sales', 'real_sales', 'click', 'collect', 'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type', 'freight_id', 'freight_price', 'is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy', 'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
+            [['id', 'category_id', 'brand_id', 'price', 'market_price', 'cost_price', 'sales', 'real_sales', 'click', 'collect', 'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type', 'freight_id', 'freight_price', 'is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy', 'min_buy', 'user_max_buy', 'give_integral','has_spec', 'sort', 'status', 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['goods_sn', 'goods_barcode', 'title', 'sub_title', 'unit', 'img', 'img_others', 'content'], 'safe'],
             [['weight'], 'number'],
         ];
@@ -66,13 +66,8 @@ class GoodsSearch extends Goods
         if ($this->stock == Goods::STOCK_ALARM_YES) {
             $query->andFilterWhere(['and','stock_alarm <> 0','stock <= stock_alarm'])
                 ->orFilterWhere(['=', 'stock', 0]);
-
-//            $query->andFilterWhere(['<>', 'stock_alarm', 0])
-//                ->andFilterWhere(['<=', 'stock', 'stock_alarm']);
         } elseif ($this->stock == Goods::STOCK_ALARM_NO) {
             $query->andFilterWhere(['or','stock_alarm = 0','stock > stock_alarm','sotck <> 0']);
-//            $query->andFilterWhere(['=', 'stock_alarm', 0])
-//                ->orFilterWhere(['>', 'stock', 'stock_alarm']);
         }
 
         // grid filtering conditions

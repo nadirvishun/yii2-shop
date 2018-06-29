@@ -24,7 +24,6 @@ use yii\widgets\ActiveForm;
     ]); ?>
 
     <?php $goodsSn = $form->field($model, 'goods_sn', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'goods_sn_hint'))
         ->textInput(['maxlength' => true]) ?>
 
     <?php $goodsBarcode = $form->field($model, 'goods_barcode', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
@@ -192,7 +191,8 @@ use yii\widgets\ActiveForm;
             'pluginOptions' => ['size' => 'mini']
         ]) ?>
 
-    <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
+    <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])
+        ->hint(Yii::t('goods', 'unit:g'))->textInput(['maxlength' => true]) ?>
 
 
     <!-- 商品属性新品热销等相关   -->
@@ -265,7 +265,8 @@ use yii\widgets\ActiveForm;
             'pluginOptions' => ['size' => 'mini']
         ]) ?>
 
-    <!-- 商品参数相关，由于是B2C商城，无需按照分类来规范，直接用到哪个参数自己填写即可，如果是B2B2C那就需要不同分类提前规定好属性，以方便商家规范填写   -->
+    <!-- 商品参数相关，由于是B2C商城，无需按照分类来规范，直接用到哪个参数自己填写即可，优点是灵活度高，缺点是分类检索没有了，而且缺乏规范，
+    如果是B2B2C那就需要不同分类提前规定好属性，以方便商家规范填写和便于生成前端不同规格参数检索   -->
     <?php $paramHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
         Html::tag('td', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
@@ -298,8 +299,57 @@ use yii\widgets\ActiveForm;
     $param .= Html::endTag('tbody');
     $param .= Html::endTag('table');
     $param .= Html::endTag('div');
-    $param .= Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add param'), ['id' => 'add_goods_param', 'class' => 'btn']);
+    $param .= Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add param'), ['id' => 'add_goods_param', 'class' => 'btn btn-primary']);
     ?>
+
+    <!-- 商品规格，优缺点同商品参数差不多 -->
+    <?php
+    $goodsSnId = Html::getInputId($model, 'goods_sn');
+    $goodsBarcodeId = Html::getInputId($model, 'goods_barcode');
+    $weightId = Html::getInputId($model, 'weight');
+    $stockId = Html::getInputId($model, 'stock');
+    $stockAlarmId = Html::getInputId($model, 'stock_alarm');
+    $priceId = Html::getInputId($model, 'price');
+    $hasSpec = $form->field($model, 'has_spec', ['options' => ['class' => 'form-group c-md-8']])
+        ->hint(Yii::t('goods', 'has_spec_hint'))
+        ->widget(SwitchInput::classname(), [
+            'pluginOptions' => ['size' => 'small'],
+            'pluginEvents' => [
+                "switchChange.bootstrapSwitch" => "function(e,status) {
+                    if(status){
+                        $('#'+'$goodsSnId').attr('readonly',true);
+                        $('#'+'$goodsBarcodeId').attr('readonly',true);
+                        $('#'+'$weightId').attr('readonly',true);
+                        $('#'+'$stockId').attr('readonly',true);
+                        $('#'+'$stockAlarmId').attr('readonly',true);
+                        $('#'+'$priceId').attr('readonly',true);
+                        $('#open_spec').show();
+                    }else{
+                        $('#'+'$goodsSnId').attr('readonly',false);
+                        $('#'+'$goodsBarcodeId').attr('readonly',false);
+                        $('#'+'$weightId').attr('readonly',false);
+                        $('#'+'$stockId').attr('readonly',false);
+                        $('#'+'$stockAlarmId').attr('readonly',false);
+                        $('#'+'$priceId').attr('readonly',true);
+                        $('#open_spec').hide();
+                    }
+               }"
+            ]
+        ]);
+    //todo，商品价格自动以最低的为准
+    $spec = $hasSpec .
+        Html::beginTag('div', ['id' => 'open_spec', 'style' => $model->has_spec ? 'display:block' : 'display:none']) .
+        Html::beginTag('div').
+        '规格单元' .
+        Html::endTag('div').
+        Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']).
+        Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
+        Html::beginTag('div').
+        '生成的SKU' .
+        Html::endTag('div').
+        Html::endTag('div');
+    ?>
+
 
     <?= Tabs::widget([
         'items' => [
@@ -320,6 +370,14 @@ use yii\widgets\ActiveForm;
                     $status
             ],
             [
+                'label' => Yii::t('goods', 'spec'),
+                'content' => $spec
+            ],
+            [
+                'label' => Yii::t('goods', 'param'),
+                'content' => $param
+            ],
+            [
                 'label' => Yii::t('goods', 'stock'),
                 'content' => $goodsSn .
                     $goodsBarcode .
@@ -327,10 +385,6 @@ use yii\widgets\ActiveForm;
                     $stock .
                     $stockAlarm .
                     $stockType
-            ],
-            [
-                'label' => Yii::t('goods', 'param'),
-                'content' => $param
             ],
             [
                 'label' => Yii::t('goods', 'image'),
@@ -361,7 +415,7 @@ use yii\widgets\ActiveForm;
 
 </div>
 <?php
-$imgOthersErrorMsg=Yii::t('goods','Image can not empty!');
+$imgOthersErrorMsg = Yii::t('goods', 'Image can not empty!');
 $js = <<<eof
 //红星提示
     $('.required').each(function(){

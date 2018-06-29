@@ -4,7 +4,7 @@
  */
 return [
     'ID' => '',
-    'Goods Sn' => '商品SN',
+    'Goods Sn' => '商品编号',
     'Goods Barcode' => '商品条形码',
     'Title' => '商品标题',
     'Sub Title' => '商品副标题',
@@ -24,7 +24,7 @@ return [
     'Stock' => '库存数量',
     'Stock Alarm' => '库存预警数量',
     'Stock Type' => '减库存方式',
-    'Weight' => '商品重量，单位克',
+    'Weight' => '商品重量',
     'Is Freight Free' => '包邮',
     'Freight Type' => '运费设置',
     'Freight ID' => '运费模板ID',
@@ -36,6 +36,7 @@ return [
     'Max Buy' => '单次最多购买',
     'Min Buy' => '单次最少购买',
     'User Max Buy' => '每个用户最多购买',
+    'Has Spec' => '开启规格',
     'Give Integral' => '赠送积分',
     'Sort' => '排序',
     'Status' => '状态',
@@ -47,7 +48,7 @@ return [
     'Not New' => '取消新品',
     'Not Hot' => '取消热卖',
     'Not Recommend' => '取消推荐',
-    'batch operation'=>'批量操作',
+    'batch operation' => '批量操作',
 
     'Goods' => '商品',
     'Create Goods' => '创建商品',
@@ -60,6 +61,7 @@ return [
 
     'basic' => '基础信息',
     'stock' => '库存信息',
+    'spec' => '商品规格',
     'param' => '商品参数',
     'image' => '商品图片',
     'content' => '商品详情',
@@ -71,9 +73,10 @@ return [
     'offline' => '下架',
     'online' => '上架',
     'recycle' => '回收',
+    'delete' => '删除',
+    'unit:g' => '单位：克',
     'pay reduce' => '付款减库存',
     'order reduce' => '拍下减库存',
-    'goods_sn_hint' => '唯一标识，不填写时自动生成',
     'stock_alarm_hint' => '库存低于预警值时列表页库存列红字提醒，0为不预警',
     'max_buy_hint' => '用户单次购买此商品数量限制,0为不限制',
     'min_buy_hint' => '用户单次必须最少购买此商品数量限制,0为不限制',
@@ -84,9 +87,13 @@ return [
     'unit_hint' => '件/包/个等',
     'is_freight_free_hint' => '如果选择包邮，则下方运费方式的设置则无效',
     'freight_hint' => '如果不存在运费模板，请先去【运费模板】栏目中创建',
+    'has_spec_hint' => '当启用商品规格后，商品的价格及库存等信息会以规格中设置为准，当取消规格时，请重新核对商品价格和库存等参数',
 
     'Image can not empty!' => '商品组图必须上传',
     'price must be less than or equal to market price' => '价格必须小于等于市场价格',
     'add param' => '添加参数',
+    'add spec' => '添加规格',
+    'add spec item' => '添加规格单元',
+    'refresh sku'=>'刷新规格内容'
 
 ];
