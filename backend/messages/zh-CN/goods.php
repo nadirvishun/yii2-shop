@@ -93,7 +93,9 @@ return [
     'price must be less than or equal to market price' => '价格必须小于等于市场价格',
     'add param' => '添加参数',
     'add spec' => '添加规格',
-    'add spec item' => '添加规格单元',
-    'refresh sku'=>'刷新规格内容'
+    'add spec item' => '添加单元',
+    'delete spec item' => '删除规格单元',
+    'refresh sku'=>'刷新规格内容',
+    'like color and so on'=>'例如：颜色或者尺寸等',
 
 ];
