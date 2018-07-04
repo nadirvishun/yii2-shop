@@ -344,17 +344,17 @@ use yii\widgets\ActiveForm;
             ]
         ]);
     //单个规格
-    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#eee','class' => 'c-md-9']).
-        Html::input('text','spec[]','',  ['class' => 'form-control c-md-9','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
-        Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'style'=>'margin:6px 0 0 10px;float:left']).
+    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#eee','class' => 'c-md-9 spec_unit','id'=>'spec_unit_SPC-PLACEHOLDER']).
+        Html::input('text','spec[SPC-PLACEHOLDER]','',  ['class' => 'form-control c-md-9 spec_input','id'=>'spec_SPC-PLACEHOLDER','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
+        Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'data-id'=>'SPC-PLACEHOLDER','style'=>'margin:6px 0 0 10px;float:left']).
         Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style'=>'margin:6px 0 0 10px;float:left']).
         Html::tag('div','',['style'=>'clear:both']).
-        Html::tag('div','',['class'=>'spec_item c-md-10']).
+        Html::tag('div','',['class'=>'spec_item c-md-10','id'=>'spec_item_SPC-PLACEHOLDER']).
         Html::tag('div','',['style'=>'clear:both']).
         Html::endTag('div');
     //单个规格单元
-    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%']).
-        Html::input('text','spec_item[]','',  ['class' => 'form-control c-md-10','style'=>'float:left']).
+    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','id'=>'spec_item_unit_SPC-ITEM-PLACEHOLDER']).
+        Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
         Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
         Html::endTag('div');
     //sku标题栏
@@ -515,7 +515,17 @@ $js = <<<eof
     })
     //商品规格增删
     $('#add_goods_spec').on('click',function(){
+        //获取当前的最后一个标识，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来便利
+        var last=$('.spec_unit:last'),
+            i=0;
+        if(last.length!==0){
+            var lastId=last.attr('id');
+            var lastIdArr=lastId.split('_');
+            i=parseInt(lastIdArr[2])+1;
+        }
         var html='$specUnit';
+        //替换固定字符串为动态
+        html=html.replace(/SPC-PLACEHOLDER/g,i);
         $('#spec_div').append(html);
     })
     $('#open_spec').on('click','.delete_spec',function(){
@@ -523,8 +533,20 @@ $js = <<<eof
     })
     //商品规格单元增删
     $('#open_spec').on('click','.add_spec_item',function(){
+        //获取当前的最后一个表示，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来便利
+        var i=parseInt($(this).data('id'))
+        var lastItem=$('#spec_item_'+i+' .spec_item_unit:last'),
+            j=0;
+        if(lastItem.length!=0){
+            var lastItemId=lastItem.attr('id');
+            var lastItemIdArr=lastItemId.split('_');
+            j=parseInt(lastItemIdArr[3])+1;
+        }
         var html='$specItemUnit';
-        var item=$(this).next().next().next();
+        //替换固定字符串为动态
+        html=html.replace('SPC-PLACEHOLDER',i);
+        html=html.replace(/SPC-ITEM-PLACEHOLDER/g,j);
+        var item=$(this).nextAll('.spec_item').first();
         item.append(html);
     })
     $('#open_spec').on('click','.delete_spec_item',function(){
@@ -537,8 +559,43 @@ $js = <<<eof
     //刷新sku方法
     function refreshSku(){
         //获取规格名称
+        var specValueArr=[],
+            specIdArr=[];
+        $(".spec_input").each(function(){
+            if($(this).val()){
+                specValueArr.push($(this).val());
+                specIdArr.push(parseInt($(this).attr('id').split('_')[1]))
+            }
+        })
         //获取规格单元名称
-        
+        var specItemValueArr=[];
+        $(".spec_item").each(function(index,value){
+            var specItemId=$(this).attr('id');
+            var specId=parseInt(specItemId.split('_')[2]);
+            if($.inArray(specId,specIdArr)!==-1){
+                specItemValueArr[index]=[];
+                $("#"+specItemId+" .spec_item_input").each(function(i,v){
+                    if($(this).val()){
+                        specItemValueArr[index][i]=$(this).val();
+                    }
+                })
+            }
+        })
+        //获取笛卡尔积
+       multiValueArr=descartes.apply(this,specItemValueArr);
+    }
+    //求笛卡尔积的方法
+    function descartes(){
+        if( arguments.length < 2 ) return arguments[0] || [];
+        return [].reduce.call(arguments, function(col, set) {
+            var res = [];
+            col.forEach(function(c) {set.forEach(function(s) {
+                var t = [].concat( Array.isArray(c) ? c : [c] );
+                t.push(s);
+                res.push(t);
+            })});
+            return res;
+        });
     }
     
 eof;
