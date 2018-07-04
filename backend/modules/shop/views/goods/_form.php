@@ -344,7 +344,7 @@ use yii\widgets\ActiveForm;
             ]
         ]);
     //单个规格
-    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#eee','class' => 'c-md-9 spec_unit','id'=>'spec_unit_SPC-PLACEHOLDER']).
+    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#eee','class' => 'c-md-9 spec_unit','data-id'=>'SPC-PLACEHOLDER','id'=>'spec_unit_SPC-PLACEHOLDER']).
         Html::input('text','spec[SPC-PLACEHOLDER]','',  ['class' => 'form-control c-md-9 spec_input','id'=>'spec_SPC-PLACEHOLDER','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
         Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'data-id'=>'SPC-PLACEHOLDER','style'=>'margin:6px 0 0 10px;float:left']).
         Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style'=>'margin:6px 0 0 10px;float:left']).
@@ -353,13 +353,15 @@ use yii\widgets\ActiveForm;
         Html::tag('div','',['style'=>'clear:both']).
         Html::endTag('div');
     //单个规格单元
-    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','id'=>'spec_item_unit_SPC-ITEM-PLACEHOLDER']).
+    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>'SPC-ITEM-PLACEHOLDER','id'=>'spec_item_unit_SPC-ITEM-PLACEHOLDER']).
         Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
         Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
         Html::endTag('div');
     //sku标题栏
     $skuHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
+        //todo,扩展字段
+        'EXTEND-THEAD-PLACEHOLDER'.
         Html::tag('td', Yii::t('goods', 'Price'), ['style' => 'color:#999']) .
         Html::tag('td', Yii::t('goods', 'Market Price'), ['style' => 'color:#999']) .
         Html::tag('td', Yii::t('goods', 'Cost Price'), ['style' => 'color:#999']) .
@@ -370,14 +372,28 @@ use yii\widgets\ActiveForm;
         Html::tag('td', Yii::t('goods', 'Goods Barcode'), ['style' => 'color:#999']) .
         Html::endTag('tr') .
         Html::endTag('thead');
+    //sku内容
+    $skuTbody = Html::beginTag('tr',['style'=>'margin:5px 0']) .
+        //todo,扩展
+        'EXTEND-TBODY-PLACEHOLDER'.
+        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::endTag('tr');
 
     //sku
-    $sku= Html::beginTag('table', ['style' => 'width:100%']) .
+    $sku = Html::beginTag('table', ['class'=>'kv-grid-table table table-hover table-bordered table-striped kv-table-wrap']) .
         $skuHeader .
-        Html::beginTag('tbody', ['id' => 'goods_skus']).
-
-    Html::endTag('tbody').
-    Html::endTag('table');
+        Html::beginTag('tbody', ['id' => 'goods_skus']) .
+        //todo,扩展值
+        'TBODY-PLACEHOLDER'.
+        Html::endTag('tbody') .
+        Html::endTag('table');
 
     //todo，商品价格自动以最低的为准
     $spec = $hasSpec .
@@ -388,8 +404,8 @@ use yii\widgets\ActiveForm;
         Html::endTag('div').
         Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']).
         Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
-        Html::beginTag('div',['style'=>$model->has_spec ? 'display:block' : 'display:none']).//todo,是否显示的判定
-        $sku.
+        Html::beginTag('div',['id'=>'sku_div','style'=>$model->has_spec ? 'display:block' : 'display:none']).//todo,是否显示的判定
+//        $sku.
         Html::endTag('div').
         Html::endTag('div');
     ?>
@@ -515,13 +531,11 @@ $js = <<<eof
     })
     //商品规格增删
     $('#add_goods_spec').on('click',function(){
-        //获取当前的最后一个标识，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来便利
+        //获取当前的最后一个标识，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来遍历
         var last=$('.spec_unit:last'),
             i=0;
         if(last.length!==0){
-            var lastId=last.attr('id');
-            var lastIdArr=lastId.split('_');
-            i=parseInt(lastIdArr[2])+1;
+            i=parseInt(last.data('id'))+1;
         }
         var html='$specUnit';
         //替换固定字符串为动态
@@ -533,14 +547,12 @@ $js = <<<eof
     })
     //商品规格单元增删
     $('#open_spec').on('click','.add_spec_item',function(){
-        //获取当前的最后一个表示，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来便利
+        //获取当前的最后一个表示，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来遍历
         var i=parseInt($(this).data('id'))
         var lastItem=$('#spec_item_'+i+' .spec_item_unit:last'),
             j=0;
         if(lastItem.length!=0){
-            var lastItemId=lastItem.attr('id');
-            var lastItemIdArr=lastItemId.split('_');
-            j=parseInt(lastItemIdArr[3])+1;
+            j=parseInt(lastItem.data('id'))+1;
         }
         var html='$specItemUnit';
         //替换固定字符串为动态
@@ -583,10 +595,33 @@ $js = <<<eof
         })
         //获取笛卡尔积
        multiValueArr=descartes.apply(this,specItemValueArr);
+       console.log(multiValueArr);
+       //表标题扩增
+       var extendThead='';
+       specValueArr.forEach(function(value,index,array){
+            extendThead+='<td style="color:#999">'+value+'</td>'
+       })
+       //表内容扩展
+       var tbody='';
+       multiValueArr.forEach(function(value,index,array){
+            var extendTbody='';
+            value.forEach(function(v,i,arr){
+                extendTbody+='<td><div class="form-control">'+v+'</div></td>'
+            })
+            var skuTbody='$skuTbody';
+            skuTbody=skuTbody.replace('EXTEND-TBODY-PLACEHOLDER',extendTbody);
+            tbody+=skuTbody;
+       })
+       //替换
+       var sku='$sku';
+       sku=sku.replace('EXTEND-THEAD-PLACEHOLDER',extendThead);
+       sku=sku.replace('TBODY-PLACEHOLDER',tbody);
+       //写入
+       $('#sku_div').html(sku);
     }
     //求笛卡尔积的方法
     function descartes(){
-        if( arguments.length < 2 ) return arguments[0] || [];
+        if( arguments.length < 2 ) return [arguments[0]] || [];
         return [].reduce.call(arguments, function(col, set) {
             var res = [];
             col.forEach(function(c) {set.forEach(function(s) {
