@@ -271,10 +271,10 @@ use yii\widgets\ActiveForm;
     //标题栏
     $paramHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
-        Html::tag('td', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
-        Html::tag('td', Yii::t('goods_param', 'Value'), ['style' => 'width:50%;color:#999;padding:0 8px']) .
-        Html::tag('td', Yii::t('goods_param', 'Sort'), ['style' => 'width:10%;color:#999;padding:0 8px']) .
-        Html::tag('td', '', ['style' => 'width:10%;padding:0 8px']) .
+        Html::tag('th', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
+        Html::tag('th', Yii::t('goods_param', 'Value'), ['style' => 'width:50%;color:#999;padding:0 8px']) .
+        Html::tag('th', Yii::t('goods_param', 'Sort'), ['style' => 'width:10%;color:#999;padding:0 8px']) .
+        Html::tag('th', '', ['style' => 'width:10%;padding:0 8px']) .
         Html::endTag('tr') .
         Html::endTag('thead');
     //参数单元，主要js加载用
@@ -316,6 +316,8 @@ use yii\widgets\ActiveForm;
     $stockId = Html::getInputId($model, 'stock');
     $stockAlarmId = Html::getInputId($model, 'stock_alarm');
     $priceId = Html::getInputId($model, 'price');
+    $marketPriceId = Html::getInputId($model, 'market_price');
+    $costPriceId = Html::getInputId($model, 'cost_price');
     //开关
     $hasSpec = $form->field($model, 'has_spec', ['options' => ['class' => 'form-group c-md-10']])
         ->hint(Yii::t('goods', 'has_spec_hint'))
@@ -344,58 +346,53 @@ use yii\widgets\ActiveForm;
             ]
         ]);
     //单个规格
-    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#eee','class' => 'c-md-9 spec_unit','data-id'=>'SPC-PLACEHOLDER','id'=>'spec_unit_SPC-PLACEHOLDER']).
-        Html::input('text','spec[SPC-PLACEHOLDER]','',  ['class' => 'form-control c-md-9 spec_input','id'=>'spec_SPC-PLACEHOLDER','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
+    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#ecf0f5','class' => 'c-md-9 spec_unit','data-id'=>'SPC-PLACEHOLDER','id'=>'spec_unit_SPC-PLACEHOLDER']).
+        Html::TextInput('spec[SPC-PLACEHOLDER]','',  ['class' => 'form-control c-md-9 spec_input','data-id'=>'SPC-PLACEHOLDER','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
         Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'data-id'=>'SPC-PLACEHOLDER','style'=>'margin:6px 0 0 10px;float:left']).
         Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style'=>'margin:6px 0 0 10px;float:left']).
         Html::tag('div','',['style'=>'clear:both']).
-        Html::tag('div','',['class'=>'spec_item c-md-10','id'=>'spec_item_SPC-PLACEHOLDER']).
+        Html::tag('div','',['class'=>'spec_item c-md-10','data-id'=>'SPC-PLACEHOLDER','id'=>'spec_item_SPC-PLACEHOLDER']).
         Html::tag('div','',['style'=>'clear:both']).
         Html::endTag('div');
     //单个规格单元
     $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>'SPC-ITEM-PLACEHOLDER','id'=>'spec_item_unit_SPC-ITEM-PLACEHOLDER']).
-        Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
+        Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['data-id'=>'SPC-ITEM-PLACEHOLDER','class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
         Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
         Html::endTag('div');
     //sku标题栏
     $skuHeader = Html::beginTag('thead') .
         Html::beginTag('tr') .
-        //todo,扩展字段
         'EXTEND-THEAD-PLACEHOLDER'.
-        Html::tag('td', Yii::t('goods', 'Price'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Market Price'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Cost Price'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Stock'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Stock Alarm'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Weight'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Goods Sn'), ['style' => 'color:#999']) .
-        Html::tag('td', Yii::t('goods', 'Goods Barcode'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Price'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Market Price'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Cost Price'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Stock'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Stock Alarm'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Weight'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Goods Sn'), ['style' => 'color:#999']) .
+        Html::tag('th', Yii::t('goods', 'Goods Barcode'), ['style' => 'color:#999']) .
         Html::endTag('tr') .
         Html::endTag('thead');
     //sku内容
     $skuTbody = Html::beginTag('tr',['style'=>'margin:5px 0']) .
-        //todo,扩展
         'EXTEND-TBODY-PLACEHOLDER'.
-        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][price]', '', ['class' => 'form-control sku_input','data-type'=>'price','data-unique_type'=>'SKU-PLACEHOLDER|price']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][market_price]', '', ['class' => 'form-control sku_input','data-type'=>'market_price','data-unique_type'=>'SKU-PLACEHOLDER|market_price']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][cost_price]', '', ['class' => 'form-control sku_input','data-type'=>'cost_price','data-unique_type'=>'SKU-PLACEHOLDER|cost_price']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][stock]', '', ['class' => 'form-control sku_input','data-type'=>'stock','data-unique_type'=>'SKU-PLACEHOLDER|stock']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][stock_alarm]', '', ['class' => 'form-control sku_input','data-type'=>'stock_alarm','data-unique_type'=>'SKU-PLACEHOLDER|stock_alarm']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][weight]', '', ['class' => 'form-control sku_input','data-type'=>'weight','data-unique_type'=>'SKU-PLACEHOLDER|weight']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][goods_sn]', '', ['class' => 'form-control sku_input','data-type'=>'goods_sn','data-unique_type'=>'SKU-PLACEHOLDER|goods_sn']) . Html::endTag('td') .
+        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][goods_barcode]', '', ['class' => 'form-control sku_input','data-type'=>'goods_barcode','data-unique_type'=>'SKU-PLACEHOLDER|goods_barcode']) . Html::endTag('td') .
         Html::endTag('tr');
-
-    //sku
-    $sku = Html::beginTag('table', ['class'=>'kv-grid-table table table-hover table-bordered table-striped kv-table-wrap']) .
+    //sku表格
+    $sku = Html::beginTag('table', ['class'=>'table table-hover table-bordered table-striped text-nowrap']) .
         $skuHeader .
         Html::beginTag('tbody', ['id' => 'goods_skus']) .
-        //todo,扩展值
         'TBODY-PLACEHOLDER'.
         Html::endTag('tbody') .
         Html::endTag('table');
-
-    //todo，商品价格自动以最低的为准
+    //整体规格展示
     $spec = $hasSpec .
         Html::beginTag('div', ['id' => 'open_spec', 'style' => $model->has_spec ? 'display:block' : 'display:none']) .
         Html::beginTag('div',['id'=>'spec_div','style'=>'margin-bottom:10px']).
@@ -404,8 +401,9 @@ use yii\widgets\ActiveForm;
         Html::endTag('div').
         Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']).
         Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
-        Html::beginTag('div',['id'=>'sku_div','style'=>$model->has_spec ? 'display:block' : 'display:none']).//todo,是否显示的判定
-//        $sku.
+        Html::beginTag('div',['id'=>'sku_div','class'=>'table-responsive c-md-9','style'=> 'margin-top:10px']).//todo,是否显示的判定
+        //todo,展示存在的内容
+
         Html::endTag('div').
         Html::endTag('div');
     ?>
@@ -564,6 +562,8 @@ $js = <<<eof
     $('#open_spec').on('click','.delete_spec_item',function(){
         $(this).parent().remove();
     })
+    //sku字段的value缓存数组
+    var SV=[];
     //sku生成刷新
     $('#refresh_sku').on('click',function(){
         refreshSku();
@@ -576,52 +576,125 @@ $js = <<<eof
         $(".spec_input").each(function(){
             if($(this).val()){
                 specValueArr.push($(this).val());
-                specIdArr.push(parseInt($(this).attr('id').split('_')[1]))
+                specIdArr.push(parseInt($(this).data('id')))
             }
         })
         //获取规格单元名称
         var specItemValueArr=[];
+        var specItemIdArr=[];
         $(".spec_item").each(function(index,value){
-            var specItemId=$(this).attr('id');
-            var specId=parseInt(specItemId.split('_')[2]);
+            var specId=parseInt($(this).data('id'));
+            var specItemId='spec_item_'+specId;
             if($.inArray(specId,specIdArr)!==-1){
                 specItemValueArr[index]=[];
+                specItemIdArr[index]=[];
                 $("#"+specItemId+" .spec_item_input").each(function(i,v){
                     if($(this).val()){
                         specItemValueArr[index][i]=$(this).val();
+                        var id=$(this).data('id');
+                        specItemIdArr[index][i]={'spec_id':specId,'id':id};
                     }
                 })
             }
         })
+        console.log(specItemValueArr);
+        console.log(specItemIdArr);
         //获取笛卡尔积
        multiValueArr=descartes.apply(this,specItemValueArr);
        console.log(multiValueArr);
-       //表标题扩增
-       var extendThead='';
-       specValueArr.forEach(function(value,index,array){
-            extendThead+='<td style="color:#999">'+value+'</td>'
-       })
-       //表内容扩展
-       var tbody='';
-       multiValueArr.forEach(function(value,index,array){
-            var extendTbody='';
-            value.forEach(function(v,i,arr){
-                extendTbody+='<td><div class="form-control">'+v+'</div></td>'
-            })
-            var skuTbody='$skuTbody';
-            skuTbody=skuTbody.replace('EXTEND-TBODY-PLACEHOLDER',extendTbody);
-            tbody+=skuTbody;
-       })
-       //替换
-       var sku='$sku';
-       sku=sku.replace('EXTEND-THEAD-PLACEHOLDER',extendThead);
-       sku=sku.replace('TBODY-PLACEHOLDER',tbody);
-       //写入
-       $('#sku_div').html(sku);
+       if(multiValueArr.length!=0){
+           //表标题扩增
+           var extendThead='';
+           specValueArr.forEach(function(value,index,array){
+                extendThead+='<th style="color:#999">'+value+'</th>'
+           })
+           //表内容
+           var tbody='';
+           multiValueArr.forEach(function(value,index,array){
+                var extendTbody='<input type="hidden" name="sku[SKU-PLACEHOLDER][sku_id]" data-type="sku_id" data-unique_type="SKU-PLACEHOLDER|sku_id" value="">';
+                //表内容扩增
+                value.forEach(function(v,i,arr){
+                    extendTbody+='<td style="vertical-align: middle">'+
+                    v+
+                    '<input type="hidden" name="sku[SKU-PLACEHOLDER]['+specIdArr[i]+']" value="'+v+'">'+
+                    '</td>';
+                })
+                var skuTbody='$skuTbody';
+                //替换表内容扩增占位
+                skuTbody=skuTbody.replace('EXTEND-TBODY-PLACEHOLDER',extendTbody);
+                //替换sku内字段name
+                skuTbody=skuTbody.replace(/SKU-PLACEHOLDER/g,index);
+                tbody+=skuTbody;
+           })
+           //替换表格标题和内容中的占位符
+           var sku='$sku';
+           sku=sku.replace('EXTEND-THEAD-PLACEHOLDER',extendThead);
+           sku=sku.replace('TBODY-PLACEHOLDER',tbody);
+           //写入
+           $('#sku_div').html(sku)
+           .find('.sku_input').each(function(){
+                //填充缓存数据
+                var type=$(this).data('type');
+                var uniqueType=$(this).data('unique_type');
+                try{
+                    $(this).val(SV[uniqueType]);
+                }catch(ex){
+                    $(this).val('');
+                };
+                if (type == 'price' && $(this).val() == '') {
+                    $(this).val($('#$priceId').val());
+                }
+                if (type == 'market_price' && $(this).val() == '') {
+                    $(this).val($('#$marketPriceId').val());
+                }
+                if (type == 'cost_price' && $(this).val() == '') {
+                    $(this).val($('#$costPriceId').val());
+                }
+                if (type == 'weight' && $(this).val() == '') {
+                    $(this).val($('#$weightId').val());
+                }
+                if (type == 'stock' && $(this).val() == '') {
+                    $(this).val(0);
+                }
+                if (type == 'stock_alarm' && $(this).val() == '') {
+                    $(this).val(0);
+                }
+           }).end()
+           . find('input[data-type="stock"]').change(function(){
+                //库存变动事件
+                computeStock();
+           }).end()
+           .find('input[data-type="price"]').change(function(){
+                //价格变动事件
+                computePrice();
+           }).end()
+           .find('.sku_input').change(function(){
+                //当值变化时，存储缓存
+                var uniqueType=$(this).data('unique_type');
+                SV[uniqueType] = $(this).val();
+           });
+       }
+    }
+    //todo,当sku中库存值变化时，重新计算库存之和作为总库存
+    function computeStock(){
+    
+    }
+    //todo,当sku中价格变化时，重新获取最低价格作为展示价格
+    function computePrice(){
+    
     }
     //求笛卡尔积的方法
     function descartes(){
-        if( arguments.length < 2 ) return [arguments[0]] || [];
+        if( arguments.length == 0 ){
+            return [];
+        }else if( arguments.length == 1 ){
+            var res = []
+            arguments[0].forEach(function(v,i){
+                res[i] = [];
+                res[i].push(v)
+            })
+            return res;
+        }
         return [].reduce.call(arguments, function(col, set) {
             var res = [];
             col.forEach(function(c) {set.forEach(function(s) {
@@ -1612,6 +1685,629 @@ $this->registerJs($js);
         $('#intervalfloor').val(intervalfloor);
 
     }*/
+
+
+ /* window.type = "1";
+  window.virtual = "0";
+  require(['bootstrap'], function () {
+      $('#myTab a').click(function (e) {
+          $('#tab').val( $(this).attr('href'));
+          e.preventDefault();
+          $(this).tab('show');
+      })
+  });
+  $(function () {
+
+      $(':radio[name=isverify]').click(function () {
+          window.type = $("input[name='isverify']:checked").val();
+
+          if (window.type == '2') {
+              $(':checkbox[name=cash]').attr("checked",false);
+              $(':checkbox[name=cash]').parent().hide();
+          } else {
+              $(':checkbox[name=cash]').parent().show();
+          }
+      });
+      $(':radio[name=ispresell]').click(function () {
+          window.ispresell = $("input[name='ispresell']:checked").val();
+          if(window.ispresell==0){
+              $(".presell_info").hide();
+          }else{
+              $(".presell_info").show();
+          }
+      });
+      $(':radio[name=isverify]').click(function () {
+          if(window.type=='1'||window.type=='4'){
+
+              if( $("input[name='isverify']:checked").val() !=2){
+                  $('.dispatch_info').show();
+              }
+              else {
+                  $('.dispatch_info').hide();
+              }
+
+          } else {
+              $('.dispatch_info').hide();
+          }
+
+
+
+      });
+      $(':radio[name=type]').click(function () {
+          window.type = $("input[name='type']:checked").val();
+          window.virtual = $("#virtual").val();
+          if(window.type=='1'||window.type=='4'){
+              $('.dispatch_info').show();
+          } else {
+              $('.dispatch_info').hide();
+          }
+          if (window.type == '2') {
+              $('.send-group').show();
+          } else {
+              $('.send-group').hide();
+          }
+          if (window.type == '3') {
+              if ($('#virtual').val() == '0') {
+                  $('.choosetemp').show();
+              }
+              // 商品类型如果为虚拟卡密则不允许修改库存
+              $('#weight').attr('readonly',true);
+              $('#total').attr('readonly',true);
+          }
+          if (window.type == '2' || window.type == '3'|| window.type == '5') {
+              $(':checkbox[name=cash]').attr("checked",false);
+              $(':checkbox[name=cash]').parent().hide();
+          } else {
+              $(':checkbox[name=cash]').parent().show();
+
+          }
+
+          if(window.type=='4'){
+              $('.type-4').hide();
+          }else{
+              $('.type-4').show();
+          }
+      })
+
+      $(":checkbox[name='buyshow']").click(function () {
+          if ($(this).prop('checked')) {
+              $(".bcontent").show();
+          }
+          else {
+              $(".bcontent").hide();
+          }
+      })
+
+      $(':radio[name=buyshow]').click(function () {
+          window.buyshow = $("input[name='buyshow']:checked").val();
+
+          if(window.buyshow=='1'){
+              $('.bcontent').show();
+          } else {
+              $('.bcontent').hide();
+          }
+      })
+  })
+
+  window.optionchanged = false;
+
+  $('form').submit(function(){
+      var check = true;
+
+      $(".tp_title,.tp_name").each(function(){
+          var val = $(this).val();
+          if(!val){
+              $('#myTab a[href="#tab_diyform"]').tab('show');
+              $(this).focus(),$('form').attr('stop',1),tip.msgbox.err('自定义表单字段名称不能为空!');
+              check =false;
+              return false;
+          }
+      });
+
+      var diyformtype = $(':radio[name=diyformtype]:checked').val();
+
+      if (diyformtype == 2) {
+          if(kw == 0) {
+              $('#myTab a[href="#tab_diyform"]').tab('show');
+              $(this).focus(),$('form').attr('stop',1),tip.msgbox.err('请先添加自定义表单字段再提交!');
+              check =false;
+              return false;
+          }
+      }
+
+      if(!check){return false;}
+
+      window.type = $("input[name='type']:checked").val();
+      window.virtual = $("#virtual").val();
+      if ($("#goodsname").isEmpty()) {
+          $('#myTab a[href="#tab_basic"]').tab('show');
+          $('form').attr('stop',1);
+          $(this).focus(),$('form').attr('stop',1),tip.msgbox.err('请填写商品名称!');
+          return false;
+      }
+
+      var inum = 0;
+      $('.gimgs').find('.img-thumbnail').each(function(){
+          inum++;
+      });
+      if(inum == 0){
+          $('#myTab a[href="#tab_basic"]').tab('show');
+          $('form').attr('stop',1),tip.msgbox.err('请上传商品图片!');
+          return false;
+      }
+
+
+      var full = true;
+      if (window.type == '3') {
+          if (window.virtual != '0') {  //如果单规格，不能有规格
+              if ($('#hasoption').get(0).checked) {
+                  $('form').attr('stop',1),tip.msgbox.err('您的商品类型为：虚拟物品(卡密)的单规格形式，需要关闭商品规格！');
+                  return false;
+              }
+          }
+          else {
+
+              var has = false;
+              $('.spec_item_virtual').each(function () {
+                  has = true;
+                  if ($(this).val() == '' || $(this).val() == '0') {
+                      $('#myTab a[href="#tab_option"]').tab('show');
+                      $(this).next().focus();
+                      $('form').attr('stop',1),tip.msgbox.err('请选择虚拟物品模板!');
+                      full = false;
+                      return false;
+                  }
+              });
+              if (!has) {
+                  $('#myTab a[href="#tab_option"]').tab('show');
+                  $('form').attr('stop',1),tip.msgbox.err('您的商品类型为：虚拟物品(卡密)的多规格形式，请添加规格！');
+                  return false;
+              }
+          }
+      }
+      else if (window.type == '5') {
+          if ($('#hasoption').get(0).checked) {
+              $('form').attr('stop',1),tip.msgbox.err('您的商品类型为：核销产品，无法设置多商品规格！');
+              return false;
+          }
+      }
+      else if(window.type=='10'){
+          var spec_itemlen = $(".spec_item").length;
+          if (!$('#hasoption').get(0).checked || spec_itemlen<1) {
+              $('#myTab a[href="#tab_option"]').tab('show');
+              $('form').attr('stop',1),tip.msgbox.err('您的商品类型为：话费流量充值，需要开启并设置商品规格！');
+              return false;
+          }
+          if(spec_itemlen>1){
+              $('#myTab a[href="#tab_option"]').tab('show');
+              $('form').attr('stop',1),tip.msgbox.err('您的商品类型为：话费流量充值，只可添加一个规格！');
+              return false;
+          }
+      }
+      if (!full) {
+          return false;
+      }
+
+      full = checkoption();
+      if (!full) {
+          $('form').attr('stop',1),tip.msgbox.err('请输入规格名称!');
+          return false;
+      }
+      if (optionchanged) {
+          $('#myTab a[href="#tab_option"]').tab('show');
+          $('form').attr('stop',1),tip.msgbox.err('规格数据有变动，请重新点击 [刷新规格项目表] 按钮!');
+          return false;
+      }
+      var spec_item_title = 1;
+      if($('#hasoption').get(0).checked){
+          $(".spec_item").each(function (i) {
+              var _this = this;
+              if($(_this).find(".spec_item_title").length == 0){
+                  spec_item_title = 0;
+              }
+          });
+      }
+      if(spec_item_title == 0){
+          $('form').attr('stop',1),tip.msgbox.err('详细规格没有填写,请填写详细规格!');
+          return false;
+      }
+      $('form').attr('stop',1);
+      //处理规格
+      optionArray();
+      isdiscountDiscountsArray();
+      discountArray();
+      commissionArray();
+      $('form').removeAttr('stop');
+      return true;
+  });
+
+  function optionArray()
+  {
+      var option_stock = new Array();
+      $('.option_stock').each(function (index,item) {
+          option_stock.push($(item).val());
+      });
+
+      var option_id = new Array();
+      $('.option_id').each(function (index,item) {
+          option_id.push($(item).val());
+      });
+
+      var option_ids = new Array();
+      $('.option_ids').each(function (index,item) {
+          option_ids.push($(item).val());
+      });
+
+      var option_title = new Array();
+      $('.option_title').each(function (index,item) {
+          option_title.push($(item).val());
+      });
+
+      var option_virtual = new Array();
+      $('.option_virtual').each(function (index,item) {
+          option_virtual.push($(item).val());
+      });
+
+      var option_marketprice = new Array();
+      $('.option_marketprice').each(function (index,item) {
+          option_marketprice.push($(item).val());
+      });
+      var option_presellprice = new Array();
+      $('.option_presell').each(function (index,item) {
+          option_presellprice.push($(item).val());
+      });
+
+      var option_productprice = new Array();
+      $('.option_productprice').each(function (index,item) {
+          option_productprice.push($(item).val());
+      });
+
+      var option_costprice = new Array();
+      $('.option_costprice').each(function (index,item) {
+          option_costprice.push($(item).val());
+      });
+
+      var option_goodssn = new Array();
+      $('.option_goodssn').each(function (index,item) {
+          option_goodssn.push($(item).val());
+      });
+
+      var option_productsn = new Array();
+      $('.option_productsn').each(function (index,item) {
+          option_productsn.push($(item).val());
+      });
+
+      var option_weight = new Array();
+      $('.option_weight').each(function (index,item) {
+          option_weight.push($(item).val());
+      });
+
+      var options = {
+          option_stock : option_stock,
+          option_id : option_id,
+          option_ids : option_ids,
+          option_title : option_title,
+          option_presellprice : option_presellprice,
+          option_marketprice : option_marketprice,
+          option_productprice : option_productprice,
+          option_costprice : option_costprice,
+          option_goodssn : option_goodssn,
+          option_productsn : option_productsn,
+          option_weight : option_weight,
+          option_virtual : option_virtual
+      };
+      $("input[name='optionArray']").val(JSON.stringify(options));
+  }
+
+  function isdiscountDiscountsArray()
+  {
+
+      var isdiscount_discounts_default = new Array();
+      $(".isdiscount_discounts_default").each(function (index,item) {
+          isdiscount_discounts_default.push($(item).val());
+      });
+
+      var isdiscount_discounts_id = new Array();
+      $('.isdiscount_discounts_id').each(function (index,item) {
+          isdiscount_discounts_id.push($(item).val());
+      });
+
+      var isdiscount_discounts_ids = new Array();
+      $('.isdiscount_discounts_ids').each(function (index,item) {
+          isdiscount_discounts_ids.push($(item).val());
+      });
+
+      var isdiscount_discounts_title = new Array();
+      $('.isdiscount_discounts_title').each(function (index,item) {
+          isdiscount_discounts_title.push($(item).val());
+      });
+
+      var isdiscount_discounts_virtual = new Array();
+      $('.isdiscount_discounts_virtual').each(function (index,item) {
+          isdiscount_discounts_virtual.push($(item).val());
+      });
+
+      var options = {
+          isdiscount_discounts_default : isdiscount_discounts_default,
+          isdiscount_discounts_id : isdiscount_discounts_id,
+          isdiscount_discounts_ids : isdiscount_discounts_ids,
+          isdiscount_discounts_title : isdiscount_discounts_title,
+          isdiscount_discounts_virtual : isdiscount_discounts_virtual
+      };
+      $("input[name='isdiscountDiscountsArray']").val(JSON.stringify(options));
+  }
+
+  function discountArray()
+  {
+
+      var discount_default = new Array();
+      $(".discount_default").each(function (index,item) {
+          discount_default.push($(item).val());
+      });
+
+      var discount_id = new Array();
+      $('.discount_id').each(function (index,item) {
+          discount_id.push($(item).val());
+      });
+
+      var discount_ids = new Array();
+      $('.discount_ids').each(function (index,item) {
+          discount_ids.push($(item).val());
+      });
+
+      var discount_title = new Array();
+      $('.discount_title').each(function (index,item) {
+          discount_title.push($(item).val());
+      });
+
+      var discount_virtual = new Array();
+      $('.discount_virtual').each(function (index,item) {
+          discount_virtual.push($(item).val());
+      });
+
+      var options = {
+          discount_default : discount_default,
+          discount_id : discount_id,
+          discount_ids : discount_ids,
+          discount_title : discount_title,
+          discount_virtual : discount_virtual
+      };
+      $("input[name='discountArray']").val(JSON.stringify(options));
+  }
+
+  function commissionArray()
+  {
+      if(!$('#hasoption').get(0).checked) {
+          return false;
+      }
+      var specs = [];
+      $(".spec_item").each(function (i) {
+          var _this = $(this);
+
+          var spec = {
+              id: _this.find(".spec_id").val(),
+              title: _this.find(".spec_title").val()
+          };
+
+          var items = [];
+          _this.find(".spec_item_item").each(function () {
+              var __this = $(this);
+              var item = {
+                  id: __this.find(".spec_item_id").val(),
+                  title: __this.find(".spec_item_title").val(),
+                  virtual: __this.find(".spec_item_virtual").val(),
+                  show: __this.find(".spec_item_show").get(0).checked ? "1" : "0"
+              }
+              items.push(item);
+          });
+          spec.items = items;
+          specs.push(spec);
+      });
+      specs.sort(function (x, y) {
+          if (x.items.length > y.items.length) {
+              return 1;
+          }
+          if (x.items.length < y.items.length) {
+              return -1;
+          }
+      });
+
+      var len = specs.length;
+      var newlen = 1;
+      var h = new Array(len);
+      var rowspans = new Array(len);
+      for (var i = 0; i < len; i++) {
+          var itemlen = specs[i].items.length;
+          if (itemlen <= 0) {
+              itemlen = 1
+          }
+          newlen *= itemlen;
+          h[i] = new Array(newlen);
+          for (var j = 0; j < newlen; j++) {
+              h[i][j] = new Array();
+          }
+          var l = specs[i].items.length;
+          rowspans[i] = 1;
+          for (j = i + 1; j < len; j++) {
+              rowspans[i] *= specs[j].items.length;
+          }
+      }
+
+      for (var m = 0; m < len; m++) {
+          var k = 0, kid = 0, n = 0;
+          for (var j = 0; j < newlen; j++) {
+              var rowspan = rowspans[m];
+              if (j % rowspan == 0) {
+                  h[m][j] = {
+                      title: specs[m].items[kid].title,
+                      virtual: specs[m].items[kid].virtual,
+                      id: specs[m].items[kid].id
+                  };
+              }
+              else {
+                  h[m][j] = {
+                      title: specs[m].items[kid].title,
+                      virtual: specs[m].items[kid].virtual,
+                      id: specs[m].items[kid].id
+                  };
+              }
+              n++;
+              if (n == rowspan) {
+                  kid++;
+                  if (kid > specs[m].items.length - 1) {
+                      kid = 0;
+                  }
+                  n = 0;
+              }
+          }
+      }
+
+      var commission = {};
+      var commission_level = [{"key":"default","levelname":"\u9ed8\u8ba4\u7b49\u7ea7"}];
+      for (var i = 0; i < newlen; i++) {
+          var ids = [];
+          for (var j = 0; j < len; j++) {
+              ids.push(h[j][i].id);
+          }
+          ids = ids.join('_');
+          $.each(commission_level,function (key,val) {
+              if(val.key == 'default')
+              {
+                  var kkk = "commission_level_"+val.key+"_"+ids;
+                  commission[kkk] = {};
+                  $("input[data-name=commission_level_"+val.key+"_"+ids+"]").each(function (k,v) {
+                      commission[kkk][k] = $(v).val();
+                  });
+              }
+              else
+              {
+                  var kkk = "commission_level_"+val.id+"_"+ids;
+                  commission[kkk] = {};
+                  $("input[data-name=commission_level_"+val.id+"_"+ids+"]").each(function (k,v) {
+                      commission[kkk][k] = $(v).val();
+                  });
+                  var kkk = "commission_level_"+val.id+"_"+ids;
+                  commission[kkk] = {};
+                  $("input[data-name=commission_level_"+val.id+"_"+ids+"]").each(function (k,v) {
+                      commission[kkk][k] = $(v).val();
+                  });
+              }
+          })
+      }
+
+      var commission_id = new Array();
+      $('.commission_id').each(function (index,item) {
+          commission_id.push($(item).val());
+      });
+
+      var commission_ids = new Array();
+      $('.commission_ids').each(function (index,item) {
+          commission_ids.push($(item).val());
+      });
+
+      var commission_title = new Array();
+      $('.commission_title').each(function (index,item) {
+          commission_title.push($(item).val());
+      });
+
+      var commission_virtual = new Array();
+      $('.commission_virtual').each(function (index,item) {
+          commission_virtual.push($(item).val());
+      });
+
+
+
+      var options = {
+          commission : commission,
+          commission_id : commission_id,
+          commission_ids : commission_ids,
+          commission_title : commission_title,
+          commission_virtual : commission_virtual
+      };
+      $("input[name='commissionArray']").val(JSON.stringify(options));
+  }
+
+  function checkoption() {
+
+      var full = true;
+      var $spec_title = $(".spec_title");
+      var $spec_item_title = $(".spec_item_title");
+      if ($("#hasoption").get(0).checked) {
+          if($spec_title.length==0){
+              $('#myTab a[href="#tab_option"]').tab('show');
+              full = false;
+          }
+          if($spec_item_title.length==0){
+              $('#myTab a[href="#tab_option"]').tab('show');
+              full = false;
+          }
+      }
+      if (!full) {
+          return false;
+      }
+      return full;
+  }
+
+  function type_change(type) {
+      if(type == 4) {
+          $(".interval").show();
+          $(".price").hide();
+          $(".minbuy").hide();
+          $(".wholesalewarning").show();
+      }else{
+          $(".interval").hide();
+          $(".price").show();
+          $(".minbuy").show();
+          $(".wholesalewarning").hide();
+      }
+
+      if(type == 5) {
+          $(".showverifygoods").show();
+          $(".showverifygoodscard").show();
+          $('#product').hide();
+          $('#type_virtual').hide();
+          $("#tab_nav_verify").hide();
+          $("[for|='totalcnf2']").show();
+          $("[for|='totalcnf3']").show();
+      }else
+      {
+          $(".showverifygoods").hide();
+          $(".showverifygoodscard").hide();
+      }
+
+      if(type == 1||type == 4) {
+          $('#product').show();
+          $('#type_virtual').hide();
+          $('.entity').show();
+          $("#tab_nav_verify").show();
+          $("[for|='totalcnf2']").show();
+          $("[for|='totalcnf3']").show();
+      } else if(type == 2) {
+          $('#product').hide();
+          $('#type_virtual').hide();
+          $('.entity').hide();
+          if($("input[name='virtualsend']:checked").val()==1) {
+              $("#tab_nav_verify").hide();
+          }else{
+              $("#tab_nav_verify").show();
+          }
+          $("[for|='totalcnf2']").show();
+          $("[for|='totalcnf3']").show();
+      } else if(type == 3) {
+          $('#type_virtual').show();
+          $('.entity').hide();
+          $("#tab_nav_verify").hide();
+          $("[for|='totalcnf2']").hide();
+          $("[for|='totalcnf3']").hide();
+      }else if(type == 10) {
+          $('#type_virtual').hide();
+          $('#product').hide();
+          $('.entity').hide();
+          $("#tab_nav_verify").hide();
+          $("[for|='totalcnf2']").show();
+          $("[for|='totalcnf3']").show();
+      }
+  }*/
 
 
 

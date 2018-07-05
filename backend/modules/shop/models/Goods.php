@@ -127,6 +127,7 @@ class Goods extends \yii\db\ActiveRecord
             [['img_others', 'content'], 'default', 'value' => ''],
             //todo,待确定
             [['freight_id', 'brand_id'], 'default', 'value' => '0'],
+            //todo,商品分类必须为最后一级
             //当选择运费模板，需要运费模板ID不为空
             ['freight_id', 'required', 'when' => function ($model) {
                 return $model->freight_type == 0;
