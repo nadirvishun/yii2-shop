@@ -37,6 +37,8 @@ return [
     'Min Buy' => '单次最少购买',
     'User Max Buy' => '每个用户最多购买',
     'Has Spec' => '开启规格',
+    'Spec Name'=>'规格名称',
+    'Spec Value'=>'规格值',
     'Give Integral' => '赠送积分',
     'Sort' => '排序',
     'Status' => '状态',

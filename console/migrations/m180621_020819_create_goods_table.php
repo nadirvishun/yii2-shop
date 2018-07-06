@@ -66,6 +66,8 @@ class m180621_020819_create_goods_table extends Migration
             'min_buy' => $this->integer()->notNull()->defaultValue(0)->comment('单次最少购买，0为不限制'),
             'user_max_buy' => $this->integer()->notNull()->defaultValue(0)->comment('每个用户最多购买，0为不限制'),
             'has_spec' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('是否启用规格，0否，1是'),
+            'spec_name' => $this->string()->notNull()->defaultValue('')->comment('规格名称，序列化存储'),
+            'spec_value' => $this->text()->notNull()->comment('规格值，序列化存储'),
             'give_integral' => $this->integer()->notNull()->defaultValue(0)->comment('赠送积分'),
             'sort' => $this->integer()->notNull()->defaultValue(0)->comment('排序'),
             'status' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('状态:0下架，1上架，2删除'),

@@ -48,7 +48,8 @@ class m180629_004921_create_goods_sku_table extends Migration
             'updated_by' => $this->integer()->notNull()->defaultValue(0)->comment('更新人'),
             'updated_at' => $this->bigInteger()->notNull()->defaultValue(0)->comment('更新时间')
         ], $tableOptions);
-
+        //增加索引
+        $this->createIndex('goods_id', self::TBL_NAME, 'goods_id');
     }
 
     /**

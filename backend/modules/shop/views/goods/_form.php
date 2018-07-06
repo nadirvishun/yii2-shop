@@ -355,7 +355,7 @@ use yii\widgets\ActiveForm;
         Html::tag('div','',['style'=>'clear:both']).
         Html::endTag('div');
     //单个规格单元
-    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>'SPC-ITEM-PLACEHOLDER','id'=>'spec_item_unit_SPC-ITEM-PLACEHOLDER']).
+    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>'SPC-ITEM-PLACEHOLDER','data-n'=>'SPC-ITEM-NUM-PLACEHOLDER\'']).
         Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['data-id'=>'SPC-ITEM-PLACEHOLDER','class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
         Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
         Html::endTag('div');
@@ -396,13 +396,14 @@ use yii\widgets\ActiveForm;
     $spec = $hasSpec .
         Html::beginTag('div', ['id' => 'open_spec', 'style' => $model->has_spec ? 'display:block' : 'display:none']) .
         Html::beginTag('div',['id'=>'spec_div','style'=>'margin-bottom:10px']).
-        //todo,展示已有的规格
+        //展示已有的规格
 
         Html::endTag('div').
         Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']).
-        Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
+        //手动刷新按钮
+//        Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
         Html::beginTag('div',['id'=>'sku_div','class'=>'table-responsive c-md-9','style'=> 'margin-top:10px']).//todo,是否显示的判定
-        //todo,展示存在的内容
+        //展示存在的内容
 
         Html::endTag('div').
         Html::endTag('div');
@@ -538,29 +539,45 @@ $js = <<<eof
         var html='$specUnit';
         //替换固定字符串为动态
         html=html.replace(/SPC-PLACEHOLDER/g,i);
-        $('#spec_div').append(html);
+        //写入，并增加事件
+        $('#spec_div').append(html).find('.spec_input').change(function(){
+            refreshSku();
+        });
     })
     $('#open_spec').on('click','.delete_spec',function(){
         $(this).parent().remove();
+        //如果有值，则刷新
+        if($(this).prevAll('.spec_input').first().val()){
+            refreshSku();
+        }
     })
     //商品规格单元增删
     $('#open_spec').on('click','.add_spec_item',function(){
         //获取当前的最后一个表示，在此基础上加1，没有时为0，需要注意，当编辑时需要按照id从小到大顺序来遍历
         var i=parseInt($(this).data('id'))
-        var lastItem=$('#spec_item_'+i+' .spec_item_unit:last'),
-            j=0;
+        var lastItem=$(this).nextAll().find('.spec_item_unit:last'),
+            n=0;
         if(lastItem.length!=0){
-            j=parseInt(lastItem.data('id'))+1;
+            n=parseInt(lastItem.data('n'))+1;
         }
+        var j=i+'_'+n;
         var html='$specItemUnit';
         //替换固定字符串为动态
         html=html.replace('SPC-PLACEHOLDER',i);
+        html=html.replace('SPC-ITEM-NUM-PLACEHOLDER',n);
         html=html.replace(/SPC-ITEM-PLACEHOLDER/g,j);
         var item=$(this).nextAll('.spec_item').first();
-        item.append(html);
+        //写入，并增加事件
+        item.append(html).find('.spec_item_input').change(function(){
+            refreshSku();
+        });
     })
     $('#open_spec').on('click','.delete_spec_item',function(){
         $(this).parent().remove();
+        //如果有值，则刷新
+        if($(this).prev().first().val()){
+            refreshSku();
+        }
     })
     //sku字段的value缓存数组
     var SV=[];
@@ -580,29 +597,27 @@ $js = <<<eof
             }
         })
         //获取规格单元名称
-        var specItemValueArr=[];
-        var specItemIdArr=[];
+        var specItemArr=[];
         $(".spec_item").each(function(index,value){
             var specId=parseInt($(this).data('id'));
-            var specItemId='spec_item_'+specId;
             if($.inArray(specId,specIdArr)!==-1){
-                specItemValueArr[index]=[];
-                specItemIdArr[index]=[];
-                $("#"+specItemId+" .spec_item_input").each(function(i,v){
+                specItemArr[index]=[];
+                $(this).find('.spec_item_input').each(function(i,v){
                     if($(this).val()){
-                        specItemValueArr[index][i]=$(this).val();
-                        var id=$(this).data('id');
-                        specItemIdArr[index][i]={'spec_id':specId,'id':id};
+                        specItemArr[index][i]={'spec_id':specId,'id':$(this).data('id'),'value':$(this).val()};
                     }
                 })
+                //如果不存在，则去掉此空数组，否则在笛卡尔积时有空的参数，导致出错
+                if(specItemArr[index].length==0){
+                    specItemArr.splice(index,1);
+                }
             }
         })
-        console.log(specItemValueArr);
-        console.log(specItemIdArr);
-        //获取笛卡尔积
-       multiValueArr=descartes.apply(this,specItemValueArr);
-       console.log(multiValueArr);
-       if(multiValueArr.length!=0){
+       console.log(specItemArr);
+       //获取笛卡尔积
+       multiSpecItemArr=descartes.apply(this,specItemArr);
+       console.log(multiSpecItemArr);
+       if(multiSpecItemArr.length!=0){
            //表标题扩增
            var extendThead='';
            specValueArr.forEach(function(value,index,array){
@@ -610,20 +625,28 @@ $js = <<<eof
            })
            //表内容
            var tbody='';
-           multiValueArr.forEach(function(value,index,array){
+           multiSpecItemArr.forEach(function(value,index,array){
+                //sku_id参数
                 var extendTbody='<input type="hidden" name="sku[SKU-PLACEHOLDER][sku_id]" data-type="sku_id" data-unique_type="SKU-PLACEHOLDER|sku_id" value="">';
+                //sku字段name下标
+                var skuName='';
                 //表内容扩增
                 value.forEach(function(v,i,arr){
                     extendTbody+='<td style="vertical-align: middle">'+
-                    v+
-                    '<input type="hidden" name="sku[SKU-PLACEHOLDER]['+specIdArr[i]+']" value="'+v+'">'+
+                    v.value+
+                    '<input type="hidden" name="sku[SKU-PLACEHOLDER][value]['+v.id+']" value="'+v.value+'">'+
                     '</td>';
+                    if(i==0){
+                        skuName+=v.id;
+                    }else{
+                        skuName+='_'+v.id;
+                    }
                 })
                 var skuTbody='$skuTbody';
                 //替换表内容扩增占位
                 skuTbody=skuTbody.replace('EXTEND-TBODY-PLACEHOLDER',extendTbody);
                 //替换sku内字段name
-                skuTbody=skuTbody.replace(/SKU-PLACEHOLDER/g,index);
+                skuTbody=skuTbody.replace(/SKU-PLACEHOLDER/g,skuName);
                 tbody+=skuTbody;
            })
            //替换表格标题和内容中的占位符
@@ -673,11 +696,14 @@ $js = <<<eof
                 var uniqueType=$(this).data('unique_type');
                 SV[uniqueType] = $(this).val();
            });
+       }else{
+         //如果没有，则取消显示
+         $('#sku_div').html('');
        }
     }
     //todo,当sku中库存值变化时，重新计算库存之和作为总库存
     function computeStock(){
-    
+        
     }
     //todo,当sku中价格变化时，重新获取最低价格作为展示价格
     function computePrice(){
@@ -708,6 +734,7 @@ $js = <<<eof
     
 eof;
 $this->registerJs($js);
+//todo,当更新时，初始js
 ?>
 <script>
 

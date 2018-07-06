@@ -44,6 +44,8 @@ use yii\helpers\ArrayHelper;
  * @property integer $min_buy
  * @property integer $user_max_buy
  * @property integer $has_spec
+ * @property string $spec_name
+ * @property string $spec_value
  * @property integer $give_integral
  * @property integer $sort
  * @property integer $status
@@ -119,12 +121,12 @@ class Goods extends \yii\db\ActiveRecord
             [['category_id', 'brand_id', 'sales', 'real_sales', 'click', 'collect',
                 'stock', 'stock_alarm', 'stock_type', 'is_freight_free', 'freight_type',
                 'freight_id', 'is_new', 'is_hot', 'is_recommend', 'is_limit', 'max_buy',
-                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status','has_spec',
+                'min_buy', 'user_max_buy', 'give_integral', 'sort', 'status', 'has_spec',
                 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
             [['category_id', 'title', 'price', 'market_price', 'stock'], 'required'],
-            [['img_others', 'content'], 'string'],
+            [['img_others', 'content', 'spec_value'], 'string'],
             //由于text严格模式下无法设置默认值，这里手动赋值
-            [['img_others', 'content'], 'default', 'value' => ''],
+            [['img_others', 'content', 'spec_value'], 'default', 'value' => ''],
             //todo,待确定
             [['freight_id', 'brand_id'], 'default', 'value' => '0'],
             //todo,商品分类必须为最后一级
@@ -137,7 +139,7 @@ class Goods extends \yii\db\ActiveRecord
             ['img_others', 'validateImgOthers', 'skipOnEmpty' => false],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
-            [['title', 'sub_title', 'img'], 'string', 'max' => 255],
+            [['title', 'sub_title', 'img', 'spec_name'], 'string', 'max' => 255],
             [['unit'], 'string', 'max' => 10],
             [['unit'], 'default', 'value' => '件'],
             [['price', 'market_price', 'cost_price', 'freight_price'], 'number', 'min' => 0],
@@ -195,6 +197,8 @@ class Goods extends \yii\db\ActiveRecord
             'min_buy' => Yii::t('goods', 'Min Buy'),
             'user_max_buy' => Yii::t('goods', 'User Max Buy'),
             'has_spec' => Yii::t('goods', 'Has Spec'),
+            'spec_name' => Yii::t('goods', 'Spec Name'),
+            'spec_value' => Yii::t('goods', 'Spec Value'),
             'give_integral' => Yii::t('goods', 'Give Integral'),
             'sort' => Yii::t('goods', 'Sort'),
             'status' => Yii::t('goods', 'Status'),
@@ -389,6 +393,44 @@ class Goods extends \yii\db\ActiveRecord
     }
 
     /**
+     * 过滤规格和规格值，排除空值
+     * @param $specArr
+     * @param $specItemArr
+     * @return array
+     */
+    public function filterSpec($specArr, $specItemArr)
+    {
+        $newSpecArr = [];
+        $newSpecItemArr = [];
+        //判定规格名称
+        if (!empty($specArr)) {
+            foreach ($specArr as $key => $spec) {
+                if (!empty($spec)) {
+                    $newSpecArr[$key] = $spec;
+                }
+            }
+        }
+        //判定规格值
+        if (!empty($newSpecArr)) {//如果名称都为空，那值也不需要判定了
+            if (!empty($specItemArr)) {
+                foreach ($specItemArr as $key => $specItem) {
+                    if (in_array($key, array_keys($newSpecArr))) {
+                        foreach ($specItem as $k => $v) {
+                            if (!empty($v)) {
+                                $newSpecItemArr[$key][$k] = $v;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return [
+            'newSpecArr' => $newSpecArr,
+            'newSpecItemArr' => $newSpecItemArr
+        ];
+    }
+
+    /**
      * 存储后的动作
      * @param bool $insert
      * @param array $changedAttributes
@@ -397,6 +439,7 @@ class Goods extends \yii\db\ActiveRecord
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
+
         //增加商品参数数据
         $postData = Yii::$app->request->post();
         $paramNameArr = isset($postData['paramName']) ? $postData['paramName'] : [];
@@ -404,5 +447,16 @@ class Goods extends \yii\db\ActiveRecord
         $paramSortArr = isset($postData['paramSort']) ? $postData['paramSort'] : [];
         $goodsParam = new GoodsParam();
         $goodsParam->saveBatchGoodsParam($this->id, $paramNameArr, $paramValueArr, $paramSortArr, $insert);
+
+        //增加商品sku数据
+        $goodsSku = new GoodsSku();
+        if ($this->has_spec == 1) {
+            $skuArr = $postData['sku'];
+            $goodsSku->saveSku($skuArr, $this->id);
+            //新增或修改sku
+        } else {
+            //删除sku
+            $goodsSku->deleteSku($this->id);
+        }
     }
 }

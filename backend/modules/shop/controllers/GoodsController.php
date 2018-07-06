@@ -171,6 +171,26 @@ class GoodsController extends BaseController
                 foreach ($priceArr as $value) {
                     $model->$value = intval($model->$value * 100);
                 }
+                //存储规格相关
+                $model->spec_name = '';
+                $model->spec_value = '';
+                if ($model->has_spec == 1) {
+                    //判定实际有没有规格，将为空的规格去除掉
+                    $specArr = Yii::$app->request->post('spec');
+                    $specItemArr = Yii::$app->request->post('spec_item');
+                    $specFilterArr = $model->filterSpec($specArr, $specItemArr);
+                    $newSpecArr = $specFilterArr['newSpecArr'];
+                    $newSpecItemArr = $specFilterArr['newSpecItemArr'];
+                    if (empty($newSpecArr) || empty($newSpecItemArr)) {
+                        //如果实际上没有，则都设置为空
+                        $model->has_spec = 0;
+                    } else {
+                        //用json格式存储下来
+                        $model->spec_name = json_encode($newSpecArr);
+                        $model->spec_value = json_encode($newSpecItemArr);
+                    }
+                }
+
                 $res = $model->save(false);
                 if ($res) {
                     //获取列表页url，方便跳转
@@ -249,17 +269,17 @@ class GoodsController extends BaseController
      * @param integer $id
      * @return mixed
      */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
+    /* public function actionDelete($id)
+     {
+         $this->findModel($id)->delete();
 
-        $url = Yii::$app->request->referrer;
-        //如果是从view中删除，则返回列表页
-        if (strpos(urldecode($url), 'goods/view') !== false) {
-            $url = ['index'];
-        }
-        return $this->redirectSuccess($url, Yii::t('common', 'Delete Success'));
-    }
+         $url = Yii::$app->request->referrer;
+         //如果是从view中删除，则返回列表页
+         if (strpos(urldecode($url), 'goods/view') !== false) {
+             $url = ['index'];
+         }
+         return $this->redirectSuccess($url, Yii::t('common', 'Delete Success'));
+     }*/
 
     /**
      * 批量操作
