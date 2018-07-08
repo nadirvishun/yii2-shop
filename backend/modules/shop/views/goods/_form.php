@@ -16,26 +16,37 @@ use yii\widgets\ActiveForm;
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="goods-form">
+    <div class="goods-form">
 
-    <?php $form = ActiveForm::begin([
-        'id' => 'goods-form',
-        'options' => ['class' => 'box-body']
-    ]); ?>
+        <?php $form = ActiveForm::begin([
+            'id' => 'goods-form',
+            'options' => ['class' => 'box-body']
+        ]); ?>
 
-    <?php $goodsSn = $form->field($model, 'goods_sn', ['options' => ['class' => 'form-group c-md-6']])
-        ->textInput(['maxlength' => true]) ?>
+        <?php $goodsSn = $form->field($model, 'goods_sn', ['options' => ['class' => 'form-group c-md-6']])
+            ->textInput(['maxlength' => true]) ?>
 
-    <?php $goodsBarcode = $form->field($model, 'goods_barcode', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
+        <?php $goodsBarcode = $form->field($model, 'goods_barcode', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-    <?php $title = $form->field($model, 'title', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
+        <?php $title = $form->field($model, 'title', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-    <?php $subTitle = $form->field($model, 'sub_title', ['options' => ['class' => 'form-group c-md-6']])->textarea(['rows' => 5]) ?>
+        <?php $subTitle = $form->field($model, 'sub_title', ['options' => ['class' => 'form-group c-md-6']])->textarea(['rows' => 5]) ?>
 
-    <?php $categoryId = $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'Please create goods category first!'))
-        ->widget(Select2::classname(), [
-            'data' => GoodsCategory::getGoodsCategoryTreeOptions(false),
+        <?php $categoryId = $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Please create goods category first!'))
+            ->widget(Select2::classname(), [
+                'data' => GoodsCategory::getGoodsCategoryTreeOptions(false),
+                'options' => [
+                    'prompt' => Yii::t('common', 'Please Select...'),
+                    'encode' => false,
+                ],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ]) ?>
+
+        <?php $brandId = $form->field($model, 'brand_id', ['options' => ['class' => 'form-group c-md-6']])->widget(Select2::classname(), [
+            'data' => [],//todo,品牌选择
             'options' => [
                 'prompt' => Yii::t('common', 'Please Select...'),
                 'encode' => false,
@@ -45,71 +56,60 @@ use yii\widgets\ActiveForm;
             ],
         ]) ?>
 
-    <?php $brandId = $form->field($model, 'brand_id', ['options' => ['class' => 'form-group c-md-6']])->widget(Select2::classname(), [
-        'data' => [],//todo,品牌选择
-        'options' => [
-            'prompt' => Yii::t('common', 'Please Select...'),
-            'encode' => false,
-        ],
-        'pluginOptions' => [
-            'allowClear' => true
-        ],
-    ]) ?>
+        <?php $price = $form->field($model, 'price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
-    <?php $price = $form->field($model, 'price', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
+        <?php $unit = $form->field($model, 'unit', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'unit_hint'))->textInput(['maxlength' => true]) ?>
 
-    <?php $unit = $form->field($model, 'unit', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'unit_hint'))->textInput(['maxlength' => true]) ?>
+        <?php $marketPrice = $form->field($model, 'market_price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
-    <?php $marketPrice = $form->field($model, 'market_price', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
+        <?php $costPrice = $form->field($model, 'cost_price', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
 
-    <?php $costPrice = $form->field($model, 'cost_price', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'Accurate to the second decimal place'))->textInput() ?>
+        <?php $img = $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-    <?php $img = $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
-
-    <!-- 商品图片相关   -->
-    <?php
-    //字段名
-    $imgOthersName = Html::getInputName($model, 'img_others');
-    //设置初始参数
-    $imgOthersValueArr = explode(',', $model->img_others);
-    $initialPreviewConfig = [];
-    foreach ($imgOthersValueArr as $item) {
-        $initialPreviewConfig[] = [
-            'caption' => basename($item),
-            'url' => Url::to(['upload', 'action' => 'delete']),//ajax删除路径
-            'key' => $item
-        ];
-    }
-    $imgOthers = $form->field($model, 'img_others', ['options' => ['class' => 'form-group c-md-9']])
-        ->hint(Yii::t('goods', 'img_others_hint'))
-        ->widget(FileInput::classname(), [
-            'options' => [
-                'accept' => 'image/*',
-                'multiple' => true,
-                'hiddenOptions' => ['value' => $model->img_others, 'id' => 'img_others']//隐藏字段value，增加隐藏字段ID为字段名，方便rule验证
-            ],
-            'pluginOptions' => [
-                'maxFileCount' => 6,
-                'validateInitialCount' => true,//已上传也计入最大个数
-                'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
-                'uploadExtraData' => [
-                    'name' => $imgOthersName,//表字段名称,也可以在独立action中指定
+        <!-- 商品图片相关   -->
+        <?php
+        //字段名
+        $imgOthersName = Html::getInputName($model, 'img_others');
+        //设置初始参数
+        $imgOthersValueArr = explode(',', $model->img_others);
+        $initialPreviewConfig = [];
+        foreach ($imgOthersValueArr as $item) {
+            $initialPreviewConfig[] = [
+                'caption' => basename($item),
+                'url' => Url::to(['upload', 'action' => 'delete']),//ajax删除路径
+                'key' => $item
+            ];
+        }
+        $imgOthers = $form->field($model, 'img_others', ['options' => ['class' => 'form-group c-md-9']])
+            ->hint(Yii::t('goods', 'img_others_hint'))
+            ->widget(FileInput::classname(), [
+                'options' => [
+                    'accept' => 'image/*',
+                    'multiple' => true,
+                    'hiddenOptions' => ['value' => $model->img_others, 'id' => 'img_others']//隐藏字段value，增加隐藏字段ID为字段名，方便rule验证
                 ],
-                'showPreview' => true,
-                'showClose' => false,
-                'showUpload' => false,//异步上传时，批量上传很大概率会出现第一个被第二个覆盖的bug，所以这里设置只能单个点击上传
-                'initialPreview' => empty($model->img_others) ? [] : $imgOthersValueArr,
-                'initialPreviewConfig' => $initialPreviewConfig,
-                'initialPreviewAsData' => true,
-                'overwriteInitial' => false,//多文件不覆盖原有的，单文件覆盖
-            ],
-            'pluginEvents' => [
-                //单个点击上传完毕后给隐藏表单赋值
-                'fileuploaded' => new JsExpression("function (event,data,previewId,index){
+                'pluginOptions' => [
+                    'maxFileCount' => 6,
+                    'validateInitialCount' => true,//已上传也计入最大个数
+                    'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
+                    'uploadExtraData' => [
+                        'name' => $imgOthersName,//表字段名称,也可以在独立action中指定
+                    ],
+                    'showPreview' => true,
+                    'showClose' => false,
+                    'showUpload' => false,//异步上传时，批量上传很大概率会出现第一个被第二个覆盖的bug，所以这里设置只能单个点击上传
+                    'initialPreview' => empty($model->img_others) ? [] : $imgOthersValueArr,
+                    'initialPreviewConfig' => $initialPreviewConfig,
+                    'initialPreviewAsData' => true,
+                    'overwriteInitial' => false,//多文件不覆盖原有的，单文件覆盖
+                ],
+                'pluginEvents' => [
+                    //单个点击上传完毕后给隐藏表单赋值
+                    'fileuploaded' => new JsExpression("function (event,data,previewId,index){
                         var hiddenEle=$('input[type=\'hidden\'][name=\'" . $imgOthersName . "\']');
                         var hiddenValue=hiddenEle.val();
                         var key=data.response.key;
@@ -122,8 +122,8 @@ use yii\widgets\ActiveForm;
                         //上传后触发验证
                          $('#goods-form').yiiActiveForm('validateAttribute', 'goods-img_others')
                        }"),
-                //移动排序交换隐藏表单值的位置
-                'filesorted' => new JsExpression("function (event,params){
+                    //移动排序交换隐藏表单值的位置
+                    'filesorted' => new JsExpression("function (event,params){
                         var hiddenEle=$('input[type=\'hidden\'][name=\'" . $imgOthersName . "\']');
                         var hiddenValue=hiddenEle.val();
                         var hiddenValueArr=hiddenValue.split(',');
@@ -134,8 +134,8 @@ use yii\widgets\ActiveForm;
                         hiddenValueArr[newIndex]=tmp;
                         hiddenEle.val(hiddenValueArr.join(','));
                        }"),
-                //单个点击删除时移除本隐藏表单内的值
-                'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
+                    //单个点击删除时移除本隐藏表单内的值
+                    'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
                         var hiddenEle=$('input[type=\'hidden\'][name=\'" . $imgOthersName . "\']');
                         var hiddenValue=hiddenEle.val();
                         var hiddenValueArr=hiddenValue.split(',');
@@ -145,191 +145,189 @@ use yii\widgets\ActiveForm;
                             hiddenEle.val(hiddenValueArr.join(','));
                         }
                        }"),
-            ]
-        ])
-    ?>
-
-
-    <!-- 商品详情相关   -->
-    <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])
-        ->widget('kucha\ueditor\UEditor', [
-            'clientOptions' => [
-                //上传地址，需修改为上方action一致，默认是upload，但和文件上传同一名字，所以修改为此
-                'serverUrl' => Url::to(['ueditorUpload']),
-                //编辑区域大小
-                'initialFrameHeight' => '300',
-                //定制菜单
-                'toolbars' => [
-                    [
-                        'fullscreen', 'source', 'undo', 'redo', '|',
-                        'fontsize',
-                        'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'removeformat',
-                        'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|',
-                        'forecolor', 'backcolor', '|',
-                        'lineheight', '|',
-                        'indent', '|'
-                    ],
-                    ['preview', 'simpleupload', 'insertimage', 'link', 'emotion', 'map', 'insertvideo', 'insertcode',]
                 ]
-            ]
-        ]);
-    ?>
-
-    <?php $sales = $form->field($model, 'sales', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-    <?php $stock = $form->field($model, 'stock', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-    <?php $stockAlarm = $form->field($model, 'stock_alarm', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'stock_alarm_hint'))
-        ->textInput() ?>
-
-    <?php $stockType = $form->field($model, 'stock_type', ['options' => ['class' => 'form-group c-md-5']])
-        ->widget(SwitchInput::classname(), [
-            'type' => SwitchInput::RADIO,
-            'items' => Goods::getStockTypeOptions(false, true),
-            'labelOptions' => ['style' => 'font-weight:normal'],
-            'pluginOptions' => ['size' => 'mini']
-        ]) ?>
-
-    <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'unit:g'))->textInput(['maxlength' => true]) ?>
+            ])
+        ?>
 
 
-    <!-- 商品属性新品热销等相关   -->
-    <?php $goodsProperty = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
-        Html::label(Yii::t('goods', 'Goods Property'), null, ['class' => 'control-label',]) . '<br>' .
-        Html::activeCheckbox($model, 'is_new', ['labelOptions' => ['style' => 'font-weight:normal']]) .
-        Html::activeCheckbox($model, 'is_hot', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
-        Html::activeCheckbox($model, 'is_recommend', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
-        Html::activeCheckbox($model, 'is_freight_free', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
-        Html::tag('div', Yii::t('goods', 'is_freight_free_hint'), ['class' => 'hint-block']) .
-        Html::endTag('div');
-    ?>
+        <!-- 商品详情相关   -->
+        <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])
+            ->widget('kucha\ueditor\UEditor', [
+                'clientOptions' => [
+                    //上传地址，需修改为上方action一致，默认是upload，但和文件上传同一名字，所以修改为此
+                    'serverUrl' => Url::to(['ueditorUpload']),
+                    //编辑区域大小
+                    'initialFrameHeight' => '300',
+                    //定制菜单
+                    'toolbars' => [
+                        [
+                            'fullscreen', 'source', 'undo', 'redo', '|',
+                            'fontsize',
+                            'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'removeformat',
+                            'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|',
+                            'forecolor', 'backcolor', '|',
+                            'lineheight', '|',
+                            'indent', '|'
+                        ],
+                        ['preview', 'simpleupload', 'insertimage', 'link', 'emotion', 'map', 'insertvideo', 'insertcode',]
+                    ]
+                ]
+            ]);
+        ?>
 
-    <!-- 商品运费相关相关   -->
-    <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
-        Html::label(Yii::t('goods', 'Freight Setting'), null, ['class' => 'control-label',]) . '<br>' .
-        Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
-            'item' => function ($index, $label, $name, $checked, $value) use ($model, $form) {
-                if ($index == 0) {
-                    $other = Html::beginTag('div', ['style' => 'float:left;width:50%;']) .
-                        $form->field($model, 'freight_id', ['template' => "{input}\n{hint}\n{error}"])
-                            ->widget(Select2::classname(), [
-                                'data' => [],//todo,获取运费模板列表
-                                'options' => [
-                                    'prompt' => Yii::t('common', 'Please Select...'),
-                                    'encode' => false
-                                ],
-                            ]) .
-                        Html::endTag('div') .
-                        Html::tag('div', '', ['style' => 'clear:both']);
-                } else {
-                    $other = $form->field($model, 'freight_price', ['options' => ['style' => 'width:50%;float:left;'], 'template' => "{input}\n{hint}\n{error}"])
-                            ->textInput(['maxlength' => true]) .
-                        Html::tag('div', '', ['style' => 'clear:both']);
+        <?php $sales = $form->field($model, 'sales', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+
+        <?php $stock = $form->field($model, 'stock', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+
+        <?php $stockAlarm = $form->field($model, 'stock_alarm', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'stock_alarm_hint'))
+            ->textInput() ?>
+
+        <?php $stockType = $form->field($model, 'stock_type', ['options' => ['class' => 'form-group c-md-5']])
+            ->widget(SwitchInput::classname(), [
+                'type' => SwitchInput::RADIO,
+                'items' => Goods::getStockTypeOptions(false, true),
+                'labelOptions' => ['style' => 'font-weight:normal'],
+                'pluginOptions' => ['size' => 'mini']
+            ]) ?>
+
+        <?php $weight = $form->field($model, 'weight', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'unit:g'))->textInput(['maxlength' => true]) ?>
+
+
+        <!-- 商品属性新品热销等相关   -->
+        <?php $goodsProperty = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
+            Html::label(Yii::t('goods', 'Goods Property'), null, ['class' => 'control-label',]) . '<br>' .
+            Html::activeCheckbox($model, 'is_new', ['labelOptions' => ['style' => 'font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_hot', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_recommend', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::activeCheckbox($model, 'is_freight_free', ['labelOptions' => ['style' => 'margin-left:10px;font-weight:normal']]) .
+            Html::tag('div', Yii::t('goods', 'is_freight_free_hint'), ['class' => 'hint-block']) .
+            Html::endTag('div');
+        ?>
+
+        <!-- 商品运费相关相关   -->
+        <?php $freightSetting = Html::beginTag('div', ['class' => 'form-group c-md-6']) .
+            Html::label(Yii::t('goods', 'Freight Setting'), null, ['class' => 'control-label',]) . '<br>' .
+            Html::activeRadioList($model, 'freight_type', Goods::getFreightTypeOptions(), [
+                'item' => function ($index, $label, $name, $checked, $value) use ($model, $form) {
+                    if ($index == 0) {
+                        $other = Html::beginTag('div', ['style' => 'float:left;width:50%;']) .
+                            $form->field($model, 'freight_id', ['template' => "{input}\n{hint}\n{error}"])
+                                ->widget(Select2::classname(), [
+                                    'data' => [],//todo,获取运费模板列表
+                                    'options' => [
+                                        'prompt' => Yii::t('common', 'Please Select...'),
+                                        'encode' => false
+                                    ],
+                                ]) .
+                            Html::endTag('div') .
+                            Html::tag('div', '', ['style' => 'clear:both']);
+                    } else {
+                        $other = $form->field($model, 'freight_price', ['options' => ['style' => 'width:50%;float:left;'], 'template' => "{input}\n{hint}\n{error}"])
+                                ->textInput(['maxlength' => true]) .
+                            Html::tag('div', '', ['style' => 'clear:both']);
+                    }
+                    return Html::radio($name, $checked, [
+                            'value' => $value,
+                            'label' => Html::encode($label),
+                            'labelOptions' => ['style' => 'font-weight:normal;float:left;width:10%;line-height:34px;min-width:100px']
+                        ]) . $other;
                 }
-                return Html::radio($name, $checked, [
-                        'value' => $value,
-                        'label' => Html::encode($label),
-                        'labelOptions' => ['style' => 'font-weight:normal;float:left;width:10%;line-height:34px;min-width:100px']
-                    ]) . $other;
+            ]) .
+            Html::tag('div', Yii::t('goods', 'freight_hint'), ['class' => 'hint-block']) .
+            Html::endTag('div');
+        ?>
+
+        <?php $isLimit = $form->field($model, 'is_limit', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+
+        <?php $maxBuy = $form->field($model, 'max_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'max_buy_hint'))
+            ->textInput() ?>
+
+        <?php $minBuy = $form->field($model, 'min_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'min_buy_hint'))
+            ->textInput() ?>
+
+        <?php $userMaxBuy = $form->field($model, 'user_max_buy', ['options' => ['class' => 'form-group c-md-6']])
+            ->hint(Yii::t('goods', 'user_max_buy_hint'))
+            ->textInput() ?>
+
+        <?php $giveIntegral = $form->field($model, 'give_integral', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+
+        <?php $sort = $form->field($model, 'sort', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
+
+        <?php $status = $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-5']])
+            ->widget(SwitchInput::classname(), [
+                'type' => SwitchInput::RADIO,
+                'items' => Goods::getStatusOptions(false, true),
+                'labelOptions' => ['style' => 'font-weight:normal'],
+                'pluginOptions' => ['size' => 'mini']
+            ]) ?>
+
+        <!-- 商品参数相关，由于是B2C商城，无需按照分类来规范，直接用到哪个参数自己填写即可，优点是灵活度高，缺点是分类检索没有了，而且缺乏规范，
+        如果是B2B2C那就需要不同分类提前规定好属性，以方便商家规范填写和便于生成前端不同规格参数检索   -->
+        <?php
+        //标题栏
+        $paramHeader = Html::beginTag('thead') .
+            Html::beginTag('tr') .
+            Html::tag('th', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
+            Html::tag('th', Yii::t('goods_param', 'Value'), ['style' => 'width:50%;color:#999;padding:0 8px']) .
+            Html::tag('th', Yii::t('goods_param', 'Sort'), ['style' => 'width:10%;color:#999;padding:0 8px']) .
+            Html::tag('th', '', ['style' => 'width:10%;padding:0 8px']) .
+            Html::endTag('tr') .
+            Html::endTag('thead');
+        //参数单元，主要js加载用
+        $paramItem = Html::beginTag('tr') .
+            Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+            Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+            Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
+            Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_goods_param']) . Html::endTag('td') .
+            Html::endTag('tr');
+        //整体结构
+        $param = Html::beginTag('div', ['class' => 'form-group c-md-8', 'id' => 'goods_param_div']) .
+            Html::label(Yii::t('goods', 'Goods Param'), null, ['class' => 'control-label',]) . '<br>' .
+            Html::beginTag('table', ['style' => 'width:100%']) .
+            $paramHeader .
+            Html::beginTag('tbody', ['id' => 'goods_params']);
+        if (!empty($model->goodsParams)) {
+            foreach ($model->goodsParams as $value) {
+                $param .= Html::beginTag('tr') .
+                    Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', $value->name, ['class' => 'form-control']) . Html::endTag('td') .
+                    Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', $value->value, ['class' => 'form-control']) . Html::endTag('td') .
+                    Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', $value->sort, ['class' => 'form-control']) . Html::endTag('td') .
+                    Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_goods_param']) . Html::endTag('td') .
+                    Html::endTag('tr');
             }
-        ]) .
-        Html::tag('div', Yii::t('goods', 'freight_hint'), ['class' => 'hint-block']) .
-        Html::endTag('div');
-    ?>
-
-    <?php $isLimit = $form->field($model, 'is_limit', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-    <?php $maxBuy = $form->field($model, 'max_buy', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'max_buy_hint'))
-        ->textInput() ?>
-
-    <?php $minBuy = $form->field($model, 'min_buy', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'min_buy_hint'))
-        ->textInput() ?>
-
-    <?php $userMaxBuy = $form->field($model, 'user_max_buy', ['options' => ['class' => 'form-group c-md-6']])
-        ->hint(Yii::t('goods', 'user_max_buy_hint'))
-        ->textInput() ?>
-
-    <?php $giveIntegral = $form->field($model, 'give_integral', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-    <?php $sort = $form->field($model, 'sort', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
-
-    <?php $status = $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-5']])
-        ->widget(SwitchInput::classname(), [
-            'type' => SwitchInput::RADIO,
-            'items' => Goods::getStatusOptions(false, true),
-            'labelOptions' => ['style' => 'font-weight:normal'],
-            'pluginOptions' => ['size' => 'mini']
-        ]) ?>
-
-    <!-- 商品参数相关，由于是B2C商城，无需按照分类来规范，直接用到哪个参数自己填写即可，优点是灵活度高，缺点是分类检索没有了，而且缺乏规范，
-    如果是B2B2C那就需要不同分类提前规定好属性，以方便商家规范填写和便于生成前端不同规格参数检索   -->
-    <?php
-    //标题栏
-    $paramHeader = Html::beginTag('thead') .
-        Html::beginTag('tr') .
-        Html::tag('th', Yii::t('goods_param', 'Name'), ['style' => 'width:20%;color:#999;padding:0 8px 0 0']) .
-        Html::tag('th', Yii::t('goods_param', 'Value'), ['style' => 'width:50%;color:#999;padding:0 8px']) .
-        Html::tag('th', Yii::t('goods_param', 'Sort'), ['style' => 'width:10%;color:#999;padding:0 8px']) .
-        Html::tag('th', '', ['style' => 'width:10%;padding:0 8px']) .
-        Html::endTag('tr') .
-        Html::endTag('thead');
-    //参数单元，主要js加载用
-    $paramItem = Html::beginTag('tr') .
-        Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', '', ['class' => 'form-control']) . Html::endTag('td') .
-        Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_goods_param']) . Html::endTag('td') .
-        Html::endTag('tr');
-    //整体结构
-    $param = Html::beginTag('div', ['class' => 'form-group c-md-8', 'id' => 'goods_param_div']) .
-        Html::label(Yii::t('goods', 'Goods Param'), null, ['class' => 'control-label',]) . '<br>' .
-        Html::beginTag('table', ['style' => 'width:100%']) .
-        $paramHeader .
-        Html::beginTag('tbody', ['id' => 'goods_params']);
-    if (!empty($model->goodsParams)) {
-        foreach ($model->goodsParams as $value) {
-            $param .= Html::beginTag('tr') .
-                Html::beginTag('td', ['style' => 'width:20%;padding:0 8px 0 0']) . Html::TextInput('paramName[]', $value->name, ['class' => 'form-control']) . Html::endTag('td') .
-                Html::beginTag('td', ['style' => 'width:50%;padding:8px']) . Html::textInput('paramValue[]', $value->value, ['class' => 'form-control']) . Html::endTag('td') .
-                Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::textInput('paramSort[]', $value->sort, ['class' => 'form-control']) . Html::endTag('td') .
-                Html::beginTag('td', ['style' => 'width:10%;padding:8px']) . Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_goods_param']) . Html::endTag('td') .
-                Html::endTag('tr');
         }
-    }
-    $param .= Html::endTag('tbody');
-    $param .= Html::endTag('table');
-    $param .= Html::endTag('div');
-    $param .= Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add param'), ['id' => 'add_goods_param', 'class' => 'btn btn-primary']);
-    ?>
+        $param .= Html::endTag('tbody');
+        $param .= Html::endTag('table');
+        $param .= Html::endTag('div');
+        $param .= Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add param'), ['id' => 'add_goods_param', 'class' => 'btn btn-primary']);
+        ?>
 
-    <!-- 商品规格，优缺点同商品参数差不多 -->
-    <?php
-    //相关只读ID
-    $goodsSnId = Html::getInputId($model, 'goods_sn');
-    $goodsBarcodeId = Html::getInputId($model, 'goods_barcode');
-    $weightId = Html::getInputId($model, 'weight');
-    $stockId = Html::getInputId($model, 'stock');
-    $stockAlarmId = Html::getInputId($model, 'stock_alarm');
-    $priceId = Html::getInputId($model, 'price');
-    $marketPriceId = Html::getInputId($model, 'market_price');
-    $costPriceId = Html::getInputId($model, 'cost_price');
-    //开关
-    $hasSpec = $form->field($model, 'has_spec', ['options' => ['class' => 'form-group c-md-10']])
-        ->hint(Yii::t('goods', 'has_spec_hint'))
-        ->widget(SwitchInput::classname(), [
-            'pluginOptions' => ['size' => 'small'],
-            'pluginEvents' => [
-                "switchChange.bootstrapSwitch" => "function(e,status) {
+        <!-- 商品规格，优缺点同商品参数差不多 -->
+        <?php
+        //相关只读ID
+        $goodsSnId = Html::getInputId($model, 'goods_sn');
+        $goodsBarcodeId = Html::getInputId($model, 'goods_barcode');
+        $weightId = Html::getInputId($model, 'weight');
+        $stockId = Html::getInputId($model, 'stock');
+        $priceId = Html::getInputId($model, 'price');
+        $marketPriceId = Html::getInputId($model, 'market_price');
+        $costPriceId = Html::getInputId($model, 'cost_price');
+        //开关
+        $hasSpec = $form->field($model, 'has_spec', ['options' => ['class' => 'form-group c-md-10']])
+            ->hint(Yii::t('goods', 'has_spec_hint'))
+            ->widget(SwitchInput::classname(), [
+                'pluginOptions' => ['size' => 'small'],
+                'pluginEvents' => [
+                    "switchChange.bootstrapSwitch" => "function(e,status) {
                     if(status){
                         $('#'+'$goodsSnId').attr('readonly',true);
                         $('#'+'$goodsBarcodeId').attr('readonly',true);
                         $('#'+'$weightId').attr('readonly',true);
                         $('#'+'$stockId').attr('readonly',true);
-                        $('#'+'$stockAlarmId').attr('readonly',true);
                         $('#'+'$priceId').attr('readonly',true);
                         $('#open_spec').show();
                     }else{
@@ -337,160 +335,155 @@ use yii\widgets\ActiveForm;
                         $('#'+'$goodsBarcodeId').attr('readonly',false);
                         $('#'+'$weightId').attr('readonly',false);
                         $('#'+'$stockId').attr('readonly',false);
-                        $('#'+'$stockAlarmId').attr('readonly',false);
-                        $('#'+'$priceId').attr('readonly',true);
+                        $('#'+'$priceId').attr('readonly',false);
                         $('#open_spec').hide();
                     }
                }"
-            ]
-        ]);
-    //单个规格
-    $specUnit=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#ecf0f5','class' => 'c-md-9 spec_unit','data-id'=>'SPC-PLACEHOLDER']).
-        Html::TextInput('spec[SPC-PLACEHOLDER]','',  ['class' => 'form-control c-md-9 spec_input','data-id'=>'SPC-PLACEHOLDER','style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
-        Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'data-id'=>'SPC-PLACEHOLDER','style'=>'margin:6px 0 0 10px;float:left']).
-        Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style'=>'margin:6px 0 0 10px;float:left']).
-        Html::tag('div','',['class'=>'spec_item c-md-10','data-id'=>'SPC-PLACEHOLDER']).
-        Html::tag('div','',['style'=>'clear:both']).
-        Html::endTag('div');
-    //单个规格单元
-    $specItemUnit=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>'SPC-ITEM-PLACEHOLDER','data-n'=>'SPC-ITEM-NUM-PLACEHOLDER']).
-        Html::input('text','spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]','',  ['data-id'=>'SPC-ITEM-PLACEHOLDER','class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
-        Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
-        Html::endTag('div');
-    //sku标题栏
-    $skuHeader = Html::beginTag('thead') .
-        Html::beginTag('tr') .
-        'EXTEND-THEAD-PLACEHOLDER'.
-        Html::tag('th', Yii::t('goods', 'Price'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Market Price'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Cost Price'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Stock'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Stock Alarm'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Weight'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Goods Sn'), ['style' => 'color:#999']) .
-        Html::tag('th', Yii::t('goods', 'Goods Barcode'), ['style' => 'color:#999']) .
-        Html::endTag('tr') .
-        Html::endTag('thead');
-    //sku内容
-    $skuTbody = Html::beginTag('tr',['style'=>'margin:5px 0']) .
-        'EXTEND-TBODY-PLACEHOLDER'.
-        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][price]', '', ['class' => 'form-control sku_input','data-type'=>'price','data-unique_type'=>'SKU-PLACEHOLDER|price']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][market_price]', '', ['class' => 'form-control sku_input','data-type'=>'market_price','data-unique_type'=>'SKU-PLACEHOLDER|market_price']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][cost_price]', '', ['class' => 'form-control sku_input','data-type'=>'cost_price','data-unique_type'=>'SKU-PLACEHOLDER|cost_price']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][stock]', '', ['class' => 'form-control sku_input','data-type'=>'stock','data-unique_type'=>'SKU-PLACEHOLDER|stock']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][stock_alarm]', '', ['class' => 'form-control sku_input','data-type'=>'stock_alarm','data-unique_type'=>'SKU-PLACEHOLDER|stock_alarm']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][weight]', '', ['class' => 'form-control sku_input','data-type'=>'weight','data-unique_type'=>'SKU-PLACEHOLDER|weight']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][goods_sn]', '', ['class' => 'form-control sku_input','data-type'=>'goods_sn','data-unique_type'=>'SKU-PLACEHOLDER|goods_sn']) . Html::endTag('td') .
-        Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][goods_barcode]', '', ['class' => 'form-control sku_input','data-type'=>'goods_barcode','data-unique_type'=>'SKU-PLACEHOLDER|goods_barcode']) . Html::endTag('td') .
-        Html::endTag('tr');
-    //sku表格
-    $sku = Html::beginTag('table', ['class'=>'table table-hover table-bordered table-striped text-nowrap']) .
-        $skuHeader .
-        Html::beginTag('tbody', ['id' => 'goods_skus']) .
-        'TBODY-PLACEHOLDER'.
-        Html::endTag('tbody') .
-        Html::endTag('table');
-    //整体规格展示
-    $spec = $hasSpec .
-        Html::beginTag('div', ['id' => 'open_spec', 'style' => $model->has_spec ? 'display:block' : 'display:none']) .
-        Html::beginTag('div',['id'=>'spec_div','style'=>'margin-bottom:10px']);
+                ]
+            ]);
+        //单个规格
+        $specUnit = Html::beginTag('div', ['style' => 'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#ecf0f5', 'class' => 'c-md-9 spec_unit', 'data-id' => 'SPC-PLACEHOLDER']) .
+            Html::TextInput('spec[SPC-PLACEHOLDER]', '', ['class' => 'form-control c-md-9 spec_input', 'data-id' => 'SPC-PLACEHOLDER', 'style' => 'float:left', 'placeholder' => Yii::t('goods', 'like color and so on')]) .
+            Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item', 'data-id' => 'SPC-PLACEHOLDER', 'style' => 'margin:6px 0 0 10px;float:left']) .
+            Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style' => 'margin:6px 0 0 10px;float:left']) .
+            Html::tag('div', '', ['class' => 'spec_item c-md-10', 'data-id' => 'SPC-PLACEHOLDER']) .
+            Html::tag('div', '', ['style' => 'clear:both']) .
+            Html::endTag('div');
+        //单个规格单元
+        $specItemUnit = Html::beginTag('div', ['style' => 'margin:5px 10px 0 0;float:left;width:31%', 'class' => 'spec_item_unit', 'data-id' => 'SPC-ITEM-PLACEHOLDER', 'data-n' => 'SPC-ITEM-NUM-PLACEHOLDER']) .
+            Html::input('text', 'spec_item[SPC-PLACEHOLDER][SPC-ITEM-PLACEHOLDER]', '', ['data-id' => 'SPC-ITEM-PLACEHOLDER', 'class' => 'form-control c-md-10 spec_item_input', 'style' => 'float:left']) .
+            Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style' => 'margin:6px 0 0 3px;float:left']) .
+            Html::endTag('div');
+        //sku标题栏
+        $skuHeader = Html::beginTag('thead') .
+            Html::beginTag('tr') .
+            'EXTEND-THEAD-PLACEHOLDER' .
+            Html::tag('th', Yii::t('goods', 'Price'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Market Price'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Cost Price'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Stock'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Stock Alarm'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Weight'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Goods Sn'), ['style' => 'color:#999']) .
+            Html::tag('th', Yii::t('goods', 'Goods Barcode'), ['style' => 'color:#999']) .
+            Html::endTag('tr') .
+            Html::endTag('thead');
+        //sku内容
+        $skuTbody = Html::beginTag('tr', ['style' => 'margin:5px 0']) .
+            'EXTEND-TBODY-PLACEHOLDER' .
+            Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][price]', '', ['class' => 'form-control sku_input', 'data-type' => 'price', 'data-unique_type' => 'SKU-PLACEHOLDER|price']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][market_price]', '', ['class' => 'form-control sku_input', 'data-type' => 'market_price', 'data-unique_type' => 'SKU-PLACEHOLDER|market_price']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][cost_price]', '', ['class' => 'form-control sku_input', 'data-type' => 'cost_price', 'data-unique_type' => 'SKU-PLACEHOLDER|cost_price']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][stock]', '', ['class' => 'form-control sku_input', 'data-type' => 'stock', 'data-unique_type' => 'SKU-PLACEHOLDER|stock']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][stock_alarm]', '', ['class' => 'form-control sku_input', 'data-type' => 'stock_alarm', 'data-unique_type' => 'SKU-PLACEHOLDER|stock_alarm']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][weight]', '', ['class' => 'form-control sku_input', 'data-type' => 'weight', 'data-unique_type' => 'SKU-PLACEHOLDER|weight']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::TextInput('sku[SKU-PLACEHOLDER][goods_sn]', '', ['class' => 'form-control sku_input', 'data-type' => 'goods_sn', 'data-unique_type' => 'SKU-PLACEHOLDER|goods_sn']) . Html::endTag('td') .
+            Html::beginTag('td') . Html::textInput('sku[SKU-PLACEHOLDER][goods_barcode]', '', ['class' => 'form-control sku_input', 'data-type' => 'goods_barcode', 'data-unique_type' => 'SKU-PLACEHOLDER|goods_barcode']) . Html::endTag('td') .
+            Html::endTag('tr');
+        //sku表格
+        $sku = Html::beginTag('table', ['class' => 'table table-hover table-bordered table-striped text-nowrap']) .
+            $skuHeader .
+            Html::beginTag('tbody', ['id' => 'goods_skus']) .
+            'TBODY-PLACEHOLDER' .
+            Html::endTag('tbody') .
+            Html::endTag('table');
+        //整体规格展示
+        $spec = $hasSpec .
+            Html::beginTag('div', ['id' => 'open_spec', 'style' => $model->has_spec ? 'display:block' : 'display:none']) .
+            Html::beginTag('div', ['id' => 'spec_div', 'style' => 'margin-bottom:10px']);
         //展示已有的规格
-        if(!empty($model->spec_name)){
-            $specNameArr=json_decode($model->spec_name,true);
-            $specValueArr=json_decode($model->spec_value,true);
-            foreach ( $specNameArr as $key=>$value){
-                $spec.=Html::beginTag('div',['style'=>'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#ecf0f5','class' => 'c-md-9 spec_unit','data-id'=>$key]).
-                    Html::TextInput("spec[$key]",$value,  ['class' => 'form-control c-md-9 spec_input','data-id'=>$key,'style'=>'float:left','placeholder'=>Yii::t('goods','like color and so on')]).
-                    Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item' ,'data-id'=>$key,'style'=>'margin:6px 0 0 10px;float:left']).
-                    Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style'=>'margin:6px 0 0 10px;float:left']).
-                    Html::beginTag('div',['class'=>'spec_item c-md-10','data-id'=>$key]);
-                    foreach ($specValueArr[$key] as $k=>$v){
-                        $spec.=Html::beginTag('div',['style'=>'margin:5px 10px 0 0;float:left;width:31%','class'=>'spec_item_unit','data-id'=>$k,'data-n'=>explode('_',$k)[1]]).
-                        Html::input('text',"spec_item[$key][$k]",$v,  ['data-id'=>$k,'class' => 'form-control c-md-10 spec_item_input','style'=>'float:left']).
-                        Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style'=>'margin:6px 0 0 3px;float:left']).
+        if (!empty($model->spec_name)) {
+            $specNameArr = json_decode($model->spec_name, true);
+            $specValueArr = json_decode($model->spec_value, true);
+            foreach ($specNameArr as $key => $value) {
+                $spec .= Html::beginTag('div', ['style' => 'padding:8px;margin:5px 0;border:1px dashed #bbb;background:#ecf0f5', 'class' => 'c-md-9 spec_unit', 'data-id' => $key]) .
+                    Html::TextInput("spec[$key]", $value, ['class' => 'form-control c-md-9 spec_input', 'data-id' => $key, 'style' => 'float:left', 'placeholder' => Yii::t('goods', 'like color and so on')]) .
+                    Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec item'), ['class' => 'btn btn-xs btn-primary add_spec_item', 'data-id' => $key, 'style' => 'margin:6px 0 0 10px;float:left']) .
+                    Html::button('<i class="fa fa-trash"></i> ' . Yii::t('goods', 'delete'), ['class' => 'btn btn-xs btn-danger delete_spec', 'style' => 'margin:6px 0 0 10px;float:left']) .
+                    Html::beginTag('div', ['class' => 'spec_item c-md-10', 'data-id' => $key]);
+                foreach ($specValueArr[$key] as $k => $v) {
+                    $spec .= Html::beginTag('div', ['style' => 'margin:5px 10px 0 0;float:left;width:31%', 'class' => 'spec_item_unit', 'data-id' => $k, 'data-n' => explode('_', $k)[1]]) .
+                        Html::input('text', "spec_item[$key][$k]", $v, ['data-id' => $k, 'class' => 'form-control c-md-10 spec_item_input', 'style' => 'float:left']) .
+                        Html::button('<i class="fa fa-close"></i> ', ['class' => 'btn btn-xs btn-danger delete_spec_item', 'style' => 'margin:6px 0 0 3px;float:left']) .
                         Html::endTag('div');
-                    }
-                $spec.=Html::endTag('div').
-                    Html::tag('div','',['style'=>'clear:both']).
+                }
+                $spec .= Html::endTag('div') .
+                    Html::tag('div', '', ['style' => 'clear:both']) .
                     Html::endTag('div');
             }
         }
-
-        $spec.=Html::endTag('div').
-        Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']).
-        //手动刷新按钮
+        $spec .= Html::endTag('div') .
+            Html::button('<i class="fa fa-plus"></i> ' . Yii::t('goods', 'add spec'), ['id' => 'add_goods_spec', 'class' => 'btn btn-primary']) .
+            //手动刷新按钮
 //        Html::button('<i class="fa fa-refresh"></i> ' . Yii::t('goods', 'refresh sku'), ['id' => 'refresh_sku', 'class' => 'btn btn-primary', 'style'=>'margin-left:10px']).
-        Html::beginTag('div',['id'=>'sku_div','class'=>'table-responsive c-md-9','style'=> 'margin-top:10px']).//todo,是否显示的判定
-        //展示存在的内容
+            Html::beginTag('div', ['id' => 'sku_div', 'class' => 'table-responsive c-md-9', 'style' => 'margin-top:10px']) .
+            //展示存在的内容
+            Html::endTag('div') .
+            Html::endTag('div');
+        ?>
 
-        Html::endTag('div').
-        Html::endTag('div');
-    ?>
+        <?= Tabs::widget([
+            'items' => [
+                [
+                    'label' => Yii::t('goods', 'basic'),
+                    'content' =>
+                        $categoryId .
+                        $title .
+                        $subTitle .
+                        $price .
+                        $marketPrice .
+                        $costPrice .
+                        $unit .
+                        $goodsProperty .
+                        $freightSetting .
+                        $giveIntegral .
+                        $sort .
+                        $status
+                ],
+                [
+                    'label' => Yii::t('goods', 'spec'),
+                    'content' => $spec
+                ],
+                [
+                    'label' => Yii::t('goods', 'param'),
+                    'content' => $param
+                ],
+                [
+                    'label' => Yii::t('goods', 'stock'),
+                    'content' => $goodsSn .
+                        $goodsBarcode .
+                        $weight .
+                        $stock .
+                        $stockAlarm .
+                        $stockType
+                ],
+                [
+                    'label' => Yii::t('goods', 'image'),
+                    'content' => $imgOthers
+                ],
+                [
+                    'label' => Yii::t('goods', 'content'),
+                    'content' => $brandId .
+                        $content
+                ],
+                [
+                    'label' => Yii::t('goods', 'limit'),
+                    'content' => $maxBuy .
+                        $minBuy .
+                        $userMaxBuy
+                ],
+            ],
+            'itemOptions' => ['class' => 'p-10']
+        ]);
+        ?>
 
+        <div class="form-group">
+            <?= Html::submitButton($model->isNewRecord ? Yii::t('common', 'create') : Yii::t('common', 'update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-warning']) ?>
+        </div>
 
-    <?= Tabs::widget([
-        'items' => [
-            [
-                'label' => Yii::t('goods', 'basic'),
-                'content' =>
-                    $categoryId .
-                    $title .
-                    $subTitle .
-                    $price .
-                    $marketPrice .
-                    $costPrice .
-                    $unit .
-                    $goodsProperty .
-                    $freightSetting .
-                    $giveIntegral .
-                    $sort .
-                    $status
-            ],
-            [
-                'label' => Yii::t('goods', 'spec'),
-                'content' => $spec
-            ],
-            [
-                'label' => Yii::t('goods', 'param'),
-                'content' => $param
-            ],
-            [
-                'label' => Yii::t('goods', 'stock'),
-                'content' => $goodsSn .
-                    $goodsBarcode .
-                    $weight .
-                    $stock .
-                    $stockAlarm .
-                    $stockType
-            ],
-            [
-                'label' => Yii::t('goods', 'image'),
-                'content' => $imgOthers
-            ],
-            [
-                'label' => Yii::t('goods', 'content'),
-                'content' => $brandId .
-                    $content
-            ],
-            [
-                'label' => Yii::t('goods', 'limit'),
-                'content' => $maxBuy .
-                    $minBuy .
-                    $userMaxBuy
-            ],
-        ],
-        'itemOptions' => ['class' => 'p-10']
-    ]);
-    ?>
-
-    <div class="form-group">
-        <?= Html::submitButton($model->isNewRecord ? Yii::t('common', 'create') : Yii::t('common', 'update'), ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-warning']) ?>
+        <?php ActiveForm::end(); ?>
 
     </div>
-
-    <?php ActiveForm::end(); ?>
-
-</div>
 <?php
 $imgOthersErrorMsg = Yii::t('goods', 'Image can not empty!');
 $js = <<<eof
@@ -619,7 +612,6 @@ $js = <<<eof
                         specItemArr[index][i]={'spec_id':specId,'id':$(this).data('id'),'value':$(this).val()};
                     }
                 })
-                console.log(specItemArr);
                 //如果不存在，则去掉此空数组，否则在笛卡尔积时有空的参数，导致出错
                 if(specItemArr[index].length==0){
                     specItemArr.splice(index,1);
@@ -629,10 +621,8 @@ $js = <<<eof
                 }
             }
         })
-       console.log(specItemArr);
        //获取笛卡尔积
        multiSpecItemArr=descartes.apply(this,specItemArr);
-       console.log(multiSpecItemArr);
        if(multiSpecItemArr.length!=0){
            //表标题扩增
            var extendThead='';
@@ -643,7 +633,7 @@ $js = <<<eof
            var tbody='';
            multiSpecItemArr.forEach(function(value,index,array){
                 //sku_id参数
-                var extendTbody='<input type="hidden" name="sku[SKU-PLACEHOLDER][sku_id]" data-type="sku_id" data-unique_type="SKU-PLACEHOLDER|sku_id" value="">';
+                var extendTbody='<input type="hidden" class="sku_input" name="sku[SKU-PLACEHOLDER][sku_id]" data-type="sku_id" data-unique_type="SKU-PLACEHOLDER|sku_id" value="">';
                 //sku字段name下标
                 var skuName='';
                 //表内容扩增
@@ -717,13 +707,46 @@ $js = <<<eof
          $('#sku_div').html('');
        }
     }
-    //todo,当sku中库存值变化时，重新计算库存之和作为总库存
+    //当sku中库存值变化时，重新计算库存之和作为总库存
     function computeStock(){
-        
+        var stock = 0;
+        $('input[data-type="stock"]').each(function(){
+            if($(this).val() != ''){
+                stock += parseInt($(this).val());
+            }
+        });
+        $('#$stockId').val(stock);
     }
-    //todo,当sku中价格变化时，重新获取最低价格作为展示价格
+    //当sku中价格变化时，重新获取最低价格作为展示价格
     function computePrice(){
-    
+        var price = 0,
+            priceFirst = false;
+        $('input[data-type="price"]').each(function(){
+            if($(this).val() != ''){
+                if(!priceFirst){
+                    price = parseFloat($(this).val());
+                    priceFirst = true;
+                }else{
+                    price = (parseFloat($(this).val())  > price) ? price : parseFloat($(this).val());
+                }
+            }
+        });
+        $('#$priceId').val(toDecimal(price));
+    }
+    //强制保留小数
+    function toDecimal(number,decimals) {
+        decimals = typeof decimals !== 'undefined' ?  decimals : 2;
+        var f = Math.round(number * 100) / 100;
+        var s = f.toString();
+        var rs = s.indexOf('.');
+        if (rs < 0) {
+            rs = s.length;
+            s += '.';
+        }
+        while (s.length <= rs + decimals) {
+            s += '0';
+        }
+        return s;
     }
     //求笛卡尔积的方法
     function descartes(){
@@ -747,30 +770,58 @@ $js = <<<eof
             return res;
         });
     }
-    
 eof;
 $this->registerJs($js);
 //当更新时，初始js
 if (!$model->isNewRecord) {
-    if ($model->has_spec == 1) {
-        //只读状态
+    if ($model->has_spec == Goods::HAS_SPEC) {
+        //只读状态，并显示规格
         $showJs = <<<eof
 $('#'+'$goodsSnId').attr('readonly',true);
 $('#'+'$goodsBarcodeId').attr('readonly',true);
 $('#'+'$weightId').attr('readonly',true);
 $('#'+'$stockId').attr('readonly',true);
-$('#'+'$stockAlarmId').attr('readonly',true);
 $('#'+'$priceId').attr('readonly',true);
 $('#open_spec').show();
 eof;
-        //todo,绑定事件
-        //todo,sku赋值
-        $skuArr=$model->goodsSku;
-        foreach ($skuArr as $sku){
-            $goodsSpec=json_decode($sku['goods_spec'],true);
-//            $unique=
+        //绑定事件
+        $eventJs = <<<eof
+$('.spec_input').change(function(){
+    refreshSku();
+});
+$('.spec_item_input').change(function(){
+    refreshSku();
+});
+eof;
+        //sku各字段赋值
+        $skuArr = $model->goodsSku;
+        $sv = '';
+        foreach ($skuArr as $sku) {
+            $goodsSpec = json_decode($sku['goods_spec'], true);
+            $prefix = implode('_', array_keys($goodsSpec));//唯一表示的前缀
+            foreach ($sku as $k => $v) {
+                //排除赋值的
+                $exceptArr = ['goods_id','goods_spec', 'created_at', 'updated_at', 'created_by', 'updated_by'];
+                //价格需要转为小数
+                $priceArr = ['price', 'market_price', 'cost_price'];
+                if (!in_array($k, $exceptArr)) {
+                    $uniqueType = $prefix . '|' . $k;
+                    if ($k == 'id') {
+                        $uniqueType = $prefix . '|sku_id';
+                    } elseif (in_array($k, $priceArr)) {
+                        $v = Yii::$app->formatter->asDecimal($v / 100, 2);
+                    }
+                    //存储缓存
+                    if ($v !== '') {
+                        $sv .= "SV['" . $uniqueType . "']='" . $v . "';";
+                    }
+                }
+            }
         }
-        $this->registerJs($showJs);
+        //赋值后刷新sku表格
+        $sv .= "refreshSku();";
+        //注册上述js
+        $this->registerJs($showJs . $eventJs . $sv);
     }
 }
 ?>

@@ -110,7 +110,7 @@ $this->params['breadcrumbs'][] = $this->title;
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
-                        if ($model->stock == 0 || ($model->stock_alarm !== 0 && $model->stock_alarm >= $model->stock)) {
+                        if ($model->checkStockAlarm($model->stock, $model->stock_alarm, $model->has_spec, $model->id)) {
                             return '<span style="color:red">' . $model->stock . '</span>';
                         } else {
                             return $model->stock;

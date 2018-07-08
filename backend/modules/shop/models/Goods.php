@@ -72,6 +72,9 @@ class Goods extends \yii\db\ActiveRecord
     const STOCK_ALARM_YES = 1;//库存预警
     const STOCK_ALARM_NO = 2;//库存正常
 
+    const HAS_SPEC = 1;//存在规格
+    const NO_SPEC = 0;//不存在规格
+
     /**
      * {@inheritdoc}
      */
@@ -111,6 +114,7 @@ class Goods extends \yii\db\ActiveRecord
         return $this->hasMany(GoodsParam::className(), ['goods_id' => 'id'])
             ->orderBy(['sort' => SORT_DESC, 'id' => SORT_DESC]);
     }
+
     /**
      * 关联商品规格
      * @return \yii\db\ActiveQuery
@@ -414,7 +418,7 @@ class Goods extends \yii\db\ActiveRecord
         if (!empty($specArr)) {
             foreach ($specArr as $key => $spec) {
                 //名称不为空，并且存在值
-                if (!empty($spec) && in_array($key,array_keys($specItemArr))) {
+                if (!empty($spec) && in_array($key, array_keys($specItemArr))) {
                     $newSpecArr[$key] = $spec;
                 }
             }
@@ -441,6 +445,50 @@ class Goods extends \yii\db\ActiveRecord
     }
 
     /**
+     * 检测库存预警，分几种情况
+     * 1、本身库存为0
+     * 2、无规格时，库存预警不为0且库存预警大于等于库存
+     * 3、有规格时，任意规格库存预警不为0且库存预警大于等于的库存
+     * 4、有规格时，任意规格库存为0
+     * @param $stock
+     * @param $stockAlarm
+     * @param $hasSpec
+     * @param $goodsId
+     * @return bool true为预警，false不预警
+     */
+    public function checkStockAlarm($stock, $stockAlarm, $hasSpec, $goodsId)
+    {
+        if ($stock <= 0) {
+            return true;
+        }
+        if ($hasSpec == 1) {
+            //获取规格
+            $skuList = GoodsSku::find()
+                ->select('stock,stock_alarm')
+                ->where(['goods_id' => $goodsId])
+                ->asArray()
+                ->all();
+            if (!empty($skuList)) {
+                foreach ($skuList as $key => $value) {
+                    //只要有一个满足，前端就预警
+                    if ($value['stock'] <= 0) {
+                        return true;
+                    } else {
+                        if ($value['stock_alarm'] > 0 && $value['stock_alarm'] >= $value['stock']) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } else {
+            if (($stockAlarm > 0) && ($stockAlarm >= $stock)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 存储后的动作
      * @param bool $insert
      * @param array $changedAttributes
@@ -460,7 +508,7 @@ class Goods extends \yii\db\ActiveRecord
 
         //增加商品sku数据
         $goodsSku = new GoodsSku();
-        if ($this->has_spec == 1) {
+        if ($this->has_spec == Goods::HAS_SPEC) {
             $skuArr = $postData['sku'];
             $goodsSku->saveSku($skuArr, $this->id);
             //新增或修改sku

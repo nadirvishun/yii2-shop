@@ -88,18 +88,15 @@ class GoodsController extends BaseController
                     }
                 }
                 if (!$priceError && $model->save(false)) {
+                    $output = $model->$attribute;
                     if (in_array($attribute, $priceArr)) {
                         //价格格式化
                         $output = Yii::$app->formatter->asDecimal($model->$attribute / 100, 2);
                     } elseif ($attribute == 'stock') {
                         //库存显示预警
-                        if ($model->stock == 0 || ($model->stock_alarm !== 0 && $model->stock_alarm >= $model->$attribute)) {
+                        if ($model->checkStockAlarm($model->$attribute, $model->stock_alarm, $model->has_spec, $model->id)) {
                             $output = '<span style="color:red">' . $model->$attribute . '</span>';
-                        } else {
-                            $output = $model->$attribute;
                         }
-                    } else {
-                        $output = $model->$attribute;
                     }
                     return ['output' => $output, 'message' => $message];
                 }
@@ -174,7 +171,7 @@ class GoodsController extends BaseController
                 //存储规格相关
                 $model->spec_name = '';
                 $model->spec_value = '';
-                if ($model->has_spec == 1) {
+                if ($model->has_spec == Goods::HAS_SPEC) {
                     //判定实际有没有规格，将为空的规格去除掉
                     $specArr = Yii::$app->request->post('spec');
                     $specItemArr = Yii::$app->request->post('spec_item');
@@ -183,11 +180,11 @@ class GoodsController extends BaseController
                     $newSpecItemArr = $specFilterArr['newSpecItemArr'];
                     if (empty($newSpecArr) || empty($newSpecItemArr)) {
                         //如果实际上没有，则都设置为空
-                        $model->has_spec = 0;
+                        $model->has_spec = Goods::NO_SPEC;
                     } else {
                         //用json格式存储下来
-                        $model->spec_name = json_encode($newSpecArr,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                        $model->spec_value = json_encode($newSpecItemArr,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $model->spec_name = json_encode($newSpecArr, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $model->spec_value = json_encode($newSpecItemArr, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                     }
                 }
 
@@ -237,12 +234,33 @@ class GoodsController extends BaseController
                     FileHelper::createDirectory(Yii::getAlias('@webroot') . $imgPath);
                     $img = $imgPath . $imgBaseName;
                     Image::thumbnail(Yii::getAlias('@webroot') . $imgOrg, 320, 320)->save(Yii::getAlias('@webroot') . $img);//压缩后重新存储
+                    @unlink(Yii::getAlias('@webroot') . $model->img);//删除旧的主图
                     $model->img = $img;
                 }
                 //处理价格为分
                 foreach ($priceArr as $value) {
                     $model->$value = intval($model->$value * 100);
                 }
+                //存储规格相关
+                $model->spec_name = '';
+                $model->spec_value = '';
+                if ($model->has_spec == Goods::HAS_SPEC) {
+                    //判定实际有没有规格，将为空的规格去除掉
+                    $specArr = Yii::$app->request->post('spec');
+                    $specItemArr = Yii::$app->request->post('spec_item');
+                    $specFilterArr = $model->filterSpec($specArr, $specItemArr);
+                    $newSpecArr = $specFilterArr['newSpecArr'];
+                    $newSpecItemArr = $specFilterArr['newSpecItemArr'];
+                    if (empty($newSpecArr) || empty($newSpecItemArr)) {
+                        //如果实际上没有，则都设置为空
+                        $model->has_spec = Goods::NO_SPEC;
+                    } else {
+                        //用json格式存储下来
+                        $model->spec_name = json_encode($newSpecArr, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $model->spec_value = json_encode($newSpecItemArr, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    }
+                }
+
                 $res = $model->save(false);
                 if ($res) {
                     //获取列表页url，方便跳转
