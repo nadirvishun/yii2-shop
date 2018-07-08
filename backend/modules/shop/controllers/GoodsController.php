@@ -186,8 +186,8 @@ class GoodsController extends BaseController
                         $model->has_spec = 0;
                     } else {
                         //用json格式存储下来
-                        $model->spec_name = json_encode($newSpecArr);
-                        $model->spec_value = json_encode($newSpecItemArr);
+                        $model->spec_name = json_encode($newSpecArr,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $model->spec_value = json_encode($newSpecItemArr,JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                     }
                 }
 
@@ -257,6 +257,7 @@ class GoodsController extends BaseController
         foreach ($priceArr as $value) {
             $model->$value = Yii::$app->formatter->asDecimal($model->$value / 100, 2);
         }
+        //展示
         return $this->render('update', [
             'model' => $model,
         ]);

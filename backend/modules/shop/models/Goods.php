@@ -103,13 +103,21 @@ class Goods extends \yii\db\ActiveRecord
     }
 
     /**
-     * 关联
+     * 关联商品参数
      * @return \yii\db\ActiveQuery
      */
     public function getGoodsParams()
     {
         return $this->hasMany(GoodsParam::className(), ['goods_id' => 'id'])
             ->orderBy(['sort' => SORT_DESC, 'id' => SORT_DESC]);
+    }
+    /**
+     * 关联商品规格
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGoodsSku()
+    {
+        return $this->hasMany(GoodsSku::className(), ['goods_id' => 'id']);
     }
 
     /**
@@ -405,7 +413,8 @@ class Goods extends \yii\db\ActiveRecord
         //判定规格名称
         if (!empty($specArr)) {
             foreach ($specArr as $key => $spec) {
-                if (!empty($spec)) {
+                //名称不为空，并且存在值
+                if (!empty($spec) && in_array($key,array_keys($specItemArr))) {
                     $newSpecArr[$key] = $spec;
                 }
             }
@@ -414,6 +423,7 @@ class Goods extends \yii\db\ActiveRecord
         if (!empty($newSpecArr)) {//如果名称都为空，那值也不需要判定了
             if (!empty($specItemArr)) {
                 foreach ($specItemArr as $key => $specItem) {
+                    //如果规格名称没有，则值无效
                     if (in_array($key, array_keys($newSpecArr))) {
                         foreach ($specItem as $k => $v) {
                             if (!empty($v)) {

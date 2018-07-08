@@ -5,7 +5,7 @@
 return [
     'ID' => '',
     'Goods ID' => '相关商品ID',
-    'Goods Specs' => 'SKU包含的规格内容',
+    'Goods Spec' => 'SKU包含的规格内容',
     'Goods Sn' => 'SKU商品编号',
     'Goods Barcode' => 'SKU商品条形码',
     'Price' => '商品价格',

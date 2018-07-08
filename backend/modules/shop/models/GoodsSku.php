@@ -11,7 +11,7 @@ use yii\behaviors\TimestampBehavior;
  *
  * @property integer $id
  * @property integer $goods_id
- * @property string $goods_specs
+ * @property string $goods_spec
  * @property string $goods_sn
  * @property string $goods_barcode
  * @property integer $price
@@ -53,7 +53,7 @@ class GoodsSku extends \yii\db\ActiveRecord
     {
         return [
             [['goods_id', 'price', 'market_price', 'cost_price', 'stock', 'stock_alarm', 'created_by', 'created_at', 'updated_by', 'updated_at'], 'integer'],
-            [['goods_specs'], 'string'],
+            [['goods_spec'], 'string'],
             [['weight'], 'number'],
             [['goods_sn', 'goods_barcode'], 'string', 'max' => 100],
         ];
@@ -67,7 +67,7 @@ class GoodsSku extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('goods_sku', 'ID'),
             'goods_id' => Yii::t('goods_sku', 'Goods ID'),
-            'goods_specs' => Yii::t('goods_sku', 'Goods Specs'),
+            'goods_spec' => Yii::t('goods_sku', 'Goods Spec'),
             'goods_sn' => Yii::t('goods_sku', 'Goods Sn'),
             'goods_barcode' => Yii::t('goods_sku', 'Goods Barcode'),
             'price' => Yii::t('goods_sku', 'Price'),
@@ -99,10 +99,10 @@ class GoodsSku extends \yii\db\ActiveRecord
             //记录现有的sku_id;
             $skuIdArr = [];
             foreach ($skuArr as $sku) {
-                $goodsSpec = json_encode($sku['value']);
+                $goodsSpec = json_encode($sku['value'],JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                 $data = [
                     'goods_id' => $goodsId,
-                    'goods_specs' => $goodsSpec,
+                    'goods_spec' => $goodsSpec,
                     'goods_sn' => $sku['goods_sn'],
                     'goods_barcode' => $sku['goods_barcode'],
                     'price' => intval($sku['price'] * 100),

@@ -34,7 +34,7 @@ class m180629_004921_create_goods_sku_table extends Migration
         $this->createTable(self::TBL_NAME, [
             'id' => $this->primaryKey(),
             'goods_id' => $this->integer()->notNull()->defaultValue(0)->comment('相关商品ID'),
-            'goods_specs' => $this->text()->notNull()->comment('SKU包含的规格内容'),
+            'goods_spec' => $this->text()->notNull()->comment('SKU包含的规格内容'),
             'goods_sn' => $this->string(100)->notNull()->defaultValue('')->comment('SKU商品编号'),
             'goods_barcode' => $this->string(100)->notNull()->defaultValue('')->comment('SKU商品条形码'),
             'price' => $this->integer()->notNull()->defaultValue(0)->comment('商品价格'),
