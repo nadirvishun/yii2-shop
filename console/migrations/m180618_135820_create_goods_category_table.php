@@ -79,6 +79,7 @@ class m180618_135820_create_goods_category_table extends Migration
             'name' => '商品分类',
             'url' => 'shop/goods-category/index',
             'icon' => 'circle-o',
+            'sort' => 5,
             'created_by' => 1,
             'created_at' => time(),
             'updated_by' => 1,

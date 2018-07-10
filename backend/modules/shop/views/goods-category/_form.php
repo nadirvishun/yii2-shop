@@ -74,7 +74,9 @@ use yii\web\JsExpression;
 
         ]); ?>
 
-    <?= $form->field($model, 'adv_img', ['options' => ['class' => 'form-group c-md-6']])->hint(Yii::t('goods_category', 'adv_img_hint'))
+    <?php
+    $advImgName=Html::getInputName($model, 'adv_img');
+    echo $form->field($model, 'adv_img', ['options' => ['class' => 'form-group c-md-6']])->hint(Yii::t('goods_category', 'adv_img_hint'))
         ->widget(FileInput::classname(), [
             'options' => [
                 'accept' => 'image/*',
@@ -83,7 +85,7 @@ use yii\web\JsExpression;
             'pluginOptions' => [
                 'uploadUrl' => Url::to(['upload', 'action' => 'upload']),//ajax上传路径
                 'uploadExtraData' => [
-                    'name' => Html::getInputName($model, 'adv_img'),
+                    'name' => $advImgName,
                 ],
                 'showPreview' => true,
                 'showClose' => false,
@@ -103,11 +105,11 @@ use yii\web\JsExpression;
             'pluginEvents' => [
                 //单个点击上传完毕后给隐藏表单赋值
                 'fileuploaded' =>  new JsExpression("function (event,data){
-                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'adv_img') . "\']').val(data.response.initialPreview[0]);
+                        $('input[type=\'hidden\'][name=\'" . $advImgName . "\']').val(data.response.initialPreview[0]);
                        }"),
                 //单个点击删除时清空隐藏表单
                 'filedeleted' => new JsExpression("function (event,key,jqXHR,data){
-                        $('input[type=\'hidden\'][name=\'" . Html::getInputName($model, 'adv_img') . "\']').val('');
+                        $('input[type=\'hidden\'][name=\'" . $advImgName . "\']').val('');
                        }"),
             ]
 

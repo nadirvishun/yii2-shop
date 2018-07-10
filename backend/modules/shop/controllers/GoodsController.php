@@ -49,21 +49,6 @@ class GoodsController extends BaseController
      */
     public function actionIndex()
     {
-        $searchModel = new GoodsSearch();
-        $status = Goods::GOODS_ONLINE;
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * 下架商品
-     */
-    public function actionOffline()
-    {
         if (Yii::$app->request->post('hasEditable')) {
             $id = Yii::$app->request->post('editableKey');//获取ID
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -106,7 +91,7 @@ class GoodsController extends BaseController
             return ['output' => $output, 'message' => $message];
         } else {
             $searchModel = new GoodsSearch();
-            $status = Goods::GOODS_OFFLINE;
+            $status = Goods::GOODS_ONLINE;
             $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
 
             return $this->render('index', [
@@ -114,6 +99,21 @@ class GoodsController extends BaseController
                 'dataProvider' => $dataProvider,
             ]);
         }
+    }
+
+    /**
+     * 下架商品
+     */
+    public function actionOffline()
+    {
+        $searchModel = new GoodsSearch();
+        $status = Goods::GOODS_OFFLINE;
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $status);
+
+        return $this->render('index', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**

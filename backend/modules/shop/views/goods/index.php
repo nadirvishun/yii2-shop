@@ -61,6 +61,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     'vAlign' => 'middle',
                     'width' => '90px',
                     'hAlign' => 'center',
+                    'readonly' => function($model, $key, $index, $widget) {
+                        //多规格时，价格和库存不能修改
+                        return $model->has_spec ? true : false;
+                    },
                     'editableOptions' => function ($model, $key, $index) {
                         return [
                             'value' => Yii::$app->formatter->asDecimal($model->price / 100, 2),
@@ -68,7 +72,9 @@ $this->params['breadcrumbs'][] = $this->title;
                             'size' => 'md',
                             'options' => [
                                 'value' => Yii::$app->formatter->asDecimal($model->price / 100, 2),
-                            ]
+                            ],
+                            //统一在index方法中修改
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -92,7 +98,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     'width' => '90px',
                     'format' => 'raw',
                     'hAlign' => 'center',
-                    'filterType' => GridView::FILTER_SELECT2,
+                    'readonly' => function($model, $key, $index, $widget) {
+                        return $model->has_spec ? true : false;
+                    },
+                    /*'filterType' => GridView::FILTER_SELECT2,
                     'filterWidgetOptions' => [
                         'data' => Goods::getStockAlarmOptions(),
                         'options' => [
@@ -102,11 +111,12 @@ $this->params['breadcrumbs'][] = $this->title;
                         'pluginOptions' => [
                             'allowClear' => true
                         ],
-                    ],
+                    ],*/
                     'editableOptions' => function ($model, $key, $index) {
                         return [
                             'header' => $model->getAttributeLabel('stock'),
                             'size' => 'md',
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -152,6 +162,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
                                 'pluginOptions' => ['size' => 'small'],
                             ],
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -186,6 +197,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
                                 'pluginOptions' => ['size' => 'small'],
                             ],
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -220,6 +232,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'options' => ['uncheck' => 0, 'value' => 1],//switch插件的参数
                                 'pluginOptions' => ['size' => 'small'],
                             ],
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -242,6 +255,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'header' => $model->getAttributeLabel('sort'),
                             'size' => 'md',
                             'placement' => PopoverX::ALIGN_LEFT,//左侧弹出
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                 ],
@@ -266,6 +280,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'labelOptions' => ['style' => 'font-weight:normal'],
                                 'pluginOptions' => ['size' => 'mini']
                             ],
+                            'ajaxSettings' => ['url' => Url::to('/shop/goods/index')]
                         ];
                     },
                     'value' => function ($model, $key, $index, $column) {
@@ -319,7 +334,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 [
                     'content' =>
                         Html::a('<i class="fa fa-plus"></i> ' . Yii::t('common', 'create'), ['create'], ['data-pjax' => 0, 'class' => 'btn btn-success', 'title' => Yii::t('common', 'create')]) . ' ' .
-                        Html::a('<i class="fa fa-repeat"></i> ' . Yii::t('common', 'reset'), ['index'], ['data-pjax' => 0, 'class' => 'btn btn-default', 'title' => Yii::t('common', 'reset')])
+                        Html::a('<i class="fa fa-repeat"></i> ' . Yii::t('common', 'reset'), Url::to(), ['data-pjax' => 0, 'class' => 'btn btn-default', 'title' => Yii::t('common', 'reset')])
                 ],
                 '{toggleData}',
                 '{export}'

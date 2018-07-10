@@ -62,13 +62,13 @@ class GoodsSearch extends Goods
             // $query->where('0=1');
             return $dataProvider;
         }
-        //库存预警的选取
-        if ($this->stock == Goods::STOCK_ALARM_YES) {
-            $query->andFilterWhere(['and','stock_alarm <> 0','stock <= stock_alarm'])
-                ->orFilterWhere(['=', 'stock', 0]);
-        } elseif ($this->stock == Goods::STOCK_ALARM_NO) {
-            $query->andFilterWhere(['or','stock_alarm = 0','stock > stock_alarm','sotck <> 0']);
-        }
+        //库存预警的选取，由于增加了规格，没有这么简单就能获取了，暂时先不处理了
+//        if ($this->stock == Goods::STOCK_ALARM_YES) {
+//            $query->andFilterWhere(['and','stock_alarm <> 0','stock <= stock_alarm'])
+//                ->orFilterWhere(['=', 'stock', 0]);
+//        } elseif ($this->stock == Goods::STOCK_ALARM_NO) {
+//            $query->andFilterWhere(['or','stock_alarm = 0','stock > stock_alarm','sotck <> 0']);
+//        }
 
         // grid filtering conditions
         $query->andFilterWhere([
@@ -82,8 +82,8 @@ class GoodsSearch extends Goods
             'real_sales' => $this->real_sales,
             'click' => $this->click,
             'collect' => $this->collect,
-//            'stock' => $this->stock,
-//            'stock_alarm' => $this->stock_alarm,
+            'stock' => $this->stock,
+            'stock_alarm' => $this->stock_alarm,
             'stock_type' => $this->stock_type,
             'weight' => $this->weight,
             'is_freight_free' => $this->is_freight_free,

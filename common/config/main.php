@@ -28,7 +28,7 @@ return [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        //方便清理其它模块的缓存,也方便在命令行中yii cache/flush-all 可以清楚全部的缓存
+        //方便清理其它模块的缓存,也方便在命令行中yii cache/flush-all 可以清理全部的缓存
         'cacheConsole' => [
             'class' => 'yii\caching\FileCache',
             'cachePath' => '@console/runtime/cache'

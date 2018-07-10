@@ -83,19 +83,19 @@ class m180621_020819_create_goods_table extends Migration
         $this->createIndex('category_id', self::TBL_NAME, 'category_id');
         $this->createIndex('brand_id', self::TBL_NAME, 'brand_id');
         $this->createIndex('status', self::TBL_NAME, 'status');
-        //增加后他菜单显示
-        $rootId=(new \yii\db\Query())->select('id')
+        //增加后台菜单显示
+        $rootId = (new \yii\db\Query())->select('id')
             ->from('{{%backend_menu}}')
-            ->where(['url'=>'goods'])
+            ->where(['url' => 'goods'])
             ->scalar();
-        if(!empty($rootId)){
+        if (!empty($rootId)) {
             $time = time();
             $this->insert("{{%backend_menu}}", [
                 'pid' => $rootId,
-                'name' => '上架商品',
+                'name' => '出售中商品',
                 'url' => 'shop/goods/index',
                 'icon' => 'circle-o',
-                'sort'=>'3',
+                'sort' => 10,
                 'created_by' => 1,
                 'created_at' => time(),
                 'updated_by' => 1,
@@ -103,8 +103,8 @@ class m180621_020819_create_goods_table extends Migration
             ]);
             $insertId = $this->db->lastInsertID;
             $this->batchInsert("{{%backend_menu}}", ['pid', 'name', 'url', 'icon', 'sort', 'created_by', 'created_at', 'updated_by', 'updated_at', 'status'], [
-                [$rootId, '下架商品', 'shop/goods/offline', 'circle-o', 2, 1, $time, 1, $time, 1],
-                [$rootId, '回收站商品', 'shop/goods/recycle', 'circle-o', 1, 1, $time, 1, $time, 1],
+                [$rootId, '仓库中商品', 'shop/goods/offline', 'circle-o', 9, 1, $time, 1, $time, 1],
+                [$rootId, '回收中商品', 'shop/goods/recycle', 'circle-o', 8, 1, $time, 1, $time, 1],
                 [$insertId, '新增商品', 'shop/goods/create', '', 3, 1, $time, 1, $time, 0],
                 [$insertId, '修改商品', 'shop/goods/update', '', 2, 1, $time, 1, $time, 0],
                 [$insertId, '删除商品', 'shop/goods/delete', '', 1, 1, $time, 1, $time, 0],
@@ -118,6 +118,16 @@ class m180621_020819_create_goods_table extends Migration
      */
     public function down()
     {
+        //删除menu增加项目
+        $this->delete("{{%backend_menu}}", ['in', 'url', [
+            'shop/goods/index',
+            'shop/goods/offline',
+            'shop/goods/recycle',
+            'shop/goods/create',
+            'shop/goods/update',
+            'shop/goods/delete'
+        ]]);
+
         $this->dropTable(self::TBL_NAME);
     }
 }
