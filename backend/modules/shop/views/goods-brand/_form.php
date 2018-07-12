@@ -21,11 +21,11 @@ use yii\widgets\ActiveForm;
         'options' => ['class' => 'box-body']
     ]); ?>
 
-    <?= $form->field($model, 'name', ['options' => ['class' => 'form-group c-md-5']])->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'name', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'initial', ['options' => ['class' => 'form-group c-md-5']])->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'initial', ['options' => ['class' => 'form-group c-md-6']])->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-5']])
+    <?= $form->field($model, 'category_id', ['options' => ['class' => 'form-group c-md-6']])
         ->hint(Yii::t('goods', 'Please create goods category first!'))
         ->widget(Select2::classname(), [
             'data' => GoodsCategory::getGoodsCategoryTreeOptions(false),
@@ -40,7 +40,7 @@ use yii\widgets\ActiveForm;
 
     <?php
     $imgName=Html::getInputName($model, 'img');
-    echo $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-6']])->hint(Yii::t('goods_brand', 'img_hint'))
+    echo $form->field($model, 'img', ['options' => ['class' => 'form-group c-md-7']])->hint(Yii::t('goods_brand', 'img_hint'))
         ->widget(FileInput::classname(), [
             'options' => [
                 'accept' => 'image/*',
@@ -79,7 +79,7 @@ use yii\widgets\ActiveForm;
 
         ]); ?>
 
-    <?php $content = $form->field($model, 'content', ['options' => ['class' => 'form-group c-md-6']])
+    <?=$form->field($model, 'content', ['options' => ['class' => 'form-group c-md-7']])
         ->widget('kucha\ueditor\UEditor', [
             'clientOptions' => [
                 //上传地址，需修改为上方action一致，默认是upload，但和文件上传同一名字，所以修改为此
@@ -103,11 +103,11 @@ use yii\widgets\ActiveForm;
         ]);
     ?>
 
-    <?= $form->field($model, 'sort', ['options' => ['class' => 'form-group c-md-5']])->textInput() ?>
+    <?= $form->field($model, 'sort', ['options' => ['class' => 'form-group c-md-6']])->textInput() ?>
 
-    <?= $form->field($model, 'is_recommend', ['options' => ['class' => 'form-group c-md-5']])->widget(SwitchInput::classname(), ['pluginOptions' => ['size' => 'small']]) ?>
+    <?= $form->field($model, 'is_recommend', ['options' => ['class' => 'form-group c-md-6']])->widget(SwitchInput::classname(), ['pluginOptions' => ['size' => 'small']]) ?>
 
-    <?= $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-5']])->widget(SwitchInput::classname(), ['pluginOptions' => ['size' => 'small']]) ?>
+    <?= $form->field($model, 'status', ['options' => ['class' => 'form-group c-md-6']])->widget(SwitchInput::classname(), ['pluginOptions' => ['size' => 'small']]) ?>
 
 
     <div class="form-group">
@@ -117,11 +117,24 @@ use yii\widgets\ActiveForm;
     <?php ActiveForm::end(); ?>
 
 </div>
-<?php //增加必填字段红星提示
+<?php
+//引入汉字转拼音js
+backend\assets\PinyinAsset::register($this);
+//事件ID
+$nameId = Html::getInputId($model, 'name');
+$initialId = Html::getInputId($model, 'initial');
 $js = <<<eof
+//增加必填字段红星提示
     $(".required").each(function(){
         var label=$(this).children(':first');
         label.html(label.html()+'<i style="color:red">*</i>');
+    })
+    //增加汉字转拼音事件
+    $('#$nameId').change(function(){
+        if($(this).val()){
+            var firstLetter=pinyinUtil.getFirstLetter($(this).val());
+            $('#$initialId').val(firstLetter.substr(0,1).toUpperCase());
+        }
     })
 eof;
 $this->registerJs($js);
